@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Susun Hadis — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=26">
-<link rel="stylesheet" href="css/screens.css?v=26">
+<link rel="stylesheet" href="css/app.css?v=27">
+<link rel="stylesheet" href="css/screens.css?v=27">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -68,7 +68,7 @@
   </div>
 </div>
 
-<script src="js/app.js?v=26"></script>
+<script src="js/app.js?v=27"></script>
 <script>
 (function () {
   var DATA = [];
@@ -199,7 +199,7 @@
     el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
-  fetch('data/hadis.json?v=26')
+  fetch('data/hadis.json?v=27')
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (d) {
       DATA = d;
