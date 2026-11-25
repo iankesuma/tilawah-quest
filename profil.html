@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Profil — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=12">
-<link rel="stylesheet" href="css/screens.css?v=12">
+<link rel="stylesheet" href="css/app.css?v=14">
+<link rel="stylesheet" href="css/screens.css?v=14">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -23,12 +23,7 @@
 
   <section class="card">
     <div class="pf-head">
-      <div class="pf-ava" id="ava">
-        <div class="pa-hat" id="pa-hat"></div>
-        <div class="pa-body" id="pa-body"></div>
-        <div class="pa-eye l"></div>
-        <div class="pa-eye r"></div>
-      </div>
+      <div class="pf-ava" id="ava"></div>
       <div style="min-width:0">
         <h2 id="name" style="font-size:22px">Pemain</h2>
         <p class="muted" id="joined">Progres tersimpan di perangkat ini</p>
@@ -44,7 +39,7 @@
 
   <section class="card">
     <div class="stack">
-      <button class="btn ghost" onclick="location.href='onboarding.html'">Ubah nama &amp; bot</button>
+      <button class="btn ghost" onclick="location.href='onboarding.html'">Ubah nama &amp; karakter</button>
       <button class="btn ghost" onclick="location.href='belajar.html'">Belajar nabi, rukun, hadis</button>
       <button class="btn ghost" onclick="location.href='bantuan.html'">Cara main &amp; sumber data</button>
       <button class="btn danger" id="reset">Reset semua progres</button>
@@ -52,7 +47,7 @@
   </section>
 </main>
 
-<script src="js/app.js?v=12"></script>
+<script src="js/app.js?v=14"></script>
 <script>
 (function () {
   var p = TQ.profile();
@@ -62,15 +57,14 @@
   TQ.qs('#st-levels').textContent = TQ.stats().levels || 0;
   TQ.qs('#st-ayahs').textContent = TQ.stats().ayahs || 0;
   TQ.qs('#st-stars').textContent = TQ.totalStars();
-  var hatLabel = (TQ.HATS.find(function (h) { return h.id === p.hat; }) || TQ.HATS[0]).label;
+  var ch = TQ.character();
   var joined = p.joinedAt ? 'Bergabung ' + new Date(p.joinedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Progres tersimpan di perangkat ini';
-  TQ.qs('#joined').textContent = joined + ' · Topi: ' + hatLabel;
+  TQ.qs('#joined').textContent = joined + ' · Karakter: ' + ch.name;
 
-  var body = TQ.qs('#pa-body'), hat = TQ.qs('#pa-hat');
-  body.style.background = p.color;
-  var css = TQ.hatCss(p.hat);
-  hat.style.display = css.display;
-  if (css.background) hat.style.background = css.background;
+  var ch2 = TQ.character();
+  var ava = TQ.qs('#ava');
+  ava.innerHTML = TQ.charFace(ch2);
+  ava.style.background = ch2.robe + '22';
 
   TQ.qs('#reset').onclick = function () {
     var input = document.createElement('input');

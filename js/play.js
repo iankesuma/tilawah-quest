@@ -149,7 +149,7 @@
     el.score.textContent = S.score;
     var c = document.getElementById('combo');
     if (c) {
-      if (S.combo >= 2) { c.hidden = false; c.querySelector('b').textContent = S.combo; }
+      if (S.combo >= 5) { c.hidden = false; c.querySelector('b').textContent = S.combo; }
       else c.hidden = true;
     }
   }
@@ -169,16 +169,16 @@
       S.picked.push(token);
       S.combo++;
       S.maxCombo = Math.max(S.maxCombo, S.combo);
-      var bonus = S.combo >= 3 ? 5 * Math.min(4, Math.floor(S.combo / 3)) : 0;
+      var bonus = S.combo >= 5 ? 5 * Math.min(4, Math.floor(S.combo / 5)) : 0;
       S.score += 10 + bonus;
       TQ.sfx.ok();
-      if (S.combo > 0 && S.combo % 3 === 0) {
+      if (S.combo > 0 && S.combo % 5 === 0) {
         el.mascot.classList.add('happy');
         setTimeout(function () { el.mascot.classList.remove('happy'); }, 600);
         TQ.popup({
           icon: '🔥',
           title: 'Combo ' + S.combo + '!',
-          text: 'Benar terus, Masya Allah.',
+          text: S.combo + ' benar berturut-turut. Bonus +' + bonus + ' skor.',
           good: true,
           actions: [{ label: 'Lanjut' }]
         });

@@ -5,7 +5,7 @@
   const KEY = 'tq_v1';
 
   const DEFAULT = {
-    profile: { name: '', color: '#2F80C9', hat: 'none', onboarded: false },
+    profile: { name: '', char: 'abubakar', color: '#2F80C9', hat: 'none', onboarded: false },
     points: 0,
     progress: {},   // { surah: { ayat: {1:stars,2:stars}, arti: {1:..,2:..} } }
     best: {},       // { surah: {mode: {combo, score}} }
@@ -47,6 +47,23 @@
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   }
 
+
+  /* ---------- karakter (tokoh teladan) ---------- */
+  const CHARACTERS = [
+    { id: 'abubakar', name: 'Abu Bakar', skin: '#E8C09B', robe: '#2F80C9', head: 'turban', headColor: '#FFFFFF', beard: 'short', face: 'oval', note: 'Sahabat pertama, jujur dan lembut' },
+    { id: 'umar', name: 'Umar', skin: '#E3B58C', robe: '#8DBF2E', head: 'cap', headColor: '#F5F5F0', beard: 'full', face: 'square', note: 'Tegas dan adil' },
+    { id: 'utsman', name: 'Utsman', skin: '#EFC9A4', robe: '#8E6FD1', head: 'turban', headColor: '#FFF3D6', beard: 'short', face: 'oval', note: 'Pemalu dan dermawan' },
+    { id: 'ali', name: 'Ali', skin: '#E7BC93', robe: '#2AB5A5', head: 'turban', headColor: '#1F2933', beard: 'full', face: 'oval', note: 'Cerdas dan pemberani' },
+    { id: 'bilal', name: 'Bilal', skin: '#7A4B2E', robe: '#F5A623', head: 'cap', headColor: '#E2564E', beard: 'short', face: 'round', note: 'Suara azan yang indah' },
+    { id: 'khalid', name: 'Khalid', skin: '#D9A273', robe: '#5B6B7A', head: 'turban', headColor: '#2F80C9', beard: 'full', face: 'square', note: 'Panglima yang gagah' },
+    { id: 'salman', name: 'Salman', skin: '#EBD0B4', robe: '#6E9A1F', head: 'cap', headColor: '#FFFFFF', beard: 'full', face: 'oval', note: 'Cerdik dan suka menolong' },
+    { id: 'hamzah', name: 'Hamzah', skin: '#D79A66', robe: '#E2564E', head: 'none', headColor: '#3A2A22', beard: 'full', face: 'square', note: 'Kuat dan berani' },
+    { id: 'zubair', name: 'Zubair', skin: '#E4B78E', robe: '#315B9D', head: 'cap', headColor: '#8DBF2E', beard: 'none', face: 'round', note: 'Cepat tanggap' },
+    { id: 'aisyah', name: 'Aisyah', skin: '#F1CBA6', robe: '#F06A8A', head: 'hijab', headColor: '#E98AB8', beard: 'none', face: 'round', female: true, note: 'Cerdas dan banyak meriwayatkan hadis' },
+    { id: 'fatimah', name: 'Fatimah', skin: '#F1CBA6', robe: '#B48BD8', head: 'hijab', headColor: '#C9A3E8', beard: 'none', face: 'oval', female: true, note: 'Sabar dan penyayang' },
+    { id: 'khadijah', name: 'Khadijah', skin: '#EDC49D', robe: '#2F80C9', head: 'hijab', headColor: '#7FB3D5', beard: 'none', face: 'oval', female: true, note: 'Pengusaha mulia dan setia' }
+  ];
+
   /* ---------- profile ---------- */
   const HATS = [
     { id: 'none', label: 'Tanpa', color: 'transparent', brim: false },
@@ -59,6 +76,10 @@
   const COLORS = ['#2F80C9', '#F06A8A', '#8DBF2E', '#F5A623', '#8E6FD1', '#2AB5A5', '#E2564E', '#FFC93C', '#5B6B7A'];
 
   function profile() { return state.profile; }
+  function character(id) {
+    var key = id || state.profile.char;
+    return CHARACTERS.find(function (c) { return c.id === key; }) || CHARACTERS[0];
+  }
   function setProfile(p) { Object.assign(state.profile, p); save(); }
   function points() { return state.points; }
   function addPoints(n) { state.points = Math.max(0, state.points + n); save(); return state.points; }
@@ -273,6 +294,48 @@
     return m;
   }
 
+
+  /* ---------- avatar wajah karakter (SVG) ---------- */
+  var INK = '#1E3A4C';
+  function charFace(ch, size, inner) {
+    var c = ch || character();
+    var skin = c.skin, hc = c.headColor;
+    var shape = c.face === 'square'
+      ? '<rect x="24" y="18" width="52" height="58" rx="16" fill="' + skin + '"/>'
+      : c.face === 'round'
+        ? '<circle cx="50" cy="47" r="28" fill="' + skin + '"/>'
+        : '<ellipse cx="50" cy="47" rx="25" ry="29" fill="' + skin + '"/>';
+
+    var beard = '';
+    if (c.beard === 'full') {
+      beard = '<path d="M24 48 q0 30 26 30 q26 0 26 -30 q-8 16 -26 16 q-18 0 -26 -16z" fill="' + INK + '" opacity=".85"/>';
+    } else if (c.beard === 'short') {
+      beard = '<path d="M28 54 q4 20 22 20 q18 0 22 -20 q-8 10 -22 10 q-14 0 -22 -10z" fill="' + INK + '" opacity=".7"/>';
+    }
+
+    var head = '';
+    if (c.head === 'hijab') {
+      head = '<path d="M50 8 a34 34 0 0 1 34 34 q0 18 -8 28 l10 18 q-18 10 -36 10 q-18 0 -36 -10 l10 -18 q-8 -10 -8 -28 a34 34 0 0 1 34 -34z" fill="' + hc + '"/>' +
+             '<path d="M50 16 a26 26 0 0 1 26 26 q0 14 -6 22 h-40 q-6 -8 -6 -22 a26 26 0 0 1 26 -26z" fill="' + skin + '"/>';
+    } else if (c.head === 'turban') {
+      head = '<path d="M18 34 q32 -26 64 0 q2 10 -4 12 q-28 -14 -56 0 q-6 -2 -4 -12z" fill="' + hc + '"/>' +
+             '<path d="M20 34 q30 -12 60 0 l-2 8 q-28 -10 -56 0z" fill="' + INK + '" opacity=".12"/>';
+    } else if (c.head === 'cap') {
+      head = '<path d="M24 26 h52 q6 0 6 7 v8 q-32 -8 -64 0 v-8 q0 -7 6 -7z" fill="' + hc + '"/>';
+    } else {
+      head = '<path d="M22 40 a28 28 0 0 1 56 0 q-14 -12 -28 -12 q-14 0 -28 12z" fill="' + hc + '"/>';
+    }
+
+    var eyes = '<circle cx="40" cy="46" r="3.2" fill="' + INK + '"/><circle cx="60" cy="46" r="3.2" fill="' + INK + '"/>' +
+               '<circle cx="32" cy="55" r="4" fill="#F4A0A8" opacity=".55"/><circle cx="68" cy="55" r="4" fill="#F4A0A8" opacity=".55"/>' +
+               '<path d="M43 58 q7 6 14 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
+
+    var body = head + shape + beard + eyes;
+    if (inner) return body;
+    var s = size ? ' width="' + size + '" height="' + size + '"' : '';
+    return '<svg viewBox="0 0 100 110" class="face-svg"' + s + ' aria-hidden="true">' + body + '</svg>';
+  }
+
   function hatCss(hatId) {
     const h = HATS.find(function (x) { return x.id === hatId; }) || HATS[0];
     if (h.id === 'none') return { display: 'none' };
@@ -286,7 +349,7 @@
   }
 
   window.TQ = {
-    KEY: KEY, HATS: HATS, COLORS: COLORS,
+    KEY: KEY, HATS: HATS, COLORS: COLORS, CHARACTERS: CHARACTERS, character: character,
     state: function () { return state; },
     profile: profile, setProfile: setProfile,
     points: points, addPoints: addPoints, stats: stats, bumpStat: bumpStat,
@@ -295,7 +358,7 @@
     sfx: sfx, popup: popup, closePopup: close,
     bgmOn: bgmOn, bgmSet: bgmSet, bgmState: function () { return { on: bgmOn(), playing: !!(bgmEl && !bgmEl.paused), t: bgmEl ? Math.round(bgmEl.currentTime * 10) / 10 : 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
-    requireProfile: requireProfile, mascot: mascot, hatCss: hatCss,
+    requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
     reset: function () { state = JSON.parse(JSON.stringify(DEFAULT)); save(); }
   };
 })();

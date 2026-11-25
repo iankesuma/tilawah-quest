@@ -47,7 +47,7 @@
     tabs: TQ.qs('#tabs'),
     shop: TQ.qs('#shop'),
     tags: TQ.qs('#tags'),
-    gender: TQ.qs('#gender')
+    charname: TQ.qs('#charname')
   };
 
   function save() { TQ.save(); }
@@ -57,49 +57,43 @@
 
   /* ---------- avatar ---------- */
   function avatarSvg() {
+    var ch = TQ.character();
     var shirtC = st.shirt == null ? '#DCEBF3' : ITEMS.shirt[st.shirt][1];
     var pantsC = st.pants == null ? '#C9DDE7' : ITEMS.pants[st.pants][1];
     var shoeC = st.shoe == null ? '#315B9D' : ITEMS.shoe[st.shoe][1];
-    var girl = st.gender !== 'boy';
     var ride = st.ride ? ITEMS.ride[st.ride][1] : '';
     var toy = st.toy ? ITEMS.toy[st.toy][1] : '';
     var isSkirt = st.pants === 4;
-    var O = ' stroke="' + INK + '" stroke-width="2.6" stroke-linejoin="round"';
+    var O = ' stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"';
 
-    var shadow = '<ellipse cx="100" cy="222" rx="46" ry="7" fill="#1E3A4C14"/>';
-    var legs = '<rect x="83" y="166" width="14" height="38" rx="7" fill="' + SKIN + '"' + O + '/>' +
-               '<rect x="103" y="166" width="14" height="38" rx="7" fill="' + SKIN + '"' + O + '/>';
-    var shoes = '<path d="M78 196 h22 v10 q0 6 -7 6 h-18 q-5 0 -5 -5 v-4 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>' +
-                '<path d="M100 196 h22 v10 q0 6 -7 6 h-18 q-5 0 -5 -5 v-4 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>';
+    var shadow = '<ellipse cx="100" cy="232" rx="42" ry="6" fill="#1E3A4C14"/>';
+
+    var legs = '<rect x="84" y="186" width="14" height="32" rx="7" fill="' + ch.skin + '"' + O + '/>' +
+               '<rect x="102" y="186" width="14" height="32" rx="7" fill="' + ch.skin + '"' + O + '/>';
+
+    var shoes = '<path d="M78 214 h20 v9 q0 6 -7 6 h-16 q-5 0 -5 -5 v-3 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>' +
+                '<path d="M102 214 h20 v9 q0 6 -7 6 h-16 q-5 0 -5 -5 v-3 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>';
+
     var pants = isSkirt
-      ? '<path d="M72 138 h56 l12 46 q-40 8 -80 0 z" fill="' + pantsC + '"' + O + '/>'
-      : '<path d="M72 138 h56 v42 q0 6 -6 6 h-16 q-6 0 -6 -6 v-16 h-8 v16 q0 6 -6 6 h-14 q-6 0 -6 -6 z" fill="' + pantsC + '"' + O + '/>';
-    var neck = '<rect x="92" y="86" width="16" height="14" fill="' + SKIN + '"/>';
-    var shirt = '<path d="M70 94 h60 q10 0 10 12 v40 q0 8 -8 8 h-64 q-8 0 -8 -8 v-40 q0 -12 10 -12z" fill="' + shirtC + '"' + O + '/>' +
-                '<path d="M58 100 q-12 4 -12 18 v20 q0 6 6 6 h10" fill="none" stroke="' + INK + '" stroke-width="2.6" stroke-linecap="round"/>' +
-                '<path d="M142 100 q12 4 12 18 v20 q0 6 -6 6 h-10" fill="none" stroke="' + INK + '" stroke-width="2.6" stroke-linecap="round"/>' +
-                '<rect x="44" y="136" width="15" height="14" rx="7" fill="' + SKIN + '"' + O + '/>' +
-                '<rect x="141" y="136" width="15" height="14" rx="7" fill="' + SKIN + '"' + O + '/>';
-    var head = '<circle cx="100" cy="64" r="30" fill="' + SKIN + '"' + O + '/>';
-    var hair = girl ? '' :
-      '<path d="M70 60 a30 30 0 0 1 60 0 q-14 -12 -30 -12 q-16 0 -30 12z" fill="#3A2A22"' + O + '/>';
-    var hijab = girl
-      ? '<path d="M100 28 a36 36 0 0 1 36 36 q0 18 -8 30 l14 24 q-18 12 -42 12 q-24 0 -42 -12 l14 -24 q-8 -12 -8 -30 a36 36 0 0 1 36 -36z" fill="#E98AB8"' + O + '/>' +
-        '<path d="M100 36 a27 27 0 0 1 27 27 q0 15 -6 23 h-42 q-6 -8 -6 -23 a27 27 0 0 1 27 -27z" fill="' + SKIN + '"/>'
-      : '';
-    var face = '<circle cx="90" cy="64" r="3.6" fill="' + INK + '"/>' +
-               '<circle cx="110" cy="64" r="3.6" fill="' + INK + '"/>' +
-               '<circle cx="82" cy="74" r="4" fill="#F4A0A8" opacity=".7"/>' +
-               '<circle cx="118" cy="74" r="4" fill="#F4A0A8" opacity=".7"/>' +
-               '<path d="M92 76 q8 7 16 0" stroke="' + INK + '" stroke-width="3" fill="none" stroke-linecap="round"/>';
-    var hatCss = TQ.hatCss(TQ.profile().hat);
-    var hat = hatCss.display === 'none' ? '' :
-      '<path d="M68 40 h64 q5 0 5 7 v7 h-74 v-7 q0 -7 5 -7z" fill="' + (hatCss.background || '#fff') + '"' + O + '/>';
+      ? '<path d="M74 148 h52 l11 44 q-37 8 -74 0 z" fill="' + pantsC + '"' + O + '/>'
+      : '<path d="M72 148 h56 v40 q0 6 -6 6 h-16 q-6 0 -6 -6 v-14 h-4 v14 q0 6 -6 6 h-14 q-6 0 -6 -6 z" fill="' + pantsC + '"' + O + '/>';
 
-    return '<svg viewBox="0 0 200 240" class="ava-svg" role="img" aria-label="Karakter ' + (girl ? 'perempuan' : 'laki-laki') + '">' +
-      (ride ? '<text x="46" y="226" font-size="40" text-anchor="middle">' + ride + '</text>' : '') +
-      shadow + legs + shoes + pants + neck + shirt + head + hair + hijab + face + hat +
-      (toy ? '<text x="158" y="134" font-size="30" text-anchor="middle">' + toy + '</text>' : '') +
+    var neck = '<rect x="91" y="78" width="18" height="18" rx="6" fill="' + ch.skin + '"/>';
+
+    var shirt = '<path d="M76 92 h48 q12 0 12 14 v34 q0 10 -10 10 h-52 q-10 0 -10 -10 v-34 q0 -14 12 -14z" fill="' + shirtC + '"' + O + '/>' +
+                '<path d="M72 98 q-14 8 -14 24 v20" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/>' +
+                '<path d="M72 98 q-14 8 -14 24 v20" fill="none" stroke="' + shirtC + '" stroke-width="9" stroke-linecap="round"/>' +
+                '<path d="M128 98 q14 8 14 24 v20" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/>' +
+                '<path d="M128 98 q14 8 14 24 v20" fill="none" stroke="' + shirtC + '" stroke-width="9" stroke-linecap="round"/>' +
+                '<circle cx="58" cy="146" r="9" fill="' + ch.skin + '"' + O + '/>' +
+                '<circle cx="142" cy="146" r="9" fill="' + ch.skin + '"' + O + '/>';
+
+    var faceGroup = '<g transform="translate(66,10) scale(0.68)">' + TQ.charFace(ch, null, true) + '</g>';
+
+    return '<svg viewBox="0 0 200 244" class="ava-svg" role="img" aria-label="Karakter ' + ch.name + '">' +
+      (ride ? '<text x="40" y="232" font-size="38" text-anchor="middle">' + ride + '</text>' : '') +
+      shadow + legs + shoes + pants + neck + shirt + faceGroup +
+      (toy ? '<text x="162" y="150" font-size="30" text-anchor="middle">' + toy + '</text>' : '') +
       '</svg>';
   }
 
@@ -120,9 +114,8 @@
     el.stage.innerHTML = avatarSvg();
     el.pts.textContent = TQ.fmt(TQ.points());
     tags();
-    Array.prototype.forEach.call(el.gender.children, function (b) {
-      b.setAttribute('aria-pressed', String(b.dataset.g === st.gender));
-    });
+    var ch = TQ.character();
+    if (el.charname) el.charname.textContent = ch.name + ' · ' + ch.note;
   }
 
   /* ---------- shop ---------- */
@@ -208,14 +201,6 @@
       b.setAttribute('aria-pressed', String(b.dataset.c === cat));
     });
   }
-
-  el.gender.onclick = function (e) {
-    var b = e.target.closest('button[data-g]');
-    if (!b) return;
-    st.gender = b.dataset.g;
-    TQ.sfx.tap();
-    save(); paintStage();
-  };
 
   /* ---------- migrate old points ---------- */
   (function migrate() {
