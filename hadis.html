@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Susun Hadis — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=25">
-<link rel="stylesheet" href="css/screens.css?v=25">
+<link rel="stylesheet" href="css/app.css?v=26">
+<link rel="stylesheet" href="css/screens.css?v=26">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -13,26 +13,33 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
 <style>
-.hadis-ar{font-family:var(--font-ar);font-size:24px;line-height:2;text-align:right;direction:rtl;color:var(--green-d);margin:4px 0 10px}
+.hadis-ar{font-family:var(--font-ar);font-size:23px;line-height:2;text-align:right;direction:rtl;color:var(--green-d);margin:4px 0 10px}
 .src{font-size:12px;font-weight:800;color:var(--muted);text-align:right}
 .words{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
 .words .tile{font-size:14px;padding:10px 12px}
 .story{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px;font-size:13.5px;line-height:1.6;font-weight:600;color:var(--ink-2)}
+.hgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;padding:4px 0 20px;-webkit-overflow-scrolling:touch}
+.hn{border:0;border-radius:11px;background:#F1F8FC;color:#4F7080;font-family:inherit;font-size:12.5px;font-weight:900;padding:9px 0;cursor:pointer;position:relative}
+.hn.done{background:#E6F4EA;color:var(--green-d)}
+.hn.now{background:var(--green);color:#fff}
+.hn.now:after{content:'';position:absolute;inset:0;border-radius:11px;box-shadow:0 0 0 2px #fff inset}
+.hcount{font-size:11.5px;font-weight:800;color:#7C97A5;margin:0 0 6px}
 </style>
 </head>
 <body>
 <main class="screen">
   <div class="appbar">
     <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
-    <div class="titles"><b>Susun Hadis</b><span id="prog">Hadis 1 dari 20</span></div>
+    <div class="titles"><b>Susun Hadis</b><span id="prog">Memuat…</span></div>
     <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+    <button class="iconbtn" id="openlist" aria-label="Pilih hadis">☰</button>
   </div>
 
   <div class="bar" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
 
   <section class="card">
     <p class="muted center" style="font-weight:800;font-size:12.5px">Susun arti hadis berikut</p>
-    <p class="hadis-ar" id="ar"></p>
+    <p class="hadis-ar" id="ar">…</p>
     <p class="src" id="src"></p>
 
     <div class="slots" id="answer" style="min-height:62px">
@@ -50,50 +57,70 @@
   </section>
 </main>
 
-<script src="js/app.js?v=25"></script>
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <input class="input" id="hq" type="search" placeholder="Cari nomor atau sumber…" autocomplete="off">
+      <button class="iconbtn" id="sheet-close" aria-label="Tutup">✕</button>
+    </div>
+    <p class="hcount" id="hcount"></p>
+    <div class="hgrid" id="hgrid"></div>
+  </div>
+</div>
+
+<script src="js/app.js?v=26"></script>
 <script>
 (function () {
-  var DATA = [
-    { ar: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ', id: 'Sesungguhnya amal itu tergantung niatnya', src: 'Bukhari & Muslim' },
-    { ar: 'الطُّهُورُ شَطْرُ الإِيمَانِ', id: 'Kesucian adalah setengah dari iman', src: 'Muslim' },
-    { ar: 'الدِّينُ يُسْرٌ', id: 'Agama itu mudah', src: 'Bukhari' },
-    { ar: 'لَا تَغْضَبْ', id: 'Jangan marah', src: 'Bukhari' },
-    { ar: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ', id: 'Senyummu kepada saudaramu adalah sedekah', src: 'Tirmidzi' },
-    { ar: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', id: 'Sebaik-baik kalian adalah yang belajar Al-Quran dan mengajarkannya', src: 'Bukhari' },
-    { ar: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', id: 'Muslim adalah orang yang kaum muslimin selamat dari lisan dan tangannya', src: 'Bukhari' },
-    { ar: 'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', id: 'Tidak sempurna iman seseorang sampai ia mencintai saudaranya seperti mencintai dirinya sendiri', src: 'Bukhari & Muslim' },
-    { ar: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', id: 'Barang siapa beriman kepada Allah dan hari akhir hendaklah berkata baik atau diam', src: 'Bukhari' },
-    { ar: 'إِنَّ اللَّهَ جَمِيلٌ يُحِبُّ الْجَمَالَ', id: 'Sesungguhnya Allah itu indah dan mencintai keindahan', src: 'Muslim' },
-    { ar: 'الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا', id: 'Mukmin dengan mukmin lain seperti bangunan yang saling menguatkan', src: 'Bukhari' },
-    { ar: 'مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ', id: 'Siapa yang tidak bersyukur kepada manusia tidak bersyukur kepada Allah', src: 'Tirmidzi' },
-    { ar: 'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا', id: 'Amal yang paling dicintai Allah adalah yang paling konsisten', src: 'Bukhari & Muslim' },
-    { ar: 'إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ', id: 'Allah tidak melihat rupa dan harta kalian tetapi melihat hati dan amal kalian', src: 'Muslim' },
-    { ar: 'مَنْ حُسْنِ إِسْلَامِ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ', id: 'Tanda baiknya keislaman seseorang adalah meninggalkan hal yang tidak bermanfaat baginya', src: 'Tirmidzi' },
-    { ar: 'لَا ضَرَرَ وَلَا ضِرَارَ', id: 'Tidak boleh membahayakan diri sendiri dan orang lain', src: 'Ibnu Majah' },
-    { ar: 'الطَّاعِمُ الشَّاكِرُ كَالصَّائِمِ الصَّابِرِ', id: 'Orang yang makan lalu bersyukur seperti orang yang berpuasa lalu bersabar', src: 'Tirmidzi' },
-    { ar: 'إِنَّ اللَّهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيْءٍ', id: 'Sesungguhnya Allah menetapkan berbuat baik atas segala sesuatu', src: 'Muslim' },
-    { ar: 'اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ', id: 'Bertakwalah kepada Allah di mana pun kamu berada', src: 'Tirmidzi' },
-    { ar: 'مَنْ صَلَّى عَلَيَّ صَلَاةً صَلَّى اللَّهُ عَلَيْهِ عَشْرًا', id: 'Siapa bershalawat kepadaku sekali Allah bershalawat kepadanya sepuluh kali', src: 'Muslim' }
-  ];
-
+  var DATA = [];
   var n = 0, picked = [], bank = [];
   var el = {
     ar: TQ.qs('#ar'), src: TQ.qs('#src'), prog: TQ.qs('#prog'), pbar: TQ.qs('#pbar'),
-    answer: TQ.qs('#answer'), bank: TQ.qs('#bank'), story: TQ.qs('#story')
+    answer: TQ.qs('#answer'), bank: TQ.qs('#bank'), story: TQ.qs('#story'),
+    sheet: TQ.qs('#sheet'), grid: TQ.qs('#hgrid'), hq: TQ.qs('#hq'), hcount: TQ.qs('#hcount')
   };
   TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
 
   function doneList() { try { return JSON.parse(localStorage.getItem('tq_hadis_done') || '[]'); } catch (e) { return []; } }
   function markDone(i) { var d = doneList(); if (d.indexOf(i) < 0) { d.push(i); localStorage.setItem('tq_hadis_done', JSON.stringify(d)); return true; } return false; }
 
+  function paintGrid() {
+    if (!DATA.length) return;
+    var q = (el.hq.value || '').trim().toLowerCase();
+    var done = doneList();
+    var shown = 0;
+    el.grid.innerHTML = '';
+    DATA.forEach(function (it, i) {
+      var hay = (i + 1) + ' ' + it.src.toLowerCase() + ' ' + it.id.toLowerCase();
+      if (q && hay.indexOf(q) < 0) return;
+      shown++;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hn' + (done.indexOf(i) > -1 ? ' done' : '') + (i === n ? ' now' : '');
+      b.textContent = i + 1;
+      b.title = it.src;
+      b.onclick = function () { n = i; closeSheet(); build(); };
+      el.grid.appendChild(b);
+    });
+    el.hcount.textContent = q ? (shown + ' hadis cocok') : (done.length + ' dari ' + DATA.length + ' selesai');
+  }
+
+  function openSheet() { el.sheet.classList.add('open'); el.sheet.setAttribute('aria-hidden', 'false'); paintGrid(); }
+  function closeSheet() { el.sheet.classList.remove('open'); el.sheet.setAttribute('aria-hidden', 'true'); }
+  TQ.qs('#openlist').onclick = function () { TQ.sfx.tap(); openSheet(); };
+  TQ.qs('#sheet-close').onclick = closeSheet;
+  el.sheet.onclick = function (e) { if (e.target === el.sheet) closeSheet(); };
+  el.hq.oninput = paintGrid;
+
   function build() {
     var it = DATA[n];
+    if (!it) return;
     bank = TQ.shuffle(it.id.split(' ').map(function (w) { return { w: w, used: false }; }));
     picked = [];
     el.ar.textContent = it.ar;
     el.src.textContent = '— ' + it.src;
     el.prog.textContent = 'Hadis ' + (n + 1) + ' dari ' + DATA.length;
     el.story.classList.add('hidden');
+    localStorage.setItem('tq_hadis_last', String(n));
     if (location.search.indexOf('debug') > -1) el.prog.dataset.answer = it.id;
     render();
   }
@@ -125,8 +152,7 @@
       el.bank.appendChild(btn);
     });
 
-    var total = DATA[n].id.split(' ').length;
-    el.pbar.style.width = (n / DATA.length * 100 + (picked.length / total) * (100 / DATA.length)) + '%';
+    el.pbar.style.width = (DATA.length ? (doneList().length / DATA.length * 100) : 0) + '%';
   }
 
   function pick(idx) {
@@ -149,6 +175,7 @@
   TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
 
   TQ.qs('#check').onclick = function () {
+    if (!DATA.length) return;
     var want = DATA[n].id.split(' ');
     if (picked.length < want.length) {
       TQ.sfx.bad();
@@ -158,18 +185,38 @@
     TQ.sfx.win();
     var first = markDone(n);
     if (first) { TQ.addPoints(10); TQ.qs('#pts').textContent = TQ.fmt(TQ.points()); }
-    el.pbar.style.width = ((n + 1) / DATA.length * 100) + '%';
+    el.pbar.style.width = (doneList().length / DATA.length * 100) + '%';
+    var left = DATA.length - doneList().length;
     el.story.classList.remove('hidden');
     el.story.innerHTML =
       '<b>Alhamdulillah, benar!</b><br>' + DATA[n].id + '.' +
       (first ? '<br><span class="muted">+10 poin</span>' : '<br><span class="muted">Sudah pernah diselesaikan, poin tidak bertambah.</span>') +
-      (n < DATA.length - 1 ? '<button class="btn mt" id="next">Hadis berikutnya →</button>' : '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>');
+      (n < DATA.length - 1 ? '<button class="btn mt" id="next">Hadis berikutnya →</button>'
+                           : '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>') +
+      '<div class="muted" style="margin-top:8px;font-size:12px">' + (left ? (left + ' hadis lagi belum diselesaikan.') : 'Semua 500 hadis sudah kamu susun. Masya Allah!') + '</div>';
     var nx = TQ.qs('#next');
     if (nx) nx.onclick = function () { n++; build(); };
     el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
-  build();
+  fetch('data/hadis.json?v=26')
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (d) {
+      DATA = d;
+      var done = doneList();
+      var resume = -1;
+      for (var i = 0; i < DATA.length; i++) { if (done.indexOf(i) < 0) { resume = i; break; } }
+      if (resume < 0) resume = Math.min(parseInt(localStorage.getItem('tq_hadis_last') || '0', 10) || 0, DATA.length - 1);
+      n = resume;
+      el.prog.textContent = 'Hadis ' + (n + 1) + ' dari ' + DATA.length;
+      build();
+    })
+    .catch(function (e) {
+      el.prog.textContent = 'Gagal memuat';
+      el.ar.textContent = 'Hadis belum bisa dimuat. Periksa koneksi lalu muat ulang halaman.';
+      el.src.textContent = '';
+      el.bank.innerHTML = '';
+    });
 })();
 </script>
 </body>

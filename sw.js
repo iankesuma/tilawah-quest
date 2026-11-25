@@ -1,6 +1,6 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v25';
-const DATA = 'tq-data-v25';
+const CORE = 'tq-core-v26';
+const DATA = 'tq-data-v26';
 const SHELL = [
   './', 'login.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',
@@ -8,7 +8,7 @@ const SHELL = [
   'css/app.css', 'css/screens.css',
   'js/app.js', 'js/quran.js', 'js/play.js', 'js/diriku.js',
   'js/sholat.js', 'js/baca.js',
-  'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json'
+  'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json', 'data/hadis.json'
 ];
 
 self.addEventListener('install', function (e) {

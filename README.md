@@ -19,7 +19,7 @@ Halaman pendukung: `profil.html`, `belajar.html` (nabi/rukun/hadis/diriku), `ban
 - Dua tingkat per surah: **Level 1 ada bayangan**, **Level 2 tanpa bayangan**.
 - Nyawa 5 hati, combo tiap 3 benar, skor, bintang 1–3.
 - Poin hanya sekali per level (anti-farming); mengulang memperbaiki bintang.
-- Mini game lain: susun nama 25 nabi, rukun iman & islam, 20 hadis pilihan, dan toko karakter **Diriku**.
+- Mini game lain: susun nama 25 nabi, rukun iman & islam, 500 hadis pilihan (Bukhari, Muslim, Abu Dawud, Nasai, Ibnu Majah), dan toko karakter **Diriku**.
 - Data ayat dibundel lokal (`data/`), jadi permainan jalan tanpa internet. Audio butuh koneksi.
 - PWA: `manifest.json` + `sw.js` (cache offline), bisa dipasang ke home screen.
 - Semua progres disimpan di perangkat (`localStorage`, key `tq_v1`).
