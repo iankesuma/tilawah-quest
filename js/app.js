@@ -321,7 +321,8 @@
       head = '<path d="M18 34 q32 -26 64 0 q2 10 -4 12 q-28 -14 -56 0 q-6 -2 -4 -12z" fill="' + hc + '"/>' +
              '<path d="M20 34 q30 -12 60 0 l-2 8 q-28 -10 -56 0z" fill="' + INK + '" opacity=".12"/>';
     } else if (c.head === 'cap') {
-      head = '<path d="M24 26 h52 q6 0 6 7 v8 q-32 -8 -64 0 v-8 q0 -7 6 -7z" fill="' + hc + '"/>';
+      head = '<path d="M22 36 a28 31 0 0 1 56 0 q-28 -7 -56 0z" fill="' + hc + '"/>' +
+             '<path d="M22 36 q28 -7 56 0" fill="none" stroke="' + INK + '" stroke-width="1.4" opacity=".18"/>';
     } else {
       head = '<path d="M22 40 a28 28 0 0 1 56 0 q-14 -12 -28 -12 q-14 0 -28 12z" fill="' + hc + '"/>';
     }
@@ -330,7 +331,7 @@
                '<circle cx="32" cy="55" r="4" fill="#F4A0A8" opacity=".55"/><circle cx="68" cy="55" r="4" fill="#F4A0A8" opacity=".55"/>' +
                '<path d="M43 58 q7 6 14 0" stroke="' + INK + '" stroke-width="2.6" fill="none" stroke-linecap="round"/>';
 
-    var body = head + shape + beard + eyes;
+    var body = shape + head + beard + eyes;
     if (inner) return body;
     var s = size ? ' width="' + size + '" height="' + size + '"' : '';
     return '<svg viewBox="0 0 100 110" class="face-svg"' + s + ' aria-hidden="true">' + body + '</svg>';

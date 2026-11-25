@@ -58,49 +58,58 @@
   /* ---------- avatar ---------- */
   function avatarSvg() {
     var ch = TQ.character();
+    var girl = !!ch.female;
     var shirtC = st.shirt == null ? '#DCEBF3' : ITEMS.shirt[st.shirt][1];
     var pantsC = st.pants == null ? '#C9DDE7' : ITEMS.pants[st.pants][1];
     var shoeC = st.shoe == null ? '#315B9D' : ITEMS.shoe[st.shoe][1];
     var ride = st.ride ? ITEMS.ride[st.ride][1] : '';
     var toy = st.toy ? ITEMS.toy[st.toy][1] : '';
-    var isSkirt = st.pants === 4;
-    var O = ' stroke="' + INK + '" stroke-width="2.4" stroke-linejoin="round"';
+    var O = ' stroke="' + INK + '" stroke-width="2" stroke-linejoin="round"';
+    var OL = ' stroke="' + INK + '" stroke-width="2" stroke-linecap="round" fill="none"';
 
-    var shadow = '<ellipse cx="100" cy="232" rx="42" ry="6" fill="#1E3A4C14"/>';
+    // kepala memakai koordinat asli charFace (100x110); badan digambar di ruang yang sama
+    var head = TQ.charFace(ch, null, true);
 
-    var legs = '<rect x="84" y="186" width="14" height="32" rx="7" fill="' + ch.skin + '"' + O + '/>' +
-               '<rect x="102" y="186" width="14" height="32" rx="7" fill="' + ch.skin + '"' + O + '/>';
+    var shadow = '<ellipse cx="50" cy="222" rx="21" ry="3.6" fill="#1E3A4C14"/>';
 
-    var shoes = '<path d="M78 214 h20 v9 q0 6 -7 6 h-16 q-5 0 -5 -5 v-3 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>' +
-                '<path d="M102 214 h20 v9 q0 6 -7 6 h-16 q-5 0 -5 -5 v-3 q0 -7 8 -7z" fill="' + shoeC + '"' + O + '/>';
+    var neck = '<rect x="42" y="62" width="16" height="26" rx="7" fill="' + ch.skin + '"/>';
 
-    var pants = isSkirt
-      ? '<path d="M74 148 h52 l11 44 q-37 8 -74 0 z" fill="' + pantsC + '"' + O + '/>'
-      : '<path d="M72 148 h56 v40 q0 6 -6 6 h-16 q-6 0 -6 -6 v-14 h-4 v14 q0 6 -6 6 h-14 q-6 0 -6 -6 z" fill="' + pantsC + '"' + O + '/>';
+    var torso = '<path d="M34 82 q16 -6 32 0 l2 68 q-18 5 -36 0 z" fill="' + shirtC + '"' + O + '/>' +
+      '<path d="M43 84 q7 6 14 0" stroke="' + INK + '" stroke-width="1.6" fill="none" opacity=".35"/>';
 
-    var neck = '<rect x="91" y="78" width="18" height="18" rx="6" fill="' + ch.skin + '"/>';
+    var arms =
+      '<path d="M37 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
+      '<path d="M37 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
+      '<path d="M63 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
+      '<path d="M63 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
+      '<circle cx="26" cy="130" r="6" fill="' + ch.skin + '"' + O + '/>' +
+      '<circle cx="74" cy="130" r="6" fill="' + ch.skin + '"' + O + '/>';
 
-    var shirt = '<path d="M76 92 h48 q12 0 12 14 v34 q0 10 -10 10 h-52 q-10 0 -10 -10 v-34 q0 -14 12 -14z" fill="' + shirtC + '"' + O + '/>' +
-                '<path d="M72 98 q-14 8 -14 24 v20" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/>' +
-                '<path d="M72 98 q-14 8 -14 24 v20" fill="none" stroke="' + shirtC + '" stroke-width="9" stroke-linecap="round"/>' +
-                '<path d="M128 98 q14 8 14 24 v20" fill="none" stroke="' + INK + '" stroke-width="13" stroke-linecap="round"/>' +
-                '<path d="M128 98 q14 8 14 24 v20" fill="none" stroke="' + shirtC + '" stroke-width="9" stroke-linecap="round"/>' +
-                '<circle cx="58" cy="146" r="9" fill="' + ch.skin + '"' + O + '/>' +
-                '<circle cx="142" cy="146" r="9" fill="' + ch.skin + '"' + O + '/>';
+    var lower;
+    if (girl) {
+      lower = '<path d="M36 146 h28 l8 38 q-22 6 -44 0 z" fill="' + pantsC + '"' + O + '/>' +
+        '<rect x="42" y="180" width="7" height="28" rx="3.5" fill="' + ch.skin + '"' + O + '/>' +
+        '<rect x="51" y="180" width="7" height="28" rx="3.5" fill="' + ch.skin + '"' + O + '/>';
+    } else {
+      lower = '<path d="M37 146 h26 v22 q0 4 -4 4 h-5 q-4 0 -4 -4 v-6 h-0.5 v6 q0 4 -4 4 h-4 q-4 0 -4 -4 z" fill="' + pantsC + '"' + O + '/>' +
+        '<rect x="40" y="166" width="9" height="42" rx="4.5" fill="' + pantsC + '"' + O + '/>' +
+        '<rect x="51" y="166" width="9" height="42" rx="4.5" fill="' + pantsC + '"' + O + '/>';
+    }
 
-    var faceGroup = '<g transform="translate(66,10) scale(0.68)">' + TQ.charFace(ch, null, true) + '</g>';
+    var shoes = '<path d="M37 206 h11 q2 0 2 3 v4 q0 3 -3 3 h-10 q-3 0 -3 -3 v-4 q0 -3 3 -3z" fill="' + shoeC + '"' + O + '/>' +
+      '<path d="M50 206 h11 q3 0 3 3 v4 q0 3 -3 3 h-10 q-3 0 -3 -3 v-4 q0 -3 2 -3z" fill="' + shoeC + '"' + O + '/>';
 
-    return '<svg viewBox="0 0 200 244" class="ava-svg" role="img" aria-label="Karakter ' + ch.name + '">' +
-      (ride ? '<text x="40" y="232" font-size="38" text-anchor="middle">' + ride + '</text>' : '') +
-      shadow + legs + shoes + pants + neck + shirt + faceGroup +
-      (toy ? '<text x="162" y="150" font-size="30" text-anchor="middle">' + toy + '</text>' : '') +
+    return '<svg viewBox="0 0 100 234" class="ava-svg" role="img" aria-label="Karakter ' + ch.name + '">' +
+      (ride ? '<text x="18" y="224" font-size="20" text-anchor="middle">' + ride + '</text>' : '') +
+      shadow + lower + shoes + torso + arms + neck + head +
+      (toy ? '<text x="82" y="140" font-size="16" text-anchor="middle">' + toy + '</text>' : '') +
       '</svg>';
   }
 
   function tags() {
     var out = [];
     if (st.shirt != null) out.push(['👕', ITEMS.shirt[st.shirt][0]]);
-    if (st.pants != null) out.push(['👖', ITEMS.pants[st.pants][0]]);
+    if (st.pants != null) out.push([TQ.character().female ? '👗' : '👖', ITEMS.pants[st.pants][0]]);
     if (st.shoe != null) out.push(['👟', ITEMS.shoe[st.shoe][0]]);
     if (st.ride) out.push([ITEMS.ride[st.ride][1], ITEMS.ride[st.ride][0]]);
     if (st.toy) out.push([ITEMS.toy[st.toy][1], ITEMS.toy[st.toy][0]]);
