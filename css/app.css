@@ -213,8 +213,26 @@ p{margin:0}
 }
 .slot.filled{border:2px solid var(--green);background:var(--green-soft)}
 .slot.filled .tile{border:0;box-shadow:none;background:transparent;padding:4px 6px;min-height:auto}
-.slot .num{font-size:11px;font-weight:900;color:#A8C4D2}
+.slot .num{font-size:12px;font-weight:900;color:#8FA9B7}
 .slot.ghostslot{border-color:#CBE2EC;background:#F6FCFE}
 
 .play-actions{display:flex;align-items:center;gap:8px;margin-top:14px}
 .play-mascot{position:fixed;right:14px;bottom:20px;z-index:20;opacity:.95}
+
+/* answer area inside the exercise card */
+.answer-area{
+  display:flex;flex-wrap:wrap;gap:7px;min-height:100px;align-content:flex-start;
+  padding:10px;border-radius:16px;background:#F7FCFE;border:2px dashed #B6D5E2;margin-top:6px
+}
+.answer-area.rtl{direction:rtl;justify-content:flex-start}
+.answer-area .ph{color:#8FAEBD;font-weight:800;font-size:12.5px;margin:auto}
+.clue{margin:0 0 8px}
+.clue .ayat-line{font-size:23px;line-height:1.9;color:var(--ink);margin:0;font-family:var(--font-ar);direction:rtl;text-align:right}
+.ac-foot{display:flex;justify-content:space-between;gap:8px;font-size:11.5px;font-weight:800;color:#6B8794;margin-top:8px}
+.answer-area .slot{background:#fff}
+.answer-area.rtl .slot{min-width:auto;padding:0 8px}
+.answer-area .slot{flex:1 1 0;min-width:44px}
+.answer-area .slot.filled{flex:0 1 auto;min-width:52px}
+
+.hint-word{color:#5C7B8B;font-weight:900;font-size:13px}
+.hint-word.ar{font-family:var(--font-ar);font-size:19px;color:#4F7080}

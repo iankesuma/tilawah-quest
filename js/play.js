@@ -41,7 +41,9 @@
     S.questions = [];
     S.ayahs.forEach(function (ay, ai) {
       var text = MODE === 'arti' ? ay.tr : ay.ar;
-      var words = text.split(/\s+/).filter(Boolean);
+      var words = text.split(/\s+/)
+        .map(function (w) { return w.replace(/^[\u06D6-\u06ED\u08F0-\u08F3\u0670]+/, '').trim(); })
+        .filter(function (w) { return w && /[\u0621-\u064A]/.test(w) || (MODE === 'arti' && /[A-Za-z0-9]/.test(w)); });
       if (!words.length) return;
       var size = words.length <= CHUNK + 2 ? words.length : CHUNK;
       for (var i = 0; i < words.length; i += size) {
@@ -71,32 +73,36 @@
     var ay = S.ayahs[q.ai];
     el.step.textContent = 'Ayat ' + ay.i + ' · ' + (q.ai + 1) + '/' + S.ayahs.length;
 
-    if (MODE === 'arti') {
-      el['ayat-lines'].innerHTML =
-        '<p class="ayat-line" style="direction:rtl;text-align:right">' + ay.ar + '</p>' +
-        '<p class="ayat-line" style="direction:ltr;text-align:left;font-family:var(--font);font-size:17px;line-height:1.65;color:var(--ink);margin-top:6px">' + ay.tr + '</p>';
-      return;
-    }
+    var no = document.getElementById('ayah-no');
+    if (no) no.textContent = 'Ayat ' + ay.i;
 
-    var words = ay.ar.split(/\s+/).filter(Boolean);
-    var html = '';
-    words.forEach(function (w, i) {
-      var cls = '';
-      if (i >= q.from && i < q.to) cls = 'cur';
-      else if (i >= q.to) cls = 'next';
-      html += '<span class="' + cls + '" style="' +
-        (cls === 'cur' ? 'background:#FFF3D6;border-bottom:3px solid var(--orange);' : '') +
-        (cls === 'next' && LEVEL === 2 ? 'opacity:.18;' : '') +
-        '">' + w + '</span> ';
-      if (i === words.length - 1) html += '<span class="ayah-no cur">' + ay.i + '</span>';
-    });
-    el['ayat-lines'].innerHTML = '<p class="ayat-line">' + html + '</p>';
+    if (MODE === 'arti') {
+      // teks Arab jadi petunjuk, jawaban (arti) disusun di kotak
+      el['ayat-lines'].style.display = 'block';
+      el['ayat-lines'].innerHTML = '<p class="ayat-line ar">' + ay.ar + '</p>';
+      el.slots.setAttribute('dir', 'ltr');
+      el.slots.classList.remove('rtl');
+    } else {
+      // susun ayat: kotak kosong, kata naik hanya kalau pilihan benar
+      el['ayat-lines'].style.display = 'none';
+      el['ayat-lines'].innerHTML = '';
+      el.slots.setAttribute('dir', 'rtl');
+      el.slots.classList.add('rtl');
+    }
   }
 
   function renderSlots() {
     var q = currentQ();
     el.slots.innerHTML = '';
     if (!q) return;
+    var count = document.getElementById('slot-count');
+    if (count) count.textContent = S.picked.length + '/' + q.tokens.length + ' kata';
+    var hw = document.getElementById('hint-word');
+    if (hw) {
+      var next = q.tokens[S.picked.length];
+      hw.textContent = (LEVEL === 1 && next) ? '· petunjuk: ' + next : '';
+      hw.className = 'hint-word' + (MODE === 'arti' ? '' : ' ar');
+    }
     q.tokens.forEach(function (tok, i) {
       var slot = document.createElement('div');
       slot.className = 'slot';
@@ -106,18 +112,13 @@
         t.className = 'tile' + (MODE === 'arti' ? '' : ' ar');
         t.textContent = S.picked[i];
         slot.appendChild(t);
-      } else if (i === S.picked.length && LEVEL === 1) {
-        slot.classList.add('ghostslot');
-        var g = document.createElement('span');
-        g.className = 'ghost' + (MODE === 'arti' ? '' : ' ar');
-        g.textContent = tok;
-        slot.appendChild(g);
       } else {
         var n = document.createElement('span');
         n.className = 'num';
         n.textContent = i + 1;
         slot.appendChild(n);
       }
+      slot.style.minHeight = MODE === 'arti' ? '' : '52px';
       el.slots.appendChild(slot);
     });
   }
@@ -288,7 +289,7 @@
       el['g-ar'].textContent = S.meta.ar;
       el['surah-label'].textContent = 'سورة ' + S.meta.ar;
       el['mode-label'].textContent = (MODE === 'arti' ? 'Susun Arti' : 'Susun Ayat') + ' · Level ' + LEVEL;
-      el.bismillah.style.display = (S.ayahs[0].i === 1 && MODE === 'ayat') ? 'block' : 'none';
+      el.bismillah.style.display = (SURAH === 1 && S.ayahs[0].i === 1 && MODE === 'ayat') ? 'block' : 'none';
       document.title = S.meta.name + ' — Tilawah Quest';
       el.quit.href = 'surah.html?juz=' + JUZ + '&mode=' + MODE;
       el.mascot.innerHTML = '';
