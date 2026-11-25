@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Kenalan dulu — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=23">
-<link rel="stylesheet" href="css/screens.css?v=23">
+<link rel="stylesheet" href="css/app.css?v=24">
+<link rel="stylesheet" href="css/screens.css?v=24">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -27,7 +27,7 @@
   <section class="card">
     <label class="field-label" for="name">Siapa namamu?</label>
     <div class="row" style="gap:8px">
-      <input id="name" class="input" type="text" placeholder="Tulis namamu" autocomplete="nickname" maxlength="18" style="flex:1">
+      <input id="name" class="input" type="text" placeholder="Tulis namamu" autocomplete="nickname" maxlength="14" style="flex:1">
       <button class="btn small" id="saveName" style="width:auto" disabled>Simpan 🔒</button>
     </div>
     <p class="bubble">Tulis namamu (min. 2 huruf), lalu pilih karakter</p>
@@ -40,7 +40,7 @@
   <button class="btn big" id="go">Pilih Juz →</button>
 </main>
 
-<script src="js/app.js?v=23"></script>
+<script src="js/app.js?v=24"></script>
 <script>
 (function () {
   var p = TQ.profile();

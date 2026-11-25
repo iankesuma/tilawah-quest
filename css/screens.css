@@ -306,3 +306,14 @@
 /* kata bisa diangkat di layar sentuh */
 .bank .tile{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
 .slot{touch-action:manipulation}
+
+/* nama panjang di profil jangan meluber */
+.pf-head h2,#name{overflow-wrap:anywhere;word-break:break-word}
+
+/* tombol cepat di bawah tip */
+.quick{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px}
+.qbtn{display:flex;align-items:center;gap:8px;background:#fff;border-radius:16px;padding:10px 11px;box-shadow:var(--shadow-sm);text-decoration:none;min-width:0}
+.qic{width:34px;height:34px;flex:0 0 34px;border-radius:11px;background:#EAF4FA;display:grid;place-items:center;font-size:17px}
+.qtx{min-width:0}
+.qtx b{display:block;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qtx i{display:block;font-style:normal;font-size:10px;font-weight:700;color:#7C97A5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
