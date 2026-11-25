@@ -9,7 +9,8 @@
     points: 0,
     progress: {},   // { surah: { ayat: {1:stars,2:stars}, arti: {1:..,2:..} } }
     best: {},       // { surah: {mode: {combo, score}} }
-    stats: { levels: 0, ayahs: 0, heartsLost: 0, bestCombo: 0 }
+    stats: { levels: 0, ayahs: 0, heartsLost: 0, bestCombo: 0 },
+    diriku: { gender: 'girl', shirt: 0, pants: 0, shoe: 0, ride: 0, toy: 0, owned: { shirt: [0], pants: [0], shoe: [0], ride: [0], toy: [0] } }
   };
 
   function read() {
@@ -19,7 +20,10 @@
       const d = JSON.parse(raw);
       return Object.assign(JSON.parse(JSON.stringify(DEFAULT)), d, {
         profile: Object.assign({}, DEFAULT.profile, d.profile || {}),
-        stats: Object.assign({}, DEFAULT.stats, d.stats || {})
+        stats: Object.assign({}, DEFAULT.stats, d.stats || {}),
+        diriku: Object.assign({}, DEFAULT.diriku, d.diriku || {}, {
+          owned: Object.assign({}, DEFAULT.diriku.owned, (d.diriku && d.diriku.owned) || {})
+        })
       });
     } catch (e) {
       return JSON.parse(JSON.stringify(DEFAULT));
@@ -98,6 +102,7 @@
   let ctx = null;
   function ac() {
     if (!ctx) { try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {} }
+    if (ctx && ctx.state === 'suspended') { try { ctx.resume(); } catch (e) {} }
     return ctx;
   }
   function tone(freq, type, dur, gain, delay) {
@@ -112,12 +117,79 @@
     o.start(t0); o.stop(t0 + dur + 0.02);
   }
   const sfx = {
-    ok: function () { tone(880, 'sine', 0.16, 0.12); tone(1320, 'sine', 0.18, 0.08, 0.08); },
-    bad: function () { tone(180, 'square', 0.26, 0.10); tone(140, 'square', 0.22, 0.08, 0.10); },
-    tap: function () { tone(520, 'sine', 0.07, 0.06); },
-    win: function () { [660, 880, 1100, 1320].forEach(function (f, i) { tone(f, 'sine', 0.22, 0.1, i * 0.1); }); },
-    lose: function () { [400, 330, 260, 200].forEach(function (f, i) { tone(f, 'triangle', 0.24, 0.1, i * 0.11); }); }
+    ok: function () { tone(880, 'sine', 0.16, 0.16); tone(1320, 'sine', 0.18, 0.11, 0.08); },
+    bad: function () { tone(200, 'square', 0.26, 0.13); tone(150, 'square', 0.22, 0.10, 0.10); },
+    tap: function () { tone(520, 'sine', 0.07, 0.09); },
+    coin: function () { tone(1046, 'triangle', 0.10, 0.12); tone(1568, 'triangle', 0.16, 0.10, 0.07); },
+    win: function () {
+      [660, 880, 1100, 1320, 1760].forEach(function (f, i) { tone(f, 'sine', 0.22, 0.13, i * 0.09); });
+    },
+    lose: function () { [400, 330, 260, 200].forEach(function (f, i) { tone(f, 'triangle', 0.24, 0.12, i * 0.11); }); }
   };
+
+
+  /* ---------- background music + sound toggle ---------- */
+  var bgmEl = null;
+  function bgmOn() { try { return localStorage.getItem('tq_bgm') !== '0'; } catch (e) { return true; } }
+  function bgmSet(on) {
+    try { localStorage.setItem('tq_bgm', on ? '1' : '0'); } catch (e) {}
+    if (on) {
+      if (!bgmEl) { bgmEl = new Audio('audio/calmant.mp3'); bgmEl.loop = true; bgmEl.volume = 0.18; }
+      bgmEl.play().catch(function () {});
+    } else if (bgmEl) { bgmEl.pause(); }
+    paintToggle();
+  }
+  function bgmTryStart() { if (bgmOn()) bgmSet(true); }
+
+  var toggleEl = null;
+  function paintToggle() {
+    if (!toggleEl) return;
+    var on = bgmOn();
+    toggleEl.textContent = on ? '🔊' : '🔇';
+    toggleEl.setAttribute('aria-label', on ? 'Matikan suara' : 'Nyalakan suara');
+    toggleEl.setAttribute('aria-pressed', String(on));
+  }
+  function mountToggle() {
+    if (toggleEl || !document.body) return;
+    toggleEl = document.createElement('button');
+    toggleEl.type = 'button';
+    toggleEl.className = 'sound-toggle';
+    toggleEl.onclick = function () { bgmSet(!bgmOn()); if (bgmOn()) sfx.tap(); };
+    var bar = document.querySelector('.appbar');
+    if (bar) {
+      toggleEl.className += ' inbar';
+      bar.appendChild(toggleEl);
+    } else {
+      document.body.appendChild(toggleEl);
+    }
+    paintToggle();
+  }
+  function armAudio() {
+    var started = false;
+    function go() {
+      if (started) return;
+      started = true;
+      ac();
+      bgmTryStart();
+    }
+    ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
+      document.addEventListener(ev, go, { once: true, passive: true });
+    });
+    // keep trying until the browser lets us play (mobile autoplay policies)
+    var lastTry = 0;
+    document.addEventListener('pointerdown', function () {
+      if (!bgmOn()) return;
+      if (bgmEl && !bgmEl.paused) return;
+      var now = Date.now();
+      if (now - lastTry < 1500) return;
+      lastTry = now;
+      ac();
+      bgmSet(true);
+    }, { passive: true });
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function () { mountToggle(); armAudio(); });
+  } else { mountToggle(); armAudio(); }
 
   /* ---------- popup ---------- */
   let overlayEl = null;
@@ -204,6 +276,7 @@
     stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
     sfx: sfx, popup: popup, closePopup: close,
+    bgmOn: bgmOn, bgmSet: bgmSet, bgmState: function () { return { on: bgmOn(), playing: !!(bgmEl && !bgmEl.paused), t: bgmEl ? Math.round(bgmEl.currentTime * 10) / 10 : 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss,
     reset: function () { state = JSON.parse(JSON.stringify(DEFAULT)); save(); }

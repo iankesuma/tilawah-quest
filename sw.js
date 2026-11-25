@@ -1,12 +1,12 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v7';
-const DATA = 'tq-data-v7';
+const CORE = 'tq-core-v10';
+const DATA = 'tq-data-v10';
 const SHELL = [
   './', 'login.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',
   'rukun.html', 'hadis.html', 'diriku.html',
   'css/app.css', 'css/screens.css',
-  'js/app.js', 'js/quran.js', 'js/play.js',
+  'js/app.js', 'js/quran.js', 'js/play.js', 'js/diriku.js',
   'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json'
 ];
 
