@@ -141,6 +141,8 @@
       if (b.classList.contains('used')) return;
       var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
       var ghost = null, dragging = false;
+      try { b.setPointerCapture(pid); } catch (err) {}
+      function blockScroll(ev) { if (dragging) ev.preventDefault(); }
 
       function move(ev) {
         if (ev.pointerId !== pid) return;
@@ -152,6 +154,7 @@
           ghost.textContent = token;
           document.body.appendChild(ghost);
           b.classList.add('dragging');
+          document.addEventListener('touchmove', blockScroll, { passive: false });
         }
         ev.preventDefault();
         ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
@@ -169,6 +172,7 @@
         if (!dragging) return;
         dragging = false;
         b.classList.remove('dragging');
+        document.removeEventListener('touchmove', blockScroll);
         if (ghost) ghost.remove();
         Array.prototype.forEach.call(document.querySelectorAll('.slot.over'), function (x) { x.classList.remove('over'); });
         suppressClick = true;
@@ -181,6 +185,7 @@
       window.addEventListener('pointermove', move, { passive: false });
       window.addEventListener('pointerup', up);
       window.addEventListener('pointercancel', up);
+      b.addEventListener('lostpointercapture', up, { once: true });
     });
   }
 

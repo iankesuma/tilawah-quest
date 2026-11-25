@@ -254,7 +254,7 @@
 .sh-note{font-size:11.5px;font-weight:700;color:#6B8794;line-height:1.5;margin-top:12px}
 
 /* ===== baca Quran bertajwid ===== */
-.baca{--baca-size:30px}
+:root{--baca-size:30px}
 .baca .appbar .titles{cursor:pointer}
 .baca-tools{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
 .tool{min-height:38px;padding:0 12px;border-radius:12px;border:2px solid var(--line);background:#fff;font-family:inherit;font-size:12.5px;font-weight:900;color:#3F6273;cursor:pointer}
@@ -274,7 +274,7 @@
 .ayah.playing{border-color:var(--green);background:#FBFFF4}
 .ayah.flash{animation:flash 1.2s ease}
 @keyframes flash{0%{background:#FFF6D6}100%{background:#fff}}
-.ayah-tx{flex:1;font-family:var(--font-ar);font-size:var(--baca-size);line-height:2.1;color:var(--ink);direction:rtl;text-align:right;word-spacing:2px}
+.ayah-tx{flex:1;font-family:var(--font-ar);font-size:var(--baca-size,30px);line-height:2.1;color:var(--ink);direction:rtl;text-align:right;word-spacing:2px}
 .ayah-no{flex:0 0 30px;width:30px;height:30px;margin-top:4px;border-radius:50%;border:2px solid var(--green);background:#F4FBEA;color:var(--green-d);font-family:inherit;font-size:11.5px;font-weight:900;cursor:pointer;display:grid;place-items:center}
 /* warna tajwid */
 .tj-ghunnah{color:#2E9E4F}
@@ -302,3 +302,7 @@
 .srow-tx b{display:block;font-size:13.5px;color:var(--ink)}
 .srow-tx i{font-size:10.5px;font-style:normal;font-weight:700;color:#7C97A5}
 .srow-ar{font-family:var(--font-ar);font-size:19px;color:var(--green-d)}
+
+/* kata bisa diangkat di layar sentuh */
+.bank .tile{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.slot{touch-action:manipulation}
