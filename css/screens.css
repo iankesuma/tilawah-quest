@@ -283,7 +283,7 @@
 .tj-iqlab{color:#D63384}
 .tj-qalqalah{color:#8A4B2A}
 .tj-mad{color:#DC2626}
-.tj-mad_lazim{color:#7F1D1D;font-weight:700;background:#FBE3E3;border-radius:4px;box-shadow:0 0 0 1px #F3C7C7}
+.tj-mad_lazim{color:#7F1D1D;font-weight:700}
 .ayah-list.no-color .tj,.no-color .tj{color:var(--ink)!important;font-weight:inherit}
 .hide-ghunnah .tj-ghunnah,.hide-ikhfa .tj-ikhfa,.hide-idgham .tj-idgham,.hide-iqlab .tj-iqlab,.hide-qalqalah .tj-qalqalah,.hide-mad .tj-mad,.hide-mad_lazim .tj-mad_lazim{color:var(--ink)!important;font-weight:inherit}
 .baca-nav{display:flex;gap:8px;margin:14px 0 30px}
