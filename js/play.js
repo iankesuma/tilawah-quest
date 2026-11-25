@@ -336,11 +336,8 @@
     S.meta = meta[SURAH - 1];
 
     Quran.juzList().then(function (list) {
-      var j = list.find(function (x) { return x.j === JUZ; });
-      var range = j && j.surahs.find(function (x) { return x.n === SURAH; });
-      var from = range ? range.from : 1;
-      var to = range ? range.to : d.ayahs.length;
-      S.ayahs = d.ayahs.filter(function (a) { return a.i >= from && a.i <= to; }).slice(0, AYAH_CAP);
+      // selalu mulai dari ayat 1 surah, bukan dari potongan juz
+      S.ayahs = d.ayahs.slice(0, AYAH_CAP);
 
       if (!S.ayahs.length) {
         TQ.popup({ icon: '⚠️', title: 'Data ayat kosong', text: 'Coba pilih surah lain.', bad: true, actions: [{ label: 'Kembali', onClick: function () { location.href = 'surah.html?juz=' + JUZ; } }] });
