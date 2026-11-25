@@ -33,6 +33,17 @@
   let state = read();
 
   function save() {
+    try {
+      // guard against a stale tab clobbering a newer profile / higher points
+      var raw = localStorage.getItem(KEY);
+      if (raw) {
+        var d = JSON.parse(raw);
+        if (d && d.profile && d.profile.onboarded && !state.profile.onboarded) {
+          state.profile = Object.assign({}, state.profile, d.profile);
+        }
+        if (d && typeof d.points === 'number' && d.points > state.points) state.points = d.points;
+      }
+    } catch (e) {}
     try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
   }
 
@@ -245,7 +256,13 @@
   function fmt(n) { return String(n).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 
   function requireProfile() {
-    if (!state.profile.onboarded) { location.replace('onboarding.html'); return false; }
+    if (!state.profile.onboarded) {
+      // another tab may already have finished onboarding
+      var fresh = read();
+      if (fresh.profile.onboarded) { state = fresh; return true; }
+      location.replace('onboarding.html');
+      return false;
+    }
     return true;
   }
 
