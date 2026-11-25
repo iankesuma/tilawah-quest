@@ -236,3 +236,12 @@ p{margin:0}
 
 .hint-word{color:#5C7B8B;font-weight:900;font-size:13px}
 .hint-word.ar{font-family:var(--font-ar);font-size:19px;color:#4F7080}
+
+/* ===== slot bayangan (level 1) + drag kata ===== */
+.slot{position:relative}
+.slot .ghost{color:#BBD3DF;font-weight:700;opacity:.95;user-select:none;pointer-events:none}
+.slot .ghost.ar{font-family:var(--font-ar);font-size:19px;line-height:1.9}
+.slot .num{position:absolute;top:-6px;left:-6px;width:17px;height:17px;border-radius:50%;background:#EAF4FA;color:#8FA9B7;font-size:9.5px;font-weight:900;display:grid;place-items:center}
+.slot.over{outline:2px dashed var(--green);outline-offset:2px;background:#F4FBEA}
+.tile.dragging{opacity:.35}
+.drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;box-shadow:0 10px 24px #1E3A4C33;background:#fff;border-color:var(--green)!important;opacity:.97}

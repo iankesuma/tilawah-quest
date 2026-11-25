@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pilih Juz — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=14">
-<link rel="stylesheet" href="css/screens.css?v=14">
+<link rel="stylesheet" href="css/app.css?v=15">
+<link rel="stylesheet" href="css/screens.css?v=15">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -21,7 +21,10 @@
       <b id="who">Pemain</b>
       <span id="sub">Pilih juz yang mau kamu latih</span>
     </div>
-    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+    <div class="row" style="gap:6px">
+      <a class="iconbtn" href="sholat.html" aria-label="Jadwal sholat" title="Jadwal sholat">🕌</a>
+      <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+    </div>
   </div>
 
   <div class="tip">Saranku mulai dari Juz 30 👇</div>
@@ -34,15 +37,15 @@
     <div class="row between">
       <div>
         <b style="font-size:14px">Belajar lainnya</b>
-        <p class="muted">Nabi, rukun, dan hadis</p>
+        <p class="muted">Nabi, rukun, hadis, jadwal sholat</p>
       </div>
       <a class="btn small ghost" href="belajar.html" style="width:auto">Buka</a>
     </div>
   </div>
 </main>
 
-<script src="js/app.js?v=14"></script>
-<script src="js/quran.js?v=14"></script>
+<script src="js/app.js?v=15"></script>
+<script src="js/quran.js?v=15"></script>
 <script>
 (function () {
   if (!TQ.requireProfile()) return;

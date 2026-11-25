@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Jadwal Sholat — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=15">
+<link rel="stylesheet" href="css/screens.css?v=15">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Jadwal Sholat</b><span>5 waktu + dhuha</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="card sh-hero">
+    <div class="sh-top">
+      <span class="sh-pin">📍</span>
+      <div style="min-width:0">
+        <b id="city">Mencari lokasi…</b>
+        <span id="date" class="muted">—</span>
+      </div>
+    </div>
+    <div class="sh-next">
+      <span class="muted">Sholat berikutnya</span>
+      <div class="sh-next-line"><b id="nextLbl">—</b> <span id="next">—</span></div>
+      <span class="muted" id="next-at"></span>
+    </div>
+  </section>
+
+  <section class="card">
+    <div id="list" class="sh-list"></div>
+    <p class="sh-status" id="status" hidden></p>
+    <p class="sh-src" id="src"></p>
+  </section>
+
+  <div class="row" style="gap:8px">
+    <button class="btn" id="btnLoc" style="flex:1">📍 Pakai lokasi saya</button>
+    <button class="btn ghost" id="btnManual" style="flex:1">🏙️ Pilih kota</button>
+  </div>
+
+  <p class="sh-note">Dhuha dihitung mulai ±20 menit setelah syuruq sampai 10 menit sebelum Dzuhur. Waktu bisa beda sedikit dengan masjid setempat.</p>
+</main>
+<script src="js/app.js?v=15"></script>
+<script src="js/sholat.js?v=15"></script>
+<script>TQ.qs('#pts').textContent = TQ.fmt(TQ.points());</script>
+</body>
+</html>

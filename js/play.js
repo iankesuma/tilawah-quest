@@ -100,19 +100,29 @@
     var hw = document.getElementById('hint-word');
     if (hw) {
       var next = q.tokens[S.picked.length];
-      hw.textContent = (LEVEL === 1 && next) ? '· petunjuk: ' + next : '';
+      hw.textContent = '';
       hw.className = 'hint-word' + (MODE === 'arti' ? '' : ' ar');
     }
     q.tokens.forEach(function (tok, i) {
       var slot = document.createElement('div');
       slot.className = 'slot';
+      slot.dataset.i = i;
+      var arCls = MODE === 'arti' ? '' : ' ar';
       if (i < S.picked.length) {
         slot.classList.add('filled');
         var t = document.createElement('span');
-        t.className = 'tile' + (MODE === 'arti' ? '' : ' ar');
+        t.className = 'tile' + arCls;
         t.textContent = S.picked[i];
         slot.appendChild(t);
       } else {
+        if (LEVEL === 1) {
+          // level 1: ayat tampil berbayang di kotak
+          slot.classList.add('ghosted');
+          var g = document.createElement('span');
+          g.className = 'ghost' + arCls;
+          g.textContent = tok;
+          slot.appendChild(g);
+        }
         var n = document.createElement('span');
         n.className = 'num';
         n.textContent = i + 1;
@@ -120,6 +130,57 @@
       }
       slot.style.minHeight = MODE === 'arti' ? '' : '52px';
       el.slots.appendChild(slot);
+    });
+  }
+
+  var suppressClick = false;
+
+  function makeDraggable(b, token) {
+    b.addEventListener('pointerdown', function (e) {
+      if (S.done || e.button > 0) return;
+      if (b.classList.contains('used')) return;
+      var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
+      var ghost = null, dragging = false;
+
+      function move(ev) {
+        if (ev.pointerId !== pid) return;
+        if (!dragging) {
+          if (Math.abs(ev.clientX - sx) < 8 && Math.abs(ev.clientY - sy) < 8) return;
+          dragging = true;
+          ghost = document.createElement('div');
+          ghost.className = 'tile drag-ghost' + (MODE === 'arti' ? '' : ' ar');
+          ghost.textContent = token;
+          document.body.appendChild(ghost);
+          b.classList.add('dragging');
+        }
+        ev.preventDefault();
+        ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slot = under && under.closest ? under.closest('.slot') : null;
+        Array.prototype.forEach.call(document.querySelectorAll('.slot.over'), function (x) { x.classList.remove('over'); });
+        if (slot && !slot.classList.contains('filled')) slot.classList.add('over');
+      }
+
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        if (!dragging) return;
+        dragging = false;
+        b.classList.remove('dragging');
+        if (ghost) ghost.remove();
+        Array.prototype.forEach.call(document.querySelectorAll('.slot.over'), function (x) { x.classList.remove('over'); });
+        suppressClick = true;
+        setTimeout(function () { suppressClick = false; }, 60);
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slot = under && under.closest ? under.closest('.slot') : null;
+        if (slot && !slot.classList.contains('filled')) tap(b, token);
+      }
+
+      window.addEventListener('pointermove', move, { passive: false });
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
     });
   }
 
@@ -136,7 +197,8 @@
       var usedCount = S.picked.filter(function (x) { return x === t; }).length;
       var total = q.tokens.filter(function (x) { return x === t; }).length;
       if (usedCount >= total) b.classList.add('used');
-      b.onclick = function () { tap(b, t); };
+      b.onclick = function () { if (!suppressClick) tap(b, t); };
+      makeDraggable(b, t);
       el.bank.appendChild(b);
     });
   }
