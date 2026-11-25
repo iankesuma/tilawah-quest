@@ -74,14 +74,14 @@
 
     var neck = '<rect x="42" y="62" width="16" height="26" rx="7" fill="' + ch.skin + '"/>';
 
-    var torso = '<path d="M34 82 q16 -6 32 0 l2 68 q-18 5 -36 0 z" fill="' + shirtC + '"' + O + '/>' +
-      '<path d="M43 84 q7 6 14 0" stroke="' + INK + '" stroke-width="1.6" fill="none" opacity=".35"/>';
+    var torso = '<path d="M36 82 q14 -6 28 0 l2 68 q-16 5 -32 0 z" fill="' + shirtC + '"' + O + '/>' +
+      '<path d="M44 84 q6 6 12 0" stroke="' + INK + '" stroke-width="1.6" fill="none" opacity=".35"/>';
 
     var arms =
-      '<path d="M37 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
-      '<path d="M37 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
-      '<path d="M63 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
-      '<path d="M63 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
+      '<path d="M38 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
+      '<path d="M38 84 q-9 10 -10 26 l-1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
+      '<path d="M62 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="11.5" stroke="' + INK + '"/>' +
+      '<path d="M62 84 q9 10 10 26 l1 14" ' + OL + ' stroke-width="8" stroke="' + shirtC + '"/>' +
       '<circle cx="26" cy="130" r="6" fill="' + ch.skin + '"' + O + '/>' +
       '<circle cx="74" cy="130" r="6" fill="' + ch.skin + '"' + O + '/>';
 
