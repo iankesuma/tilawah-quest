@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Baca Quran — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=16">
+<link rel="stylesheet" href="css/screens.css?v=16">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen baca">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles" id="title" role="button" tabindex="0" aria-label="Pilih surah">
+      <b id="g-name">Baca Quran</b>
+      <span id="g-ar">القرآن</span>
+    </div>
+    <div class="row" style="gap:6px">
+      <button class="iconbtn" id="pick" aria-label="Daftar surah">☰</button>
+      <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+    </div>
+  </div>
+
+  <div class="baca-tools">
+    <button class="tool" id="font-down" aria-label="Perkecil tulisan">A−</button>
+    <button class="tool" id="font-up" aria-label="Perbesar tulisan">A+</button>
+    <button class="tool wide" id="color-toggle" aria-pressed="true">🎨 Warna: nyala</button>
+    <button class="tool" id="last" hidden></button>
+  </div>
+
+  <div class="legend" id="legend"></div>
+
+  <section class="baca-sheet" id="ayat-list"></section>
+
+  <div class="baca-nav">
+    <button class="btn ghost small" id="prev">←</button>
+    <button class="btn ghost small" id="next">→</button>
+  </div>
+</main>
+
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <input id="search" class="input" type="search" placeholder="Cari surah / nomor" aria-label="Cari surah">
+      <button class="iconbtn" id="sheet-close" aria-label="Tutup">✕</button>
+    </div>
+    <div class="surah-list" id="surah-list"></div>
+  </div>
+</div>
+
+<script src="js/app.js?v=16"></script>
+<script src="js/quran.js?v=16"></script>
+<script src="js/baca.js?v=16"></script>
+</body>
+</html>

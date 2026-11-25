@@ -252,3 +252,53 @@
 .sh-status.bad{background:#FDE8ED;color:#B23A55}
 .sh-src{font-size:10.5px;font-weight:700;color:#8FA9B7;margin-top:8px;word-break:break-word}
 .sh-note{font-size:11.5px;font-weight:700;color:#6B8794;line-height:1.5;margin-top:12px}
+
+/* ===== baca Quran bertajwid ===== */
+.baca{--baca-size:30px}
+.baca .appbar .titles{cursor:pointer}
+.baca-tools{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 10px}
+.tool{min-height:38px;padding:0 12px;border-radius:12px;border:2px solid var(--line);background:#fff;font-family:inherit;font-size:12.5px;font-weight:900;color:#3F6273;cursor:pointer}
+.tool[aria-pressed="true"]{border-color:var(--green);background:#F4FBEA;color:var(--green-d)}
+.tool.wide{flex:1;min-width:130px}
+.tool:disabled{opacity:.45}
+.legend{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;padding:2px 0 10px}
+.lg{display:grid;gap:1px;padding:7px 9px;border-radius:12px;border:2px solid var(--line);background:#fff;font-family:inherit;cursor:pointer;text-align:left;min-width:0}
+.lg .dot{width:100%;height:4px;border-radius:4px;margin-bottom:4px}
+.lg b{font-size:11px;font-weight:900;color:var(--ink)}
+.lg i{font-size:9px;font-style:normal;font-weight:700;color:#7C97A5;line-height:1.2}
+.lg.off{opacity:.35;border-style:dashed}
+.lg-note{display:none}
+.baca-sheet{display:grid;gap:10px}
+.baca-bismillah{text-align:center;font-family:var(--font-ar);font-size:calc(var(--baca-size) * .92);color:var(--ink);padding:10px 0 4px}
+.ayah{background:#fff;border-radius:18px;padding:12px 14px;box-shadow:var(--shadow-sm);display:flex;gap:10px;align-items:flex-start;cursor:pointer;border:2px solid transparent;transition:border-color .15s}
+.ayah.playing{border-color:var(--green);background:#FBFFF4}
+.ayah.flash{animation:flash 1.2s ease}
+@keyframes flash{0%{background:#FFF6D6}100%{background:#fff}}
+.ayah-tx{flex:1;font-family:var(--font-ar);font-size:var(--baca-size);line-height:2.1;color:var(--ink);direction:rtl;text-align:right;word-spacing:2px}
+.ayah-no{flex:0 0 30px;width:30px;height:30px;margin-top:4px;border-radius:50%;border:2px solid var(--green);background:#F4FBEA;color:var(--green-d);font-family:inherit;font-size:11.5px;font-weight:900;cursor:pointer;display:grid;place-items:center}
+/* warna tajwid */
+.tj-ghunnah{color:#2E9E4F}
+.tj-ikhfa{color:#B7791F}
+.tj-idgham{color:#7B5CD6}
+.tj-iqlab{color:#D63384}
+.tj-qalqalah{color:#C2410C}
+.tj-mad{color:#DC2626}
+.tj-mad_lazim{color:#991B1B;font-weight:700}
+.ayah-list.no-color .tj,.no-color .tj{color:var(--ink)!important;font-weight:inherit}
+.hide-ghunnah .tj-ghunnah,.hide-ikhfa .tj-ikhfa,.hide-idgham .tj-idgham,.hide-iqlab .tj-iqlab,.hide-qalqalah .tj-qalqalah,.hide-mad .tj-mad,.hide-mad_lazim .tj-mad_lazim{color:var(--ink)!important;font-weight:inherit}
+.baca-nav{display:flex;gap:8px;margin:14px 0 30px}
+.baca-nav .btn{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* sheet pilih surah */
+.sheet{position:fixed;inset:0;background:#1E3A4C55;display:none;z-index:200;align-items:flex-end}
+.sheet.open{display:flex}
+.sheet-inner{background:#fff;border-radius:22px 22px 0 0;width:100%;height:86vh;display:flex;flex-direction:column;padding:12px 12px 0}
+.sheet-head{display:flex;gap:8px;align-items:center;margin-bottom:8px}
+.sheet-head .input{flex:1}
+.surah-list{flex:1;min-height:0;overflow-y:auto;padding-bottom:16px;-webkit-overflow-scrolling:touch}
+.srow{width:100%;display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:9px 10px;border:0;border-radius:14px;background:transparent;font-family:inherit;cursor:pointer;text-align:left}
+.srow.on{background:#F4FBEA}
+.srow:active{background:#F1F8FC}
+.srow-no{width:28px;height:28px;border-radius:9px;background:#EAF4FA;color:#4F7080;font-size:11px;font-weight:900;display:grid;place-items:center}
+.srow-tx b{display:block;font-size:13.5px;color:var(--ink)}
+.srow-tx i{font-size:10.5px;font-style:normal;font-weight:700;color:#7C97A5}
+.srow-ar{font-family:var(--font-ar);font-size:19px;color:var(--green-d)}
