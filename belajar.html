@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Belajar Lainnya — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=4">
+<link rel="stylesheet" href="css/screens.css?v=4">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.hub{display:grid;gap:12px}
+.hub-card{display:flex;align-items:center;gap:13px;background:#fff;border-radius:20px;padding:15px;box-shadow:var(--shadow-sm)}
+.hub-card .ic{width:52px;height:52px;flex:0 0 52px;border-radius:16px;display:grid;place-items:center;font-size:25px}
+.hub-card .tx{flex:1;min-width:0}
+.hub-card .tx b{display:block;font-size:15.5px}
+.hub-card .tx span{font-size:12px;color:var(--muted);font-weight:700}
+.hub-card .go{width:40px;height:40px;border-radius:12px;background:#F1F8FC;display:grid;place-items:center;color:var(--blue);font-weight:900}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Belajar Lainnya</b><span>Dasar agama dan karakter</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="hub">
+    <a class="hub-card" href="nabi.html">
+      <div class="ic" style="background:#E3F0FB">💬</div>
+      <div class="tx"><b>Susun Nama Nabi</b><span>25 nabi + riwayat singkat</span></div>
+      <div class="go">→</div>
+    </a>
+    <a class="hub-card" href="rukun.html">
+      <div class="ic" style="background:#E6F4EA">🕌</div>
+      <div class="tx"><b>Rukun Iman &amp; Islam</b><span>Susun urutan yang benar</span></div>
+      <div class="go">→</div>
+    </a>
+    <a class="hub-card" href="hadis.html">
+      <div class="ic" style="background:#FDE8ED">📜</div>
+      <div class="tx"><b>Susun Hadis</b><span>100 hadis pilihan</span></div>
+      <div class="go">→</div>
+    </a>
+    <a class="hub-card" href="diriku.html">
+      <div class="ic" style="background:#FFF3D6">🧒</div>
+      <div class="tx"><b>Diriku</b><span>Belanja item dengan poin</span></div>
+      <div class="go">→</div>
+    </a>
+  </section>
+</main>
+<script src="js/app.js?v=4"></script>
+<script>TQ.qs('#pts').textContent = TQ.fmt(TQ.points());</script>
+</body>
+</html>

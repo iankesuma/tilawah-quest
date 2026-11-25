@@ -1,0 +1,220 @@
+/* ===== Tokens ===== */
+:root{
+  --bg:#DDF1FA;
+  --bg-2:#EAF7FD;
+  --surface:#FFFFFF;
+  --ink:#1E3A4C;
+  --ink-2:#3C5B6E;
+  --muted:#6B8794;
+  --line:#B6D5E2;
+  --green:#8DBF2E;
+  --green-d:#6E9A1F;
+  --green-soft:#E6F4EA;
+  --green-text:#2F7A45;
+  --blue:#2F80C9;
+  --blue-soft:#E3F0FB;
+  --orange:#F5A623;
+  --orange-d:#D9861A;
+  --pink:#F06A8A;
+  --pink-soft:#FDE8ED;
+  --yellow:#FFC93C;
+  --red:#E2564E;
+  --radius:22px;
+  --radius-sm:14px;
+  --shadow:0 8px 20px rgba(30,58,76,.10);
+  --shadow-sm:0 4px 10px rgba(30,58,76,.08);
+  --font:"Nunito","Segoe UI",system-ui,-apple-system,sans-serif;
+  --font-display:"Baloo 2","Nunito",system-ui,sans-serif;
+  --font-ar:"Amiri Quran","Scheherazade New","Traditional Arabic",serif;
+}
+
+/* ===== Base ===== */
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  font-family:var(--font);
+  background:var(--bg);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.5;
+  min-height:100vh;
+  -webkit-text-size-adjust:100%;
+  overflow-x:hidden;
+}
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  background:
+    radial-gradient(1200px 500px at 15% -10%,#F2FBFF 0%,transparent 60%),
+    radial-gradient(900px 420px at 100% 0%,#CDEBF7 0%,transparent 55%),
+    linear-gradient(180deg,#E6F6FC 0%,#DDF1FA 45%,#D3ECF7 100%);
+}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer;border:0;background:none;color:inherit}
+a{color:var(--blue);text-decoration:none}
+h1,h2,h3{margin:0;font-family:var(--font-display);letter-spacing:-.2px;line-height:1.2}
+p{margin:0}
+.screen{padding-bottom:44px;max-width:520px;margin:0 auto;padding:14px 16px 32px;min-height:100vh}
+.screen.wide{max-width:860px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px;border-radius:8px}
+
+/* ===== App header (nav) ===== */
+.appbar{display:flex;align-items:center;gap:10px;padding:8px 0 14px}
+.appbar .iconbtn{
+  width:44px;height:44px;flex:0 0 44px;display:grid;place-items:center;
+  border-radius:14px;background:var(--surface);box-shadow:var(--shadow-sm);
+  font-size:20px;color:var(--ink)
+}
+.appbar .titles{flex:1;min-width:0}
+.appbar .titles b{display:block;font-family:var(--font-display);font-size:20px;line-height:1.1}
+.appbar .titles span{display:block;font-size:12px;color:var(--muted);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;background:var(--surface);
+  padding:9px 13px;border-radius:999px;font-weight:800;font-size:14px;
+  box-shadow:var(--shadow-sm);white-space:nowrap
+}
+.chip .star{color:var(--yellow)}
+
+/* ===== Game header ===== */
+.gamebar{display:flex;align-items:center;gap:10px;padding:6px 0 10px}
+.hearts{display:flex;gap:3px;font-size:19px;line-height:1}
+.hearts .h{color:var(--pink)}
+.hearts .h.off{color:#C2D6E0}
+.gamebar .gtitle{flex:1;min-width:0;text-align:center}
+.gamebar .gtitle b{display:block;font-size:14px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gamebar .gtitle i{display:block;font-family:var(--font-ar);font-style:normal;font-size:16px;color:var(--ink-2)}
+.gamebar .score{display:flex;align-items:center;gap:5px;font-weight:900;font-size:14px;color:var(--ink)}
+.bar{height:12px;border-radius:999px;background:#C7E2EE;overflow:hidden;margin:2px 0 14px}
+.bar i{display:block;height:100%;width:0;background:linear-gradient(180deg,#A6D642,var(--green));border-radius:999px;transition:width .3s ease}
+
+/* ===== Card ===== */
+.card{background:var(--surface);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.card.tight{padding:14px}
+.card + .card{margin-top:12px}
+
+/* ===== Buttons ===== */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  min-height:52px;padding:0 20px;border-radius:999px;
+  font-family:var(--font-display);font-size:18px;font-weight:800;
+  background:var(--green);color:#fff;
+  box-shadow:0 4px 0 var(--green-d);
+  transition:transform .08s ease, box-shadow .08s ease;
+  width:100%;
+}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--green-d)}
+.btn.ghost{background:var(--surface);color:var(--ink);box-shadow:0 3px 0 #C6D9E2;border:2px solid var(--line)}
+.btn.ghost:active{box-shadow:0 0 0 #C6D9E2}
+.btn.blue{background:var(--blue);box-shadow:0 4px 0 #2468A6}
+.btn.danger{background:var(--red);box-shadow:0 4px 0 #B23B34}
+.btn.small{min-height:44px;font-size:15px;padding:0 16px;width:auto}
+.btn[disabled]{opacity:.5;pointer-events:none}
+
+/* ===== Pill / badge ===== */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--green-soft);color:var(--green-text);
+  font-size:11.5px;font-weight:900;padding:5px 9px;border-radius:999px
+}
+.pill.gray{background:#EDF3F6;color:var(--muted)}
+.pill.new{background:var(--orange);color:#fff}
+.tag-new{position:absolute;top:-8px;right:-6px;background:var(--orange);color:#fff;font-size:10px;font-weight:900;padding:3px 7px;border-radius:999px;box-shadow:0 2px 0 var(--orange-d)}
+
+/* ===== Tooltip ===== */
+.tip{
+  position:relative;display:inline-block;background:#fff;border:2px solid var(--ink);
+  border-radius:12px;padding:7px 11px;font-size:12.5px;font-weight:800;color:var(--ink);
+  box-shadow:var(--shadow-sm);margin-bottom:12px
+}
+.tip::after{
+  content:"";position:absolute;bottom:-7px;left:18px;width:12px;height:12px;
+  background:#fff;border-right:2px solid var(--ink);border-bottom:2px solid var(--ink);
+  transform:rotate(45deg)
+}
+.tip.center{display:block;text-align:center;margin:0 auto 14px;max-width:90%}
+
+/* ===== Mascot ===== */
+.mascot{width:48px;height:48px;position:relative;filter:drop-shadow(0 4px 6px rgba(30,58,76,.18))}
+.mascot .m-body{
+  position:absolute;inset:6px;border-radius:14px;background:linear-gradient(180deg,#FBBE4E,var(--orange));
+  border:3px solid #C97C12
+}
+.mascot .m-eye{position:absolute;top:22px;width:7px;height:7px;border-radius:50%;background:#3A2A12}
+.mascot .m-eye.l{left:16px}
+.mascot .m-eye.r{right:16px}
+.mascot .m-mouth{position:absolute;left:50%;top:34px;transform:translateX(-50%);width:16px;height:8px;border-radius:0 0 10px 10px;background:#3A2A12}
+.mascot.happy .m-body{animation:hop .5s ease}
+.mascot.sad .m-body{background:linear-gradient(180deg,#E3B08A,#C98A5C);transform:rotate(-6deg)}
+.mascot.sad .m-mouth{border-radius:10px 10px 0 0;height:7px}
+@keyframes hop{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}}
+
+/* ===== Popup ===== */
+.overlay{
+  position:fixed;inset:0;background:rgba(23,48,64,.45);display:grid;place-items:center;
+  padding:20px;z-index:60;opacity:0;pointer-events:none;transition:opacity .18s
+}
+.overlay.on{opacity:1;pointer-events:auto}
+.dialog{
+  width:100%;max-width:340px;background:#fff;border-radius:24px;padding:22px 18px;
+  text-align:center;box-shadow:0 18px 40px rgba(20,45,60,.28);transform:scale(.94);
+  transition:transform .18s
+}
+.overlay.on .dialog{transform:scale(1)}
+.dialog .d-icon{font-size:38px;line-height:1}
+.dialog h3{font-size:21px;margin:8px 0 6px}
+.dialog p{color:var(--muted);font-size:14.5px;font-weight:700;margin-bottom:16px}
+.dialog.good h3{color:var(--green-text)}
+.dialog.bad h3{color:var(--red)}
+
+/* ===== Tile / slots ===== */
+.slots{
+  display:flex;flex-wrap:wrap;gap:7px;min-height:66px;align-content:flex-start;
+  border:2px dashed #A8CFDE;border-radius:16px;padding:10px;background:#F8FDFF
+}
+.slots .ph{color:var(--muted);font-size:13px;font-weight:800;margin:auto}
+.tile{
+  display:inline-flex;align-items:center;justify-content:center;
+  min-height:46px;padding:8px 12px;border-radius:13px;
+  background:#fff;border:2px solid var(--line);box-shadow:0 3px 0 #D9E8EF;
+  font-weight:800;font-size:17px;color:var(--ink);
+  transition:transform .08s,background .12s,border-color .12s
+}
+.tile:active{transform:translateY(2px);box-shadow:none}
+.tile.ar{font-family:var(--font-ar);font-size:24px;line-height:1.9;padding:6px 12px}
+.tile.sel{background:var(--pink-soft);border-color:var(--pink);color:#B93A57}
+.tile.ok{background:var(--green-soft);border-color:var(--green);color:var(--green-text)}
+.tile.used{opacity:.35;pointer-events:none}
+.tile.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.ghost{color:#B7CDD8;font-weight:800;font-size:17px;padding:8px 4px}
+.ghost.ar{font-family:var(--font-ar);font-size:24px}
+
+/* ===== Misc ===== */
+.row{display:flex;gap:10px;align-items:center}
+.row.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column;gap:10px}
+.muted{color:var(--muted);font-weight:700;font-size:13.5px}
+.center{text-align:center}
+.mt{margin-top:14px}
+.hidden{display:none!important}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+}
+
+/* numbered answer slots */
+.slots{display:flex;flex-wrap:wrap;gap:7px}
+.slot{
+  min-width:46px;min-height:46px;border-radius:13px;border:2px dashed #A8CFDE;
+  background:#fff;display:grid;place-items:center;padding:0 6px
+}
+.slot.filled{border:2px solid var(--green);background:var(--green-soft)}
+.slot.filled .tile{border:0;box-shadow:none;background:transparent;padding:4px 6px;min-height:auto}
+.slot .num{font-size:11px;font-weight:900;color:#A8C4D2}
+.slot.ghostslot{border-color:#CBE2EC;background:#F6FCFE}
+
+.play-actions{display:flex;align-items:center;gap:8px;margin-top:14px}
+.play-mascot{position:fixed;right:14px;bottom:20px;z-index:20;opacity:.95}

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kenalan dulu — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=4">
+<link rel="stylesheet" href="css/screens.css?v=4">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <div class="titles">
+      <b>Tilawah Quest</b>
+      <span>Kenalan dulu, yuk</span>
+    </div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="tip">Tulis namamu, lalu kunci 🔒</div>
+
+  <section class="card">
+    <div class="onb-bot">
+      <div class="bot-preview" id="preview">
+        <div class="bp-hat" id="p-hat"></div>
+        <div class="bp-body" id="p-body"></div>
+        <div class="bp-eye l"></div>
+        <div class="bp-eye r"></div>
+        <div class="bp-mouth"></div>
+      </div>
+    </div>
+
+    <label for="name" style="font-weight:900;font-size:14px;display:block;margin-bottom:6px">Siapa namamu?</label>
+    <div class="field">
+      <input id="name" placeholder="Tulis namamu" maxlength="18" autocomplete="nickname">
+    </div>
+    <button class="btn" id="save">Simpan 🔒</button>
+
+    <h3 style="font-size:15px;margin:20px 0 4px">Warna bot</h3>
+    <div class="swatches" id="colors" role="group" aria-label="Warna bot"></div>
+
+    <h3 style="font-size:15px;margin:8px 0 0">Topi</h3>
+    <div class="hats" id="hats" role="group" aria-label="Pilihan topi"></div>
+  </section>
+
+  <div style="height:14px"></div>
+  <button class="btn" id="go">Pilih Juz →</button>
+</main>
+
+<script src="js/app.js?v=4"></script>
+<script>
+(function () {
+  var p = TQ.profile();
+  var color = p.color || TQ.COLORS[0];
+  var hat = p.hat || 'none';
+  var name = p.name || '';
+
+  var nameEl = TQ.qs('#name'), preview = TQ.qs('#preview');
+  var body = TQ.qs('#p-body'), pHat = TQ.qs('#p-hat');
+  nameEl.value = name;
+  TQ.qs('#pts').textContent = TQ.points();
+
+  function paint() {
+    body.style.background = color;
+    document.documentElement.style.setProperty('--bot', color);
+    var css = TQ.hatCss(hat);
+    pHat.style.display = css.display;
+    if (css.background) pHat.style.background = css.background;
+    pHat.style.border = css.border || 'none';
+    var h = TQ.HATS.find(function (x) { return x.id === hat; });
+    pHat.className = 'bp-hat' + (h && h.brim ? ' brim' : '');
+  }
+
+  function buildColors() {
+    var box = TQ.qs('#colors');
+    TQ.COLORS.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'swatch';
+      b.style.background = c;
+      b.setAttribute('aria-label', 'Warna ' + c);
+      b.setAttribute('aria-pressed', String(c === color));
+      b.onclick = function () {
+        color = c; TQ.sfx.tap();
+        Array.prototype.forEach.call(box.children, function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        paint();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  function buildHats() {
+    var box = TQ.qs('#hats');
+    TQ.HATS.forEach(function (h) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hat';
+      b.setAttribute('aria-pressed', String(h.id === hat));
+      b.innerHTML = '<span class="h-prev"><span class="hp-head"></span>' +
+        (h.id === 'none' ? '' : '<span class="hp-hat" style="background:' + h.color + '"></span>') +
+        '</span><span>' + h.label + '</span>';
+      b.onclick = function () {
+        hat = h.id; TQ.sfx.tap();
+        Array.prototype.forEach.call(box.children, function (x) { x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        paint();
+      };
+      box.appendChild(b);
+    });
+  }
+
+  TQ.qs('#save').onclick = function () {
+    var v = nameEl.value.trim();
+    if (v.length < 2) {
+      TQ.popup({ icon: '✏️', title: 'Nama terlalu pendek', text: 'Tulis minimal 2 huruf.', bad: true, actions: [{ label: 'Oke', onClick: function () { nameEl.focus(); } }] });
+      return;
+    }
+    name = v;
+    TQ.setProfile({ name: name, color: color, hat: hat });
+    TQ.sfx.ok();
+    TQ.popup({ icon: '🔒', title: 'Tersimpan', text: 'Hai ' + name + '! Namamu sudah dikunci di perangkat ini.', good: true, actions: [{ label: 'Lanjut', onClick: function () { location.href = 'juz.html'; } }] });
+  };
+
+  TQ.qs('#go').onclick = function () {
+    var v = nameEl.value.trim();
+    if (v.length < 2) { nameEl.focus(); TQ.sfx.bad(); return; }
+    TQ.setProfile({ name: v, color: color, hat: hat, onboarded: true, joinedAt: TQ.profile().joinedAt || Date.now() });
+    TQ.sfx.ok();
+    location.href = 'juz.html';
+  };
+
+  buildColors(); buildHats(); paint();
+})();
+</script>
+</body>
+</html>

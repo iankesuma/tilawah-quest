@@ -1,1 +1,176 @@
-<!doctype html><html lang="id"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Susun Rukun</title><style>body{font-family:Arial;margin:0;min-height:100vh;background:linear-gradient(135deg,#fff1a8,#d4f7ff,#ffd4e5);color:#183b56}.app{max-width:800px;margin:auto;padding:20px}.card{background:#fff;padding:24px;border-radius:24px;box-shadow:0 8px 24px #183b5620;margin-top:20px}.top{display:flex;justify-content:space-between;align-items:center}.btn,.item{border:0;border-radius:12px;padding:13px 16px;font-weight:bold;cursor:pointer}.btn{background:#edf5f3;color:#183b56}.primary{background:#159dcc;color:#fff}.tabs{display:flex;gap:8px;flex-wrap:wrap}.tab.active{background:#159dcc;color:#fff}.items{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:22px 0}.item{background:#fff1bf;border:2px solid #efd789;font-size:18px}.answer{min-height:70px;border:2px dashed #b8d5dc;border-radius:16px;padding:12px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}.answer .item{background:#e1f7ef}.used{opacity:.3;pointer-events:none}.desc{line-height:1.65;background:#f3fbfa;padding:16px;border-radius:14px;margin-top:18px}@media(max-width:600px){.card{padding:15px}.item{font-size:16px;padding:12px}}</style><main class="app"><header class="top"><h2>🌟 Susun Rukun</h2><button class="btn" onclick="location.href='game-menu.html'">← Menu</button></header><section class="card"><div class="tabs"><button class="btn tab active" data-kind="iman">Rukun Iman</button><button class="btn tab" data-kind="islam">Rukun Islam</button></div><h1 id="title"></h1><p id="round"></p><div class="answer" id="answer">Susun urutan di sini</div><div class="items" id="items"></div><button class="btn" id="reset">↻ Ulangi</button> <button class="btn primary" id="check">Periksa</button><p id="feedback"></p><div class="desc" id="desc"></div></section></main><script>const sets={iman:{title:'Susun 6 Rukun Iman',items:['Iman kepada Allah','Iman kepada malaikat','Iman kepada kitab-kitab Allah','Iman kepada rasul-rasul Allah','Iman kepada hari akhir','Iman kepada qada dan qadar'],desc:'Rukun iman adalah enam dasar keyakinan seorang Muslim. Anak-anak belajar mengenal Allah, malaikat, kitab, rasul, hari akhir, serta qada dan qadar dengan penuh iman dan sikap baik.'},islam:{title:'Susun 5 Rukun Islam',items:['Membaca syahadat','Mendirikan salat','Membayar zakat','Berpuasa Ramadan','Menunaikan haji bagi yang mampu'],desc:'Rukun Islam adalah lima amalan utama. Syahadat menjadi kesaksian iman, salat menjaga hubungan dengan Allah, zakat membantu sesama, puasa melatih takwa, dan haji dilakukan bagi yang mampu.'}};let kind='iman',picked=[],$=x=>document.querySelector(x);function render(){let s=sets[kind];$('#title').textContent=s.title;$('#desc').textContent=s.desc;$('#round').textContent=`${s.items.length} urutan`;let shuffled=[...s.items].sort(()=>Math.random()-.5);$('#answer').innerHTML=picked.length?picked.map((x,i)=>`<button class="item" data-r="${i}">${x}</button>`).join(''):'Susun urutan di sini';$('#items').innerHTML=shuffled.map(x=>`<button class="item ${picked.includes(x)?'used':''}" data-p="${x}">${x}</button>`).join('')}function beep(ok){let c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.type=ok?'sine':'square';o.frequency.value=ok?880:180;g.gain.setValueAtTime(.001,c.currentTime);g.gain.exponentialRampToValueAtTime(.22,c.currentTime+.02);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+(ok?.35:.5));o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+(ok?.35:.5))}$('#items').onclick=e=>{let b=e.target.closest('[data-p]');if(!b||picked.includes(b.dataset.p))return;let expected=sets[kind].items[picked.length];if(b.dataset.p!==expected){beep(false);$('#feedback').textContent='Tetot! Urutan belum benar. Pilih rukun berikutnya.';return}beep(true);picked.push(b.dataset.p);$('#feedback').textContent='Benar!';render()};$('#answer').onclick=e=>{let b=e.target.closest('[data-r]');if(b){picked.splice(+b.dataset.r,1);render()}};document.querySelectorAll('.tab').forEach(b=>b.onclick=()=>{kind=b.dataset.kind;picked=[];document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x===b));render()});$('#reset').onclick=()=>{picked=[];render()};$('#check').onclick=()=>{$('#feedback').textContent=picked.join('|')===sets[kind].items.join('|')?'Benar! Hebat ✅':'Belum tepat, coba susun lagi'};render()</script><script src="enhance.js"></script></html>
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rukun Iman &amp; Islam — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=5">
+<link rel="stylesheet" href="css/screens.css?v=5">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.seg{display:flex;gap:8px;background:#fff;border-radius:16px;padding:6px;box-shadow:var(--shadow-sm)}
+.seg button{flex:1;border:0;background:transparent;border-radius:12px;padding:11px 8px;font-family:inherit;font-weight:900;font-size:13.5px;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--green);color:#fff}
+.items{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.items .tile{font-size:14px}
+.note{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px;font-size:13.5px;line-height:1.6;font-weight:600;color:var(--ink-2)}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Rukun Iman &amp; Islam</b><span id="sub">Susun urutan yang benar</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="seg" role="group" aria-label="Pilih materi">
+    <button id="t-iman" aria-pressed="true">Rukun Iman</button>
+    <button id="t-islam" aria-pressed="false">Rukun Islam</button>
+  </div>
+
+  <section class="card" style="margin-top:12px">
+    <p class="muted center" style="font-weight:800;font-size:12.5px">Ketuk sesuai urutan, dari nomor 1</p>
+
+    <div class="slots" id="answer" style="min-height:64px;margin-top:8px">
+      <span class="ph">Susun di sini</span>
+    </div>
+
+    <div class="items" id="bank"></div>
+
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn ghost small" id="reset" style="flex:1">↻ Ulangi</button>
+      <button class="btn" id="check" style="flex:2">Periksa</button>
+    </div>
+
+    <div class="note hidden" id="note"></div>
+  </section>
+</main>
+
+<script src="js/app.js?v=5"></script>
+<script>
+(function () {
+  var SETS = {
+    iman: {
+      label: 'Rukun Iman',
+      items: ['Iman kepada Allah', 'Iman kepada malaikat', 'Iman kepada kitab-kitab', 'Iman kepada rasul', 'Iman kepada hari akhir', 'Iman kepada qadar'],
+      notes: [
+        'Meyakini Allah satu-satunya Tuhan yang wajib disembah.',
+        'Malaikat adalah makhluk cahaya yang selalu taat kepada Allah.',
+        'Kitab-kitab Allah: Taurat, Zabur, Injil, dan Al-Quran.',
+        'Rasul adalah manusia pilihan yang menerima wahyu.',
+        'Hari akhir adalah hari pembalasan seluruh amal.',
+        'Qadar adalah ketetapan baik dan buruk dari Allah.'
+      ]
+    },
+    islam: {
+      label: 'Rukun Islam',
+      items: ['Syahadat', 'Shalat', 'Zakat', 'Puasa', 'Haji'],
+      notes: [
+        'Mengakui tiada Tuhan selain Allah dan Muhammad adalah rasul-Nya.',
+        'Shalat lima waktu sehari semalam.',
+        'Zakat membersihkan harta bagi yang mampu.',
+        'Puasa di bulan Ramadan.',
+        'Haji ke Baitullah bagi yang mampu.'
+      ]
+    }
+  };
+
+  var kind = 'iman', picked = [], bank = [], key = 'tq_rukun_done';
+  var el = {
+    sub: TQ.qs('#sub'), answer: TQ.qs('#answer'), bank: TQ.qs('#bank'),
+    note: TQ.qs('#note'), pts: TQ.qs('#pts')
+  };
+  el.pts.textContent = TQ.fmt(TQ.points());
+
+  function doneMap() { try { return JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) { return {}; } }
+  function markDone(k) { var m = doneMap(); if (!m[k]) { m[k] = true; localStorage.setItem(key, JSON.stringify(m)); return true; } return false; }
+
+  function build() {
+    var s = SETS[kind];
+    bank = TQ.shuffle(s.items.map(function (v) { return { v: v, used: false }; }));
+    picked = [];
+    el.sub.textContent = s.label + ' · ' + s.items.length + ' urutan';
+    el.note.classList.add('hidden');
+    if (location.search.indexOf('debug') > -1) el.sub.dataset.answer = s.items.join('|');
+    TQ.qs('#t-iman').setAttribute('aria-pressed', String(kind === 'iman'));
+    TQ.qs('#t-islam').setAttribute('aria-pressed', String(kind === 'islam'));
+    render();
+  }
+
+  function render() {
+    el.answer.innerHTML = '';
+    if (!picked.length) {
+      var ph = document.createElement('span');
+      ph.className = 'ph';
+      ph.textContent = 'Susun di sini';
+      el.answer.appendChild(ph);
+    }
+    picked.forEach(function (p, i) {
+      var t = document.createElement('span');
+      t.className = 'tile ok';
+      t.textContent = (i + 1) + '. ' + p.v;
+      t.onclick = function () { picked.splice(i, 1); p.used = false; TQ.sfx.tap(); render(); };
+      el.answer.appendChild(t);
+    });
+
+    el.bank.innerHTML = '';
+    bank.forEach(function (b, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tile' + (b.used ? ' used' : '');
+      btn.textContent = b.v;
+      btn.onclick = function () { pick(idx); };
+      el.bank.appendChild(btn);
+    });
+  }
+
+  function pick(idx) {
+    var b = bank[idx];
+    if (!b || b.used) return;
+    var want = SETS[kind].items[picked.length];
+    if (b.v !== want) {
+      TQ.sfx.bad();
+      var btn = el.bank.children[idx];
+      if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
+      TQ.popup({ icon: '💡', title: 'Belum urut', text: 'Ini bukan rukun nomor ' + (picked.length + 1) + '. Coba yang lain.', bad: true, actions: [{ label: 'Coba lagi' }] });
+      return;
+    }
+    b.used = true;
+    picked.push(b);
+    TQ.sfx.ok();
+    render();
+  }
+
+  TQ.qs('#t-iman').onclick = function () { if (kind !== 'iman') { kind = 'iman'; TQ.sfx.tap(); build(); } };
+  TQ.qs('#t-islam').onclick = function () { if (kind !== 'islam') { kind = 'islam'; TQ.sfx.tap(); build(); } };
+  TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
+
+  TQ.qs('#check').onclick = function () {
+    var s = SETS[kind];
+    if (picked.length < s.items.length) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '✏️', title: 'Belum lengkap', text: 'Susun semua ' + s.items.length + ' rukun dulu.', bad: true, actions: [{ label: 'Oke' }] });
+      return;
+    }
+    TQ.sfx.win();
+    var first = markDone(kind);
+    if (first) { TQ.addPoints(10); el.pts.textContent = TQ.fmt(TQ.points()); }
+    el.note.classList.remove('hidden');
+    el.note.innerHTML = '<b>Masya Allah, benar!</b><br>' +
+      s.items.map(function (v, i) { return (i + 1) + '. ' + v + ' — ' + s.notes[i]; }).join('<br>') +
+      (first ? '<br><span class="muted">+10 poin</span>' : '<br><span class="muted">Sudah pernah diselesaikan, poin tidak bertambah.</span>') +
+      '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>';
+    el.note.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  build();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Profil — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=7">
+<link rel="stylesheet" href="css/screens.css?v=7">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Profil</b><span>Progres di perangkat ini</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="card">
+    <div class="pf-head">
+      <div class="pf-ava" id="ava">
+        <div class="pa-hat" id="pa-hat"></div>
+        <div class="pa-body" id="pa-body"></div>
+        <div class="pa-eye l"></div>
+        <div class="pa-eye r"></div>
+      </div>
+      <div style="min-width:0">
+        <h2 id="name" style="font-size:22px">Pemain</h2>
+        <p class="muted" id="joined">Progres tersimpan di perangkat ini</p>
+      </div>
+    </div>
+
+    <div class="stat-grid" style="margin-bottom:0">
+      <div class="stat"><b id="st-levels">0</b><span>level selesai</span></div>
+      <div class="stat"><b id="st-ayahs">0</b><span>ayat disusun</span></div>
+      <div class="stat"><b id="st-stars">0</b><span>bintang</span></div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="stack">
+      <button class="btn ghost" onclick="location.href='onboarding.html'">Ubah nama &amp; bot</button>
+      <button class="btn ghost" onclick="location.href='belajar.html'">Belajar nabi, rukun, hadis</button>
+      <button class="btn ghost" onclick="location.href='bantuan.html'">Cara main &amp; sumber data</button>
+      <button class="btn danger" id="reset">Reset semua progres</button>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js?v=7"></script>
+<script>
+(function () {
+  var p = TQ.profile();
+  if (!p.onboarded) { location.replace('onboarding.html'); return; }
+  TQ.qs('#name').textContent = p.name;
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+  TQ.qs('#st-levels').textContent = TQ.stats().levels || 0;
+  TQ.qs('#st-ayahs').textContent = TQ.stats().ayahs || 0;
+  TQ.qs('#st-stars').textContent = TQ.totalStars();
+  var hatLabel = (TQ.HATS.find(function (h) { return h.id === p.hat; }) || TQ.HATS[0]).label;
+  var joined = p.joinedAt ? 'Bergabung ' + new Date(p.joinedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Progres tersimpan di perangkat ini';
+  TQ.qs('#joined').textContent = joined + ' · Topi: ' + hatLabel;
+
+  var body = TQ.qs('#pa-body'), hat = TQ.qs('#pa-hat');
+  body.style.background = p.color;
+  var css = TQ.hatCss(p.hat);
+  hat.style.display = css.display;
+  if (css.background) hat.style.background = css.background;
+
+  TQ.qs('#reset').onclick = function () {
+    var input = document.createElement('input');
+    input.className = '';
+    TQ.popup({
+      icon: '⚠️',
+      title: 'Hapus semua progres?',
+      text: 'Poin, bintang, dan level akan hilang. Tindakan ini tidak bisa dibatalkan.',
+      bad: true,
+      actions: [
+        { label: 'Batal', ghost: true },
+        {
+          label: 'Ya, hapus',
+          onClick: function () {
+            TQ.reset();
+            location.href = 'login.html';
+          }
+        }
+      ]
+    });
+  };
+})();
+</script>
+</body>
+</html>

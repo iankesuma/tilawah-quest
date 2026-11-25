@@ -1,1 +1,176 @@
-<!doctype html><html lang="id"><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Susun Hadis — Tilawah Quest</title><style>body{margin:0;font-family:Arial;background:linear-gradient(135deg,#ffd1df,#fff1a8,#c8f4ff);color:#183b56}.wrap{max-width:980px;margin:auto;padding:25px 18px}.top{display:flex;justify-content:space-between;align-items:center}.brand{font-size:22px;font-weight:bold;color:#159dcc}.pill,.card{background:white;border-radius:24px;padding:20px;box-shadow:0 10px 28px #183b5620}.hero{text-align:center;margin:42px 0 25px}.hero h1{font-size:clamp(34px,6vw,58px);margin:8px}.game{max-width:800px;margin:auto}.head{display:flex;justify-content:space-between;gap:15px}.stars{color:#f5b62e;font-size:25px}.bar{height:9px;background:#eee;border-radius:9px;margin:18px 0}.bar i{display:block;background:#48b9d5;height:100%;width:0}.source{color:#768894;font-size:12px}.workspace,.choices{display:flex;flex-wrap:wrap;gap:9px;min-height:110px;align-content:flex-start}.workspace{border:2px dashed #c9e0e5;border-radius:15px;padding:15px;display:flex;flex-direction:row;flex-wrap:wrap;align-content:flex-start;direction:ltr;overflow-x:hidden}.empty{width:100%;text-align:center;color:#99aab2;padding:35px}.piece{border:2px solid #d5e9df;background:#f5fff8;border-radius:12px;padding:11px 14px;cursor:pointer;font-size:15px;line-height:1.4;max-width:100%;text-align:left}.choices{margin:18px 0;display:flex;flex-direction:row;flex-wrap:wrap;direction:ltr}.choices .piece{background:#fff7df;border-color:#f0d994}.used{opacity:.25;pointer-events:none}.button{border:0;border-radius:12px;padding:13px 17px;font-weight:bold;cursor:pointer}.primary{background:#159dcc;color:white}.secondary{background:#edf5f3;color:#183b56}.feedback{float:right;margin:12px;color:#718}.good{color:#198d59}.bad{color:#d35454}.select{padding:10px;border-radius:10px;border:2px solid #eee}@media(max-width:600px){.wrap{padding:18px 12px}.head{align-items:flex-start}.piece{font-size:14px}.pill{padding:10px;font-size:12px}}</style><main class="wrap"><header class="top"><div class="brand">💬 Susun Hadis</div><button class="button secondary" onclick="location.href='game-menu.html'">← Menu game</button><div class="pill">⭐ <b id="points">0</b> poin</div></header><section class="hero"><div>🌱 BELAJAR DENGAN BIJAK</div><h1>Susun pesan kebaikan</h1><p>Pilih potongan kalimat hadis, lalu susun sampai urut.</p></section><section class="card game"><div class="head"><div><h2 id="number">Hadis 1 dari 100</h2><div class="source" id="source">Sumber: Shahih al-Bukhari</div></div><div class="stars" id="stars">☆☆☆</div></div><div class="bar"><i id="bar"></i></div><div id="workspace" class="workspace"><div class="empty">Pilih potongan hadis di bawah 🌟</div></div><div id="choices" class="choices"></div><button class="button secondary" id="reset">↻ Ulangi</button> <button class="button primary" id="check">Periksa</button><span class="feedback" id="feedback">0 potongan tersusun</span><p class="source">Hadis pilihan berbahasa Indonesia. Rujukan nomor mengikuti kumpulan Shahih al-Bukhari; periksa kembali teks pada kitab/cetakan yang digunakan.</p></section></main><script src="hadis-data.js"></script><script>const core=HADIS_DATA.map(x=>{let words=x.text.trim().split(/\s+/),parts=[];for(let i=0;i<words.length;i+=7)parts.push(words.slice(i,i+7).join(' '));parts.push('HR. Shahih al-Bukhari no. '+x.n);return parts});const hadis=core;let n=0,picked=[],points=+localStorage.hadisPoints||0,$=x=>document.querySelector(x);$('#points').textContent=points;function render(){let h=hadis[n],answer=h.slice(0,-1),parts=[...answer].sort(()=>Math.random()-.5);$('#number').textContent='Hadis '+(n+1)+' dari 100';$('#source').textContent=h[h.length-1];$('#workspace').innerHTML=picked.length?picked.map((x,i)=>`<button class="piece" data-r="${i}">${x}</button>`).join(''):'<div class="empty">Pilih potongan hadis di bawah 🌟</div>';$('#choices').innerHTML=parts.map(x=>`<button class="piece ${picked.includes(x)?'used':''}" data-p="${x}">${x}</button>`).join('');$('#feedback').textContent=picked.length+' potongan tersusun';$('#bar').style.width=picked.length/2*100+'%'}$('#choices').onclick=e=>{let b=e.target.closest('[data-p]');if(b&&!picked.includes(b.dataset.p)){picked.push(b.dataset.p);render()}};$('#workspace').onclick=e=>{let b=e.target.closest('[data-r]');if(b){picked.splice(+b.dataset.r,1);render()}};$('#reset').onclick=()=>{picked=[];render()};$('#check').onclick=()=>{let answer=hadis[n].slice(0,-1);if(picked.length<answer.length){$('#feedback').textContent='Susun semua potongan dulu';return}if(picked.every((x,i)=>x===answer[i])){beep(true);$('#feedback').textContent='Benar! Masya Allah 🎉';$('#feedback').className='feedback good';$('#stars').textContent='★★★';points+=10;$('#points').textContent=points;localStorage.hadisPoints=points;setTimeout(()=>{n=(n+1)%100;picked=[];render()},900)}else{beep(false);$('#feedback').textContent='Belum tepat, coba lagi';$('#feedback').className='feedback bad';$('#stars').textContent='★☆☆'}};function beep(ok){let c=new AudioContext(),o=c.createOscillator(),g=c.createGain();o.type=ok?'sine':'square';o.frequency.value=ok?880:160;g.gain.value=.08;o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+.35)}render();</script></html>
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Susun Hadis — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=5">
+<link rel="stylesheet" href="css/screens.css?v=5">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.hadis-ar{font-family:var(--font-ar);font-size:24px;line-height:2;text-align:right;direction:rtl;color:var(--green-d);margin:4px 0 10px}
+.src{font-size:12px;font-weight:800;color:var(--muted);text-align:right}
+.words{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.words .tile{font-size:14px;padding:10px 12px}
+.story{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px;font-size:13.5px;line-height:1.6;font-weight:600;color:var(--ink-2)}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Susun Hadis</b><span id="prog">Hadis 1 dari 20</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="bar" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
+
+  <section class="card">
+    <p class="muted center" style="font-weight:800;font-size:12.5px">Susun arti hadis berikut</p>
+    <p class="hadis-ar" id="ar"></p>
+    <p class="src" id="src"></p>
+
+    <div class="slots" id="answer" style="min-height:62px">
+      <span class="ph">Susun artinya di sini</span>
+    </div>
+
+    <div class="words" id="bank"></div>
+
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn ghost small" id="reset" style="flex:1">↻ Ulangi</button>
+      <button class="btn" id="check" style="flex:2">Periksa</button>
+    </div>
+
+    <div class="story hidden" id="story"></div>
+  </section>
+</main>
+
+<script src="js/app.js?v=5"></script>
+<script>
+(function () {
+  var DATA = [
+    { ar: 'إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ', id: 'Sesungguhnya amal itu tergantung niatnya', src: 'Bukhari & Muslim' },
+    { ar: 'الطُّهُورُ شَطْرُ الإِيمَانِ', id: 'Kesucian adalah setengah dari iman', src: 'Muslim' },
+    { ar: 'الدِّينُ يُسْرٌ', id: 'Agama itu mudah', src: 'Bukhari' },
+    { ar: 'لَا تَغْضَبْ', id: 'Jangan marah', src: 'Bukhari' },
+    { ar: 'تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ صَدَقَةٌ', id: 'Senyummu kepada saudaramu adalah sedekah', src: 'Tirmidzi' },
+    { ar: 'خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ', id: 'Sebaik-baik kalian adalah yang belajar Al-Quran dan mengajarkannya', src: 'Bukhari' },
+    { ar: 'الْمُسْلِمُ مَنْ سَلِمَ الْمُسْلِمُونَ مِنْ لِسَانِهِ وَيَدِهِ', id: 'Muslim adalah orang yang kaum muslimin selamat dari lisan dan tangannya', src: 'Bukhari' },
+    { ar: 'لاَ يُؤْمِنُ أَحَدُكُمْ حَتَّى يُحِبَّ لأَخِيهِ مَا يُحِبُّ لِنَفْسِهِ', id: 'Tidak sempurna iman seseorang sampai ia mencintai saudaranya seperti mencintai dirinya sendiri', src: 'Bukhari & Muslim' },
+    { ar: 'مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ', id: 'Barang siapa beriman kepada Allah dan hari akhir hendaklah berkata baik atau diam', src: 'Bukhari' },
+    { ar: 'إِنَّ اللَّهَ جَمِيلٌ يُحِبُّ الْجَمَالَ', id: 'Sesungguhnya Allah itu indah dan mencintai keindahan', src: 'Muslim' },
+    { ar: 'الْمُؤْمِنُ لِلْمُؤْمِنِ كَالْبُنْيَانِ يَشُدُّ بَعْضُهُ بَعْضًا', id: 'Mukmin dengan mukmin lain seperti bangunan yang saling menguatkan', src: 'Bukhari' },
+    { ar: 'مَنْ لَا يَشْكُرُ النَّاسَ لَا يَشْكُرُ اللَّهَ', id: 'Siapa yang tidak bersyukur kepada manusia tidak bersyukur kepada Allah', src: 'Tirmidzi' },
+    { ar: 'أَحَبُّ الأَعْمَالِ إِلَى اللَّهِ أَدْوَمُهَا', id: 'Amal yang paling dicintai Allah adalah yang paling konsisten', src: 'Bukhari & Muslim' },
+    { ar: 'إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ', id: 'Allah tidak melihat rupa dan harta kalian tetapi melihat hati dan amal kalian', src: 'Muslim' },
+    { ar: 'مَنْ حُسْنِ إِسْلَامِ الْمَرْءِ تَرْكُهُ مَا لَا يَعْنِيهِ', id: 'Tanda baiknya keislaman seseorang adalah meninggalkan hal yang tidak bermanfaat baginya', src: 'Tirmidzi' },
+    { ar: 'لَا ضَرَرَ وَلَا ضِرَارَ', id: 'Tidak boleh membahayakan diri sendiri dan orang lain', src: 'Ibnu Majah' },
+    { ar: 'الطَّاعِمُ الشَّاكِرُ كَالصَّائِمِ الصَّابِرِ', id: 'Orang yang makan lalu bersyukur seperti orang yang berpuasa lalu bersabar', src: 'Tirmidzi' },
+    { ar: 'إِنَّ اللَّهَ كَتَبَ الإِحْسَانَ عَلَى كُلِّ شَيْءٍ', id: 'Sesungguhnya Allah menetapkan berbuat baik atas segala sesuatu', src: 'Muslim' },
+    { ar: 'اتَّقِ اللَّهَ حَيْثُمَا كُنْتَ', id: 'Bertakwalah kepada Allah di mana pun kamu berada', src: 'Tirmidzi' },
+    { ar: 'مَنْ صَلَّى عَلَيَّ صَلَاةً صَلَّى اللَّهُ عَلَيْهِ عَشْرًا', id: 'Siapa bershalawat kepadaku sekali Allah bershalawat kepadanya sepuluh kali', src: 'Muslim' }
+  ];
+
+  var n = 0, picked = [], bank = [];
+  var el = {
+    ar: TQ.qs('#ar'), src: TQ.qs('#src'), prog: TQ.qs('#prog'), pbar: TQ.qs('#pbar'),
+    answer: TQ.qs('#answer'), bank: TQ.qs('#bank'), story: TQ.qs('#story')
+  };
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  function doneList() { try { return JSON.parse(localStorage.getItem('tq_hadis_done') || '[]'); } catch (e) { return []; } }
+  function markDone(i) { var d = doneList(); if (d.indexOf(i) < 0) { d.push(i); localStorage.setItem('tq_hadis_done', JSON.stringify(d)); return true; } return false; }
+
+  function build() {
+    var it = DATA[n];
+    bank = TQ.shuffle(it.id.split(' ').map(function (w) { return { w: w, used: false }; }));
+    picked = [];
+    el.ar.textContent = it.ar;
+    el.src.textContent = '— ' + it.src;
+    el.prog.textContent = 'Hadis ' + (n + 1) + ' dari ' + DATA.length;
+    el.story.classList.add('hidden');
+    if (location.search.indexOf('debug') > -1) el.prog.dataset.answer = it.id;
+    render();
+  }
+
+  function render() {
+    el.answer.innerHTML = '';
+    if (!picked.length) {
+      var ph = document.createElement('span');
+      ph.className = 'ph';
+      ph.textContent = 'Susun artinya di sini';
+      el.answer.appendChild(ph);
+    }
+    picked.forEach(function (p, i) {
+      var t = document.createElement('span');
+      t.className = 'tile ok';
+      t.textContent = p.w;
+      t.title = 'Ketuk untuk mengembalikan';
+      t.onclick = function () { picked.splice(i, 1); p.used = false; TQ.sfx.tap(); render(); };
+      el.answer.appendChild(t);
+    });
+
+    el.bank.innerHTML = '';
+    bank.forEach(function (b, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tile' + (b.used ? ' used' : '');
+      btn.textContent = b.w;
+      btn.onclick = function () { pick(idx); };
+      el.bank.appendChild(btn);
+    });
+
+    var total = DATA[n].id.split(' ').length;
+    el.pbar.style.width = (n / DATA.length * 100 + (picked.length / total) * (100 / DATA.length)) + '%';
+  }
+
+  function pick(idx) {
+    var b = bank[idx];
+    if (!b || b.used) return;
+    var want = DATA[n].id.split(' ')[picked.length];
+    if (b.w !== want) {
+      TQ.sfx.bad();
+      var btn = el.bank.children[idx];
+      if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
+      TQ.popup({ icon: '💡', title: 'Belum tepat', text: 'Kata berikutnya berbeda. Coba kata lain.', bad: true, actions: [{ label: 'Coba lagi' }] });
+      return;
+    }
+    b.used = true;
+    picked.push(b);
+    TQ.sfx.ok();
+    render();
+  }
+
+  TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
+
+  TQ.qs('#check').onclick = function () {
+    var want = DATA[n].id.split(' ');
+    if (picked.length < want.length) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '✏️', title: 'Belum lengkap', text: 'Susun semua kata dulu.', bad: true, actions: [{ label: 'Oke' }] });
+      return;
+    }
+    TQ.sfx.win();
+    var first = markDone(n);
+    if (first) { TQ.addPoints(10); TQ.qs('#pts').textContent = TQ.fmt(TQ.points()); }
+    el.pbar.style.width = ((n + 1) / DATA.length * 100) + '%';
+    el.story.classList.remove('hidden');
+    el.story.innerHTML =
+      '<b>Alhamdulillah, benar!</b><br>' + DATA[n].id + '.' +
+      (first ? '<br><span class="muted">+10 poin</span>' : '<br><span class="muted">Sudah pernah diselesaikan, poin tidak bertambah.</span>') +
+      (n < DATA.length - 1 ? '<button class="btn mt" id="next">Hadis berikutnya →</button>' : '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>');
+    var nx = TQ.qs('#next');
+    if (nx) nx.onclick = function () { n++; build(); };
+    el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  build();
+})();
+</script>
+</body>
+</html>

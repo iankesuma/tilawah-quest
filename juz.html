@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pilih Juz — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=4">
+<link rel="stylesheet" href="css/screens.css?v=4">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="profil.html" aria-label="Profil"><span id="ava">🙂</span></a>
+    <div class="titles">
+      <b id="who">Pemain</b>
+      <span id="sub">Pilih juz yang mau kamu latih</span>
+    </div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="tip">Saranku mulai dari Juz 30 👇</div>
+
+  <section class="juz-grid" id="grid" aria-live="polite">
+    <div class="muted center" style="grid-column:1/-1;padding:30px 0">Memuat data juz…</div>
+  </section>
+
+  <div class="card mt">
+    <div class="row between">
+      <div>
+        <b style="font-size:14px">Belajar lainnya</b>
+        <p class="muted">Nabi, rukun, dan hadis</p>
+      </div>
+      <a class="btn small ghost" href="belajar.html" style="width:auto">Buka</a>
+    </div>
+  </div>
+</main>
+
+<script src="js/app.js?v=4"></script>
+<script src="js/quran.js?v=4"></script>
+<script>
+(function () {
+  if (!TQ.requireProfile()) return;
+  var p = TQ.profile();
+  TQ.qs('#who').textContent = p.name;
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+  var ava = TQ.qs('#ava');
+  ava.textContent = '🙂';
+  ava.style.background = p.color;
+
+  var grid = TQ.qs('#grid');
+
+  Quran.juzList().then(function (list) {
+    grid.innerHTML = '';
+    list.forEach(function (j) {
+      var pr = TQ.juzProgress(j);
+      var a = document.createElement('a');
+      a.className = 'juz' + (pr.done === pr.total && pr.total ? ' done' : '');
+      a.href = 'surah.html?juz=' + j.j;
+      a.setAttribute('aria-label', 'Juz ' + j.j + ', ' + j.name + ', ' + pr.done + ' dari ' + pr.total + ' level');
+      a.innerHTML =
+        '<b>' + j.j + '</b>' +
+        '<span>' + j.name + '</span>' +
+        '<div class="bar"><i style="width:' + Math.round(pr.done / pr.total * 100) + '%"></i></div>' +
+        '<span class="pill">' + pr.done + '/' + pr.total + ' level</span>';
+      grid.appendChild(a);
+    });
+  }).catch(function (e) {
+    grid.innerHTML = '<div class="muted center" style="grid-column:1/-1;padding:26px 0">' +
+      'Data juz gagal dimuat.<br><a href="juz.html">Muat ulang</a></div>';
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Latihan — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=4">
+<link rel="stylesheet" href="css/screens.css?v=4">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="gamebar">
+    <a class="iconbtn" href="surah.html?juz=30" id="quit" aria-label="Keluar">✕</a>
+    <div class="gtitle">
+      <b id="g-title">An-Naba</b>
+      <i id="g-ar">النبأ</i>
+    </div>
+    <div class="row" style="gap:6px">
+      <button class="iconbtn" id="speak" aria-label="Putar bacaan">🔊</button>
+      <span class="score">⭐ <b id="score">0</b></span>
+    </div>
+  </div>
+
+  <div class="row between" style="margin-bottom:4px">
+    <div class="hearts" id="hearts" aria-label="Nyawa"></div>
+    <span class="muted" id="step">Ayat 1</span>
+  </div>
+  <div class="bar"><i id="bar"></i></div>
+
+  <section class="ayat-card">
+    <div class="ac-title">
+      <span id="surah-label">سورة النبأ</span>
+      <span id="mode-label">Susun Ayat</span>
+    </div>
+    <div class="bismillah" id="bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>
+    <div id="ayat-lines"></div>
+  </section>
+
+  <p class="instr" id="instr">Ketuk kata berikutnya <span aria-hidden="true">👇</span></p>
+  <div class="slots" id="slots" aria-live="polite">
+    <span class="ph">Susun di sini</span>
+  </div>
+  <div class="bank" id="bank"></div>
+
+  <div class="play-actions">
+    <span class="chip" id="combo" hidden>🔥 Combo <b>0</b></span>
+    <button class="btn ghost small" id="retry-ayah" style="margin-left:auto">↻ Ulangi ayat</button>
+  </div>
+
+  <div class="play-mascot" id="mascot"></div>
+</main>
+
+<script src="js/app.js?v=4"></script>
+<script src="js/quran.js?v=4"></script>
+<script src="js/play.js?v=4"></script>
+</body>
+</html>

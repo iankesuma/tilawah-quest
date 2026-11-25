@@ -1,0 +1,20 @@
+{
+  "name": "Tilawah Quest — Belajar Al-Quran",
+  "short_name": "Tilawah",
+  "description": "Belajar hafal ayat Al-Quran dengan permainan susun ayat dan susun arti.",
+  "start_url": "juz.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#DDF1FA",
+  "theme_color": "#8DBF2E",
+  "lang": "id",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
