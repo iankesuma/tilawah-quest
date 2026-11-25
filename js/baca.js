@@ -11,12 +11,12 @@
 
   var RULES = [
     { k: 'ghunnah', label: 'Ghunnah', color: '#2E9E4F', note: 'dengung 2 harakat' },
-    { k: 'ikhfa', label: 'Ikhfa', color: '#B7791F', note: 'samar, dengung' },
-    { k: 'idgham', label: 'Idgham', color: '#7B5CD6', note: 'lebur ke huruf berikut' },
+    { k: 'ikhfa', label: 'Ikhfa', color: '#C98200', note: 'samar, dengung' },
+    { k: 'idgham', label: 'Idgham', color: '#1D6FB8', note: 'lebur ke huruf berikut' },
     { k: 'iqlab', label: 'Iqlab', color: '#D63384', note: 'nun jadi mim' },
-    { k: 'qalqalah', label: 'Qalqalah', color: '#C2410C', note: 'memantul' },
+    { k: 'qalqalah', label: 'Qalqalah', color: '#8A4B2A', note: 'memantul' },
     { k: 'mad', label: 'Mad', color: '#DC2626', note: 'panjang 2 harakat' },
-    { k: 'mad_lazim', label: 'Mad lazim', color: '#991B1B', note: 'panjang 6 harakat' }
+    { k: 'mad_lazim', label: 'Mad lazim', color: '#7F1D1D', note: 'panjang 6 harakat' }
   ];
 
   var el = {};
@@ -25,7 +25,7 @@
     el[id] = document.getElementById(id);
   });
 
-  var meta = null, offsets = [], cur = SURAH, ayahs = [], audio = null, playing = -1;
+  var meta = null, offsets = [], cur = SURAH, ayahs = [], audio = null, playing = -1, bism = null;
   var fontPx = +(localStorage.getItem(LS_FONT) || 30);
   var colored = localStorage.getItem(LS_COLOR) !== '0';
 
@@ -76,8 +76,11 @@
     el['g-ar'].textContent = m.ar;
     document.title = m.name + ' — Tilawah Quest';
 
-    var bismillah = (cur !== 1 && cur !== 9)
-      ? '<div class="baca-bismillah">بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ</div>' : '';
+    var bismillah = '';
+    if (cur !== 1 && cur !== 9) {
+      bismillah = '<div class="baca-bismillah">' +
+        (bism ? ayahHtml({ s: bism }) : 'بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ') + '</div>';
+    }
 
     el['ayat-list'].innerHTML = bismillah + ayahs.map(function (a) {
       return '<div class="ayah" id="a' + a.i + '" data-i="' + a.i + '">' +
@@ -201,7 +204,10 @@
     el.prev.onclick = function () { if (cur > 1) load(cur - 1); };
     el.next.onclick = function () { if (cur < 114) load(cur + 1); };
 
-    load(SURAH || 1, AYAH);
+    fetch('data/tajwid/001.json?v=16').then(function (r) { return r.json(); })
+      .then(function (d) { bism = d.ayahs[0].s; })
+      .catch(function () {})
+      .then(function () { load(SURAH || 1, AYAH); });
   }).catch(function (e) {
     el['ayat-list'].innerHTML = '<p class="muted center">Data surah gagal dimuat.</p>';
   });
