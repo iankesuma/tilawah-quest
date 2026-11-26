@@ -176,49 +176,13 @@
   };
 
 
-  /* ---------- background music + sound toggle ---------- */
-  var bgmEl = null;
-  function bgmOn() { try { return localStorage.getItem('tq_bgm') !== '0'; } catch (e) { return true; } }
-  function bgmSet(on) {
-    try { localStorage.setItem('tq_bgm', on ? '1' : '0'); } catch (e) {}
-    if (on) {
-      if (!bgmEl) { bgmEl = new Audio('audio/calmant.mp3'); bgmEl.loop = true; bgmEl.volume = 0.18; }
-      bgmEl.play().catch(function () {});
-    } else if (bgmEl) { bgmEl.pause(); }
-    paintToggle();
-  }
-  function bgmTryStart() { if (bgmOn()) bgmSet(true); }
-
-  var toggleEl = null;
-  function paintToggle() {
-    if (!toggleEl) return;
-    var on = bgmOn();
-    toggleEl.textContent = on ? '🔊' : '🔇';
-    toggleEl.setAttribute('aria-label', on ? 'Matikan suara' : 'Nyalakan suara');
-    toggleEl.setAttribute('aria-pressed', String(on));
-  }
-  function mountToggle() {
-    if (toggleEl || !document.body) return;
-    toggleEl = document.createElement('button');
-    toggleEl.type = 'button';
-    toggleEl.className = 'sound-toggle';
-    toggleEl.onclick = function () { bgmSet(!bgmOn()); if (bgmOn()) sfx.tap(); };
-    var bar = document.querySelector('.appbar');
-    if (bar) {
-      toggleEl.className += ' inbar';
-      bar.appendChild(toggleEl);
-    } else {
-      document.body.appendChild(toggleEl);
-    }
-    paintToggle();
-  }
+  /* ---------- audio init ---------- */
   function armAudio() {
     var started = false;
     function go() {
       if (started) return;
       started = true;
       ac();
-      bgmTryStart();
     }
     ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
       document.addEventListener(ev, go, { once: true, passive: true });
@@ -227,24 +191,12 @@
     document.addEventListener('visibilitychange', function () {
       if (document.visibilityState === 'visible') {
         if (ctx && ctx.state === 'suspended') { ctx.resume().catch(function () {}); }
-        if (bgmOn() && bgmEl && bgmEl.paused) { bgmEl.play().catch(function () {}); }
       }
     });
-    // keep trying until the browser lets us play (mobile autoplay policies)
-    var lastTry = 0;
-    document.addEventListener('pointerdown', function () {
-      if (!bgmOn()) return;
-      if (bgmEl && !bgmEl.paused) return;
-      var now = Date.now();
-      if (now - lastTry < 1500) return;
-      lastTry = now;
-      ac();
-      bgmSet(true);
-    }, { passive: true });
   }
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { mountToggle(); armAudio(); });
-  } else { mountToggle(); armAudio(); }
+    document.addEventListener('DOMContentLoaded', armAudio);
+  } else { armAudio(); }
 
   /* ---------- popup ---------- */
   let overlayEl = null;
@@ -380,7 +332,7 @@
     stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone, levelStagesDone: levelStagesDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
     sfx: sfx, popup: popup, closePopup: close,
-    bgmOn: bgmOn, bgmSet: bgmSet, bgmState: function () { return { on: bgmOn(), playing: !!(bgmEl && !bgmEl.paused), t: bgmEl ? Math.round(bgmEl.currentTime * 10) / 10 : 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
+    bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
     reset: function () {
