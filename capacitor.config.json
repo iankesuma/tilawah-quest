@@ -1,0 +1,13 @@
+{
+  "appId": "com.iankesuma.tilawahquest",
+  "appName": "Tilawah Quest",
+  "webDir": "www",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": true,
+    "backgroundColor": "#DDF1FA"
+  },
+  "server": {
+    "androidScheme": "https"
+  }
+}
