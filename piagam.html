@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Piagam Penghargaan — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=41">
+<link rel="stylesheet" href="css/screens.css?v=41">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.cert-preview{width:100%;max-width:100%;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);margin-bottom:14px;border:3px solid #DCEBF4}
+.cert-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="profil.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Piagam Penghargaan</b><span>Sertifikat Prestasi Hafalan</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="card" style="text-align:center">
+    <canvas id="certCanvas" width="1200" height="850" style="display:none"></canvas>
+    <img id="certImg" class="cert-preview" alt="Piagam Penghargaan Tilawah Quest">
+    
+    <div class="cert-actions">
+      <button class="btn" id="dl-btn">📥 Unduh Gambar</button>
+      <button class="btn ghost" id="print-btn">🖨️ Cetak Piagam</button>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js?v=41"></script>
+<script>
+(function () {
+  var p = TQ.profile() || { name: 'Santri Cilik' };
+  var stats = TQ.stats() || {};
+  var totalStars = TQ.totalStars() || 0;
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  var cvs = document.getElementById('certCanvas');
+  var ctx = cvs.getContext('2d');
+
+  function renderCertificate() {
+    var W = cvs.width, H = cvs.height;
+
+    // Background gradasi islami
+    var bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    bgGrad.addColorStop(0, '#FFFFFF');
+    bgGrad.addColorStop(0.5, '#F7FCF9');
+    bgGrad.addColorStop(1, '#EBF7EE');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Border ganda emas
+    ctx.lineWidth = 14;
+    ctx.strokeStyle = '#D4AF37';
+    ctx.strokeRect(30, 30, W - 60, H - 60);
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = '#8DBF2E';
+    ctx.strokeRect(48, 48, W - 96, H - 96);
+
+    // Ornamen sudut
+    var cornerSize = 40;
+    ctx.fillStyle = '#D4AF37';
+    ctx.fillRect(40, 40, cornerSize, cornerSize);
+    ctx.fillRect(W - 40 - cornerSize, 40, cornerSize, cornerSize);
+    ctx.fillRect(40, H - 40 - cornerSize, cornerSize, cornerSize);
+    ctx.fillRect(W - 40 - cornerSize, H - 40 - cornerSize, cornerSize);
+
+    // Bismillah / Header Arab
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#2E661F';
+    ctx.font = 'bold 38px "Amiri Quran", serif';
+    ctx.fillText('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', W / 2, 130);
+
+    // Judul Piagam
+    ctx.fillStyle = '#1B3B2B';
+    ctx.font = '900 48px "Nunito", sans-serif';
+    ctx.fillText('PIAGAM PENGHARGAAN', W / 2, 210);
+
+    ctx.fillStyle = '#D4AF37';
+    ctx.font = '800 24px "Nunito", sans-serif';
+    ctx.fillText('TILAWAH QUEST — PENGHAFAL QUR\'AN CILIK', W / 2, 255);
+
+    // Garis hias
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#D4AF37';
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 200, 275);
+    ctx.lineTo(W / 2 + 200, 275);
+    ctx.stroke();
+
+    // Diberikan kepada
+    ctx.fillStyle = '#6E8B7A';
+    ctx.font = '700 22px "Nunito", sans-serif';
+    ctx.fillText('Diberikan dengan penuh rasa bangga kepada:', W / 2, 335);
+
+    // Nama Santri
+    ctx.fillStyle = '#1D6FB8';
+    ctx.font = '900 56px "Baloo 2", sans-serif';
+    ctx.fillText(p.name || 'Santri Cilik', W / 2, 415);
+
+    // Keterangan Prestasi
+    ctx.fillStyle = '#2A4335';
+    ctx.font = '600 23px "Nunito", sans-serif';
+    ctx.fillText('Atas ketekunan, kecintaan, dan semangat istiqomah dalam', W / 2, 485);
+    ctx.fillText('mempelajari dan menyusun ayat-ayat suci Al-Qur\'an.', W / 2, 520);
+
+    // Badge Ringkasan Prestasi
+    var badgeY = 600;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = '#C8E6C9';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(W / 2 - 350, badgeY, 700, 90, 18);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = '#2E661F';
+    ctx.font = '800 22px "Nunito", sans-serif';
+    var textStat = '⭐ ' + totalStars + ' Bintang   •   📜 ' + (stats.ayahs || 0) + ' Ayat Disusun   •   🏆 ' + (stats.levels || 0) + ' Level Selesai';
+    ctx.fillText(textStat, W / 2, badgeY + 54);
+
+    // Tanggal & Pengesahan
+    var nowStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    ctx.fillStyle = '#6E8B7A';
+    ctx.font = '600 20px "Nunito", sans-serif';
+    ctx.fillText('Diterbitkan pada: ' + nowStr, W / 2, 755);
+
+    // Export ke gambar pratinjau
+    var imgUrl = cvs.toDataURL('image/png');
+    document.getElementById('certImg').src = imgUrl;
+
+    // Tombol Download
+    document.getElementById('dl-btn').onclick = function () {
+      var a = document.createElement('a');
+      a.download = 'Piagam_Tilawah_Quest_' + (p.name || 'Santri').replace(/\s+/g, '_') + '.png';
+      a.href = imgUrl;
+      a.click();
+    };
+
+    // Tombol Cetak
+    document.getElementById('print-btn').onclick = function () {
+      var win = window.open('', '_blank');
+      win.document.write('<html><head><title>Cetak Piagam</title><style>@page{size:landscape;margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh}img{max-width:98vw;max-height:98vh}</style></head><body><img src="' + imgUrl + '"><script>window.onload=function(){window.print();};<\/script></body></html>');
+      win.document.close();
+    };
+  }
+
+  // Tunggu font render lalu gambar
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(renderCertificate);
+  } else {
+    setTimeout(renderCertificate, 500);
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,938 @@
+[
+  {
+    "surah": 108,
+    "surah_name": "Al-Kausar",
+    "ayah": 1,
+    "highlight": "َآ",
+    "snippet": "إِنّ <b class='highlight tj-mad_lazim'>َآ</b> أَعْطَيْنَـٰكَ ٱلْكَوْثَرَ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 82,
+    "surah_name": "Al-Infitar",
+    "ayah": 19,
+    "highlight": "ذٍ ل",
+    "snippet": "شَيْــًٔا‌ۖ وَٱلْأَمْرُ يَوْمَئِ <b class='highlight tj-idgham'>ذٍ ل</b> ِّلَّهِ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 9,
+    "highlight": "نًا و",
+    "snippet": "وَلِسَا <b class='highlight tj-idgham'>نًا و</b> َشَفَتَيْنِ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 24,
+    "highlight": "دًا و",
+    "snippet": "يَذُوقُونَ فِيهَا بَرْ <b class='highlight tj-idgham'>دًا و</b> َلَا شَرَابًا",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 23,
+    "highlight": "َآ",
+    "snippet": "لَمَّا يَقْضِ م <b class='highlight tj-mad_lazim'>َآ</b> أَمَرَهُۥ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 96,
+    "surah_name": "Al-'Alaq",
+    "ayah": 15,
+    "highlight": "َۢا ب",
+    "snippet": "لَّمْ يَنتَهِ لَنَسْفَع <b class='highlight tj-iqlab'>َۢا ب</b> ِٱلنَّاصِيَةِ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 22,
+    "highlight": "َا",
+    "snippet": "ثُمَّ إِذَا ش <b class='highlight tj-mad_lazim'>َا</b> ٓءَ أَنشَرَهُۥ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 91,
+    "surah_name": "Asy-Syams",
+    "ayah": 14,
+    "highlight": "نۢب",
+    "snippet": "عَلَيْهِمْ رَبُّهُم بِذَ <b class='highlight tj-iqlab'>نۢب</b> ِهِمْ فَسَوَّٮٰهَا",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 107,
+    "surah_name": "Al-Ma'un",
+    "ayah": 4,
+    "highlight": "لٌ ل",
+    "snippet": "فَوَيْ <b class='highlight tj-idgham'>لٌ ل</b> ِّلْمُصَلِّينَ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 10,
+    "highlight": "نّ",
+    "snippet": "وَهَدَيْنَـٰهُ ٱل <b class='highlight tj-ghunnah'>نّ</b> َجْدَيْنِ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 79,
+    "surah_name": "An-Nazi'at",
+    "ayah": 26,
+    "highlight": "نّ",
+    "snippet": "إِ <b class='highlight tj-ghunnah'>نّ</b> َ فِى ذَٲلِكَ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 98,
+    "surah_name": "Al-Bayyinah",
+    "ayah": 6,
+    "highlight": "نّ",
+    "snippet": "فِى نَارِ جَهَ <b class='highlight tj-ghunnah'>نّ</b> َمَ خَـٰلِدِينَ فِيهَآ‌ۚ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 40,
+    "highlight": "نذ",
+    "snippet": "إِنَّآ أَ <b class='highlight tj-ikhfa'>نذ</b> َرْنَـٰكُمْ عَذَابًا قَرِيبًا",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 88,
+    "surah_name": "Al-Gasyiyah",
+    "ayah": 3,
+    "highlight": "ةٌ ن",
+    "snippet": "عَامِلَ <b class='highlight tj-idgham'>ةٌ ن</b> َّاصِبَةٌ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 87,
+    "surah_name": "Al-A'la",
+    "ayah": 19,
+    "highlight": "بْ",
+    "snippet": "صُحُفِ إِ <b class='highlight tj-qalqalah'>بْ</b> رَٲهِيمَ وَمُوسَىٰ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 100,
+    "surah_name": "Al-'Adiyat",
+    "ayah": 8,
+    "highlight": "ۥ",
+    "snippet": "وَإِنَّهُ <b class='highlight tj-mad'>ۥ</b> لِحُبِّ ٱلْخَيْرِ لَشَدِيدٌ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 81,
+    "surah_name": "At-Takwir",
+    "ayah": 29,
+    "highlight": "َن ي",
+    "snippet": "تَشَآءُونَ إِلَّآ أ <b class='highlight tj-idgham'>َن ي</b> َشَآءَ ٱللَّهُ رَبُّ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 107,
+    "surah_name": "Al-Ma'un",
+    "ayah": 7,
+    "highlight": "ُو",
+    "snippet": "وَيَمْنَعُونَ ٱلْمَاع <b class='highlight tj-mad'>ُو</b> نَ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 92,
+    "surah_name": "Al-Lail",
+    "ayah": 8,
+    "highlight": "َنۢ ب",
+    "snippet": "وَأَمَّا م <b class='highlight tj-iqlab'>َنۢ ب</b> َخِلَ وَٱسْتَغْنَىٰ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 9,
+    "highlight": "بٌ م",
+    "snippet": "كِتَـٰ <b class='highlight tj-idgham'>بٌ م</b> َّرْقُومٌ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 84,
+    "surah_name": "Al-Insyiqaq",
+    "ayah": 13,
+    "highlight": "نّ",
+    "snippet": "إِ <b class='highlight tj-ghunnah'>نّ</b> َهُۥ كَانَ فِىٓ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 113,
+    "surah_name": "Al-Falaq",
+    "ayah": 2,
+    "highlight": "ق",
+    "snippet": "شَرِّ مَا خَلَ <b class='highlight tj-qalqalah'>ق</b> َ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 4,
+    "highlight": "نس",
+    "snippet": "لَقَدْ خَلَقْنَا ٱلْإِ <b class='highlight tj-ikhfa'>نس</b> َـٰنَ فِى كَبَدٍ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 18,
+    "highlight": "نف",
+    "snippet": "يَوْمَ يُ <b class='highlight tj-ikhfa'>نف</b> َخُ فِى ٱلصُّورِ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 92,
+    "surah_name": "Al-Lail",
+    "ayah": 14,
+    "highlight": "رًا ت",
+    "snippet": "فَأَنذَرْتُكُمْ نَا <b class='highlight tj-ikhfa'>رًا ت</b> َلَظَّىٰ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 23,
+    "highlight": "ب",
+    "snippet": "وَجِاْىٓءَ يَوْمَئِذِۭ <b class='highlight tj-iqlab'> ب</b> ِجَهَنَّمَ‌ۚ يَوْمَئِذٍ يَتَذَكَّرُ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 101,
+    "surah_name": "Al-Qari'ah",
+    "ayah": 6,
+    "highlight": "ن ث",
+    "snippet": "فَأَمَّا مَ <b class='highlight tj-ikhfa'>ن ث</b> َقُلَتْ مَوَٲزِينُهُۥ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 27,
+    "highlight": "طْ",
+    "snippet": "يَـٰٓأَيَّتُهَا ٱلنَّفْسُ ٱلْمُ <b class='highlight tj-qalqalah'>طْ</b> مَئِنَّةُ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 29,
+    "highlight": "ـٰ",
+    "snippet": "وَكُلَّ شَىْءٍ أَحْصَيْنَ <b class='highlight tj-mad'>ـٰ</b> هُ كِتَـٰبًا",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 6,
+    "highlight": "نت",
+    "snippet": "فَأَ <b class='highlight tj-ikhfa'>نت</b> َ لَهُۥ تَصَدَّىٰ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 101,
+    "surah_name": "Al-Qari'ah",
+    "ayah": 6,
+    "highlight": "مّ",
+    "snippet": "فَأَ <b class='highlight tj-ghunnah'>مّ</b> َا مَن ثَقُلَتْ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 82,
+    "surah_name": "Al-Infitar",
+    "ayah": 6,
+    "highlight": "ـٰٓ",
+    "snippet": "يَ <b class='highlight tj-mad_lazim'>ـٰٓ</b> أَيُّهَا ٱلْإِنسَـٰنُ مَا",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 30,
+    "highlight": "نّ",
+    "snippet": "وَٱدْخُلِى جَ <b class='highlight tj-ghunnah'>نّ</b> َتِى",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 9,
+    "highlight": "د",
+    "snippet": "كُلِّ شَىْءٍ شَهِي <b class='highlight tj-qalqalah'>د</b> ٌ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 86,
+    "surah_name": "At-Tariq",
+    "ayah": 7,
+    "highlight": "ِنۢ ب",
+    "snippet": "يَخْرُجُ م <b class='highlight tj-iqlab'>ِنۢ ب</b> َيْنِ ٱلصُّلْبِ وَٱلتَّرَآئِبِ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 96,
+    "surah_name": "Al-'Alaq",
+    "ayah": 8,
+    "highlight": "جْ",
+    "snippet": "إِلَىٰ رَبِّكَ ٱلرُّ <b class='highlight tj-qalqalah'>جْ</b> عَىٰٓ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 81,
+    "surah_name": "At-Takwir",
+    "ayah": 9,
+    "highlight": "نۢب",
+    "snippet": "بِأَىِّ ذَ <b class='highlight tj-iqlab'>نۢب</b> ٍ قُتِلَتْ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 79,
+    "surah_name": "An-Nazi'at",
+    "ayah": 18,
+    "highlight": "ىٰٓ",
+    "snippet": "هَل لَّكَ إِلَ <b class='highlight tj-mad_lazim'>ىٰٓ</b> أَن تَزَكَّىٰ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 87,
+    "surah_name": "Al-A'la",
+    "ayah": 13,
+    "highlight": "مّ",
+    "snippet": "ثُ <b class='highlight tj-ghunnah'>مّ</b> َ لَا يَمُوتُ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 11,
+    "highlight": "ن ت",
+    "snippet": "جَنَّـٰتٌ تَجْرِى مِ <b class='highlight tj-ikhfa'>ن ت</b> َحْتِهَا ٱلْأَنْهَـٰرُ‌ۚ ذَٲلِكَ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 27,
+    "highlight": "ـٰٓ",
+    "snippet": "يَ <b class='highlight tj-mad_lazim'>ـٰٓ</b> أَيَّتُهَا ٱلنَّفْسُ ٱلْمُطْمَئِنَّةُ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 2,
+    "highlight": "ُّۢ ب",
+    "snippet": "وَأَنتَ حِل <b class='highlight tj-iqlab'>ُّۢ ب</b> ِهَـٰذَا ٱلْبَلَدِ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 86,
+    "surah_name": "At-Tariq",
+    "ayah": 6,
+    "highlight": "ءٍ د",
+    "snippet": "خُلِقَ مِن مَّآ <b class='highlight tj-ikhfa'>ءٍ د</b> َافِقٍ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 86,
+    "surah_name": "At-Tariq",
+    "ayah": 13,
+    "highlight": "لٌ ف",
+    "snippet": "إِنَّهُۥ لَقَوْ <b class='highlight tj-ikhfa'>لٌ ف</b> َصْلٌ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 99,
+    "surah_name": "Az-Zalzalah",
+    "ayah": 3,
+    "highlight": "نس",
+    "snippet": "وَقَالَ ٱلْإِ <b class='highlight tj-ikhfa'>نس</b> َـٰنُ مَا لَهَا",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 20,
+    "highlight": "ـٰ",
+    "snippet": "كِتَ <b class='highlight tj-mad'>ـٰ</b> بٌ مَّرْقُومٌ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 2,
+    "highlight": "َا",
+    "snippet": "أَن ج <b class='highlight tj-mad_lazim'>َا</b> ٓءَهُ ٱلْأَعْمَىٰ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 102,
+    "surah_name": "At-Takasur",
+    "ayah": 1,
+    "highlight": "ـٰ",
+    "snippet": "أَلْهَ <b class='highlight tj-mad'>ـٰ</b> كُمُ ٱلتَّكَاثُرُ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 88,
+    "surah_name": "Al-Gasyiyah",
+    "ayah": 18,
+    "highlight": "َا",
+    "snippet": "وَإِلَى ٱلسَّم <b class='highlight tj-mad_lazim'>َا</b> ٓءِ كَيْفَ رُفِعَتْ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 87,
+    "surah_name": "Al-A'la",
+    "ayah": 9,
+    "highlight": "ِن ن",
+    "snippet": "فَذَكِّرْ إ <b class='highlight tj-idgham'>ِن ن</b> َّفَعَتِ ٱلذِّكْرَىٰ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 98,
+    "surah_name": "Al-Bayyinah",
+    "ayah": 8,
+    "highlight": "دًا‌",
+    "snippet": "خَـٰلِدِينَ فِيهَآ أَبَ <b class='highlight tj-idgham'>دًا‌</b> ۖ رَّضِىَ ٱللَّهُ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 31,
+    "highlight": "ىٰٓ",
+    "snippet": "وَإِذَا ٱنقَلَبُوٓاْ إِلَ <b class='highlight tj-mad_lazim'>ىٰٓ</b> أَهْلِهِمُ ٱنقَلَبُواْ فَكِهِينَ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 102,
+    "surah_name": "At-Takasur",
+    "ayah": 8,
+    "highlight": "نّ",
+    "snippet": "ثُمَّ لَتُسْــَٔلُ <b class='highlight tj-ghunnah'>نّ</b> َ يَوْمَئِذٍ عَنِ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 88,
+    "surah_name": "Al-Gasyiyah",
+    "ayah": 23,
+    "highlight": "ن ت",
+    "snippet": "إِلَّا مَ <b class='highlight tj-ikhfa'>ن ت</b> َوَلَّىٰ وَكَفَرَ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 15,
+    "highlight": "ۥ",
+    "snippet": "ٱبْتَلَـٰهُ رَبُّهُۥ فَأَكْرَمَهُ <b class='highlight tj-mad'>ۥ</b> وَنَعَّمَهُۥ فَيَقُولُ رَبِّىٓ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 107,
+    "surah_name": "Al-Ma'un",
+    "ayah": 2,
+    "highlight": "َٲ",
+    "snippet": "فَذ <b class='highlight tj-mad'>َٲ</b> لِكَ ٱلَّذِى يَدُعُّ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 109,
+    "surah_name": "Al-Kafirun",
+    "ayah": 4,
+    "highlight": "دٌ م",
+    "snippet": "وَلَآ أَنَا۟ عَابِ <b class='highlight tj-idgham'>دٌ م</b> َّا عَبَدتُّمْ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 100,
+    "surah_name": "Al-'Adiyat",
+    "ayah": 6,
+    "highlight": "نس",
+    "snippet": "إِنَّ ٱلْإِ <b class='highlight tj-ikhfa'>نس</b> َـٰنَ لِرَبِّهِۦ لَكَنُودٌ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 86,
+    "surah_name": "At-Tariq",
+    "ayah": 5,
+    "highlight": "ق",
+    "snippet": "ٱلْإِنسَـٰنُ مِمَّ خُلِ <b class='highlight tj-qalqalah'>ق</b> َ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 82,
+    "surah_name": "Al-Infitar",
+    "ayah": 17,
+    "highlight": "دْ",
+    "snippet": "وَمَآ أَ <b class='highlight tj-qalqalah'>دْ</b> رَٮٰكَ مَا يَوْمُ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 29,
+    "highlight": "نّ",
+    "snippet": "إِ <b class='highlight tj-ghunnah'>نّ</b> َ ٱلَّذِينَ أَجْرَمُواْ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 88,
+    "surah_name": "Al-Gasyiyah",
+    "ayah": 1,
+    "highlight": "ـٰ",
+    "snippet": "أَتَـٰكَ حَدِيثُ ٱلْغَ <b class='highlight tj-mad'>ـٰ</b> شِيَةِ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 109,
+    "surah_name": "Al-Kafirun",
+    "ayah": 2,
+    "highlight": "َآ",
+    "snippet": "ل <b class='highlight tj-mad_lazim'>َآ</b> أَعْبُدُ مَا تَعْبُدُونَ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 14,
+    "highlight": "طْ",
+    "snippet": "أَوْ إِ <b class='highlight tj-qalqalah'>طْ</b> عَـٰمٌ فِى يَوْمٍ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 91,
+    "surah_name": "Asy-Syams",
+    "ayah": 15,
+    "highlight": "ـٰ",
+    "snippet": "وَلَا يَخَافُ عُقْبَ <b class='highlight tj-mad'>ـٰ</b> هَا",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 13,
+    "highlight": "بْ",
+    "snippet": "إِنَّهُۥ هُوَ يُ <b class='highlight tj-qalqalah'>بْ</b> دِئُ وَيُعِيدُ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 16,
+    "highlight": "ب",
+    "snippet": "كِرَامِۭ <b class='highlight tj-iqlab'> ب</b> َرَرَةٍ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 19,
+    "highlight": "اً ل",
+    "snippet": "وَتَأْكُلُونَ ٱلتُّرَاثَ أَكْل <b class='highlight tj-idgham'>اً ل</b> َّمًّا",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 91,
+    "surah_name": "Asy-Syams",
+    "ayah": 10,
+    "highlight": "ن د",
+    "snippet": "وَقَدْ خَابَ مَ <b class='highlight tj-ikhfa'>ن د</b> َسَّـٰهَا",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 23,
+    "highlight": "ذِ",
+    "snippet": "وَجِاْىٓءَ يَوْمَئِ <b class='highlight tj-iqlab'>ذِ</b> ۭ بِجَهَنَّمَ‌ۚ يَوْمَئِذٍ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 104,
+    "surah_name": "Al-Humazah",
+    "ayah": 5,
+    "highlight": "دْ",
+    "snippet": "وَمَآ أَ <b class='highlight tj-qalqalah'>دْ</b> رَٮٰكَ مَا ٱلْحُطَمَةُ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 11,
+    "highlight": "نّ",
+    "snippet": "كَلَّآ إِ <b class='highlight tj-ghunnah'>نّ</b> َهَا تَذْكِرَةٌ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 32,
+    "highlight": "ـٰٓ",
+    "snippet": "قَالُوٓاْ إِنَّ هَ <b class='highlight tj-mad_lazim'>ـٰٓ</b> ؤُلَآءِ لَضَآلُّونَ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 16,
+    "highlight": "مِ",
+    "snippet": "كِرَا <b class='highlight tj-iqlab'>مِ</b> ۭ بَرَرَةٍ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 92,
+    "surah_name": "Al-Lail",
+    "ayah": 11,
+    "highlight": "ۥٓ",
+    "snippet": "يُغْنِى عَنْهُ مَالُهُ <b class='highlight tj-mad_lazim'>ۥٓ</b> إِذَا تَرَدَّىٰٓ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 113,
+    "surah_name": "Al-Falaq",
+    "ayah": 5,
+    "highlight": "ن ش",
+    "snippet": "وَمِ <b class='highlight tj-ikhfa'>ن ش</b> َرِّ حَاسِدٍ إِذَا",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 89,
+    "surah_name": "Al-Fajr",
+    "ayah": 6,
+    "highlight": "د",
+    "snippet": "فَعَلَ رَبُّكَ بِعَا <b class='highlight tj-qalqalah'>د</b> ٍ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 96,
+    "surah_name": "Al-'Alaq",
+    "ayah": 14,
+    "highlight": "َم ب",
+    "snippet": "أَلَمْ يَعْل <b class='highlight tj-ikhfa'>َم ب</b> ِأَنَّ ٱللَّهَ يَرَىٰ",
+    "rule": "ikhfa",
+    "ans": "Ikhfa"
+  },
+  {
+    "surah": 83,
+    "surah_name": "Al-Mutaffifin",
+    "ayah": 17,
+    "highlight": "ُو",
+    "snippet": "كُنتُم بِهِۦ تُكَذِّب <b class='highlight tj-mad'>ُو</b> نَ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 8,
+    "highlight": "َا",
+    "snippet": "وَأَمَّا مَن ج <b class='highlight tj-mad_lazim'>َا</b> ٓءَكَ يَسْعَىٰ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 80,
+    "surah_name": "'Abasa",
+    "ayah": 27,
+    "highlight": "نۢب",
+    "snippet": "فَأَ <b class='highlight tj-iqlab'>نۢب</b> َتْنَا فِيهَا حَبًّا",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 11,
+    "highlight": "قْ",
+    "snippet": "فَلَا ٱ <b class='highlight tj-qalqalah'>قْ</b> تَحَمَ ٱلْعَقَبَةَ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 112,
+    "surah_name": "Al-Ikhlas",
+    "ayah": 3,
+    "highlight": "دْ",
+    "snippet": "لَمْ يَلِ <b class='highlight tj-qalqalah'>دْ</b> وَلَمْ يُولَدْ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 84,
+    "surah_name": "Al-Insyiqaq",
+    "ayah": 25,
+    "highlight": "ـٰ",
+    "snippet": "ءَامَنُواْ وَعَمِلُواْ ٱلصَّـٰلِحَ <b class='highlight tj-mad'>ـٰ</b> تِ لَهُمْ أَجْرٌ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 79,
+    "surah_name": "An-Nazi'at",
+    "ayah": 1,
+    "highlight": "نّ",
+    "snippet": "وَٱل <b class='highlight tj-ghunnah'>نّ</b> َـٰزِعَـٰتِ غَرْقًا",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 3,
+    "highlight": "ُو",
+    "snippet": "هُمْ فِيهِ مُخْتَلِف <b class='highlight tj-mad'>ُو</b> نَ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 99,
+    "surah_name": "Az-Zalzalah",
+    "ayah": 5,
+    "highlight": "نّ",
+    "snippet": "بِأَ <b class='highlight tj-ghunnah'>نّ</b> َ رَبَّكَ أَوْحَىٰ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 81,
+    "surah_name": "At-Takwir",
+    "ayah": 16,
+    "highlight": "نّ",
+    "snippet": "ٱلْجَوَارِ ٱلْكُ <b class='highlight tj-ghunnah'>نّ</b> َسِ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 82,
+    "surah_name": "Al-Infitar",
+    "ayah": 12,
+    "highlight": "ُو",
+    "snippet": "يَعْلَمُونَ مَا تَفْعَل <b class='highlight tj-mad'>ُو</b> نَ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 99,
+    "surah_name": "Az-Zalzalah",
+    "ayah": 8,
+    "highlight": "َن ي",
+    "snippet": "وَم <b class='highlight tj-idgham'>َن ي</b> َعْمَلْ مِثْقَالَ ذَرَّةٍ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 98,
+    "surah_name": "Al-Bayyinah",
+    "ayah": 5,
+    "highlight": "َآ",
+    "snippet": "وَم <b class='highlight tj-mad_lazim'>َآ</b> أُمِرُوٓاْ إِلَّا لِيَعْبُدُواْ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 84,
+    "surah_name": "Al-Insyiqaq",
+    "ayah": 25,
+    "highlight": "جْ",
+    "snippet": "ٱلصَّـٰلِحَـٰتِ لَهُمْ أَ <b class='highlight tj-qalqalah'>جْ</b> رٌ غَيْرُ مَمْنُونِۭ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 104,
+    "surah_name": "Al-Humazah",
+    "ayah": 4,
+    "highlight": "نۢب",
+    "snippet": "كَلَّا‌ۖ لَيُ <b class='highlight tj-iqlab'>نۢب</b> َذَنَّ فِى ٱلْحُطَمَةِ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 98,
+    "surah_name": "Al-Bayyinah",
+    "ayah": 4,
+    "highlight": "ِنۢ ب",
+    "snippet": "ٱلْكِتَـٰبَ إِلَّا م <b class='highlight tj-iqlab'>ِنۢ ب</b> َعْدِ مَا جَآءَتْهُمُ",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 20,
+    "highlight": "رٌ م",
+    "snippet": "عَلَيْهِمْ نَا <b class='highlight tj-idgham'>رٌ م</b> ُّؤْصَدَةُۢ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 110,
+    "surah_name": "An-Nasr",
+    "ayah": 3,
+    "highlight": "نّ",
+    "snippet": "رَبِّكَ وَٱسْتَغْفِرْهُ‌ۚ إِ <b class='highlight tj-ghunnah'>نّ</b> َهُۥ كَانَ تَوَّابَۢا",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 6,
+    "highlight": "د",
+    "snippet": "هُمْ عَلَيْهَا قُعُو <b class='highlight tj-qalqalah'>د</b> ٌ",
+    "rule": "qalqalah",
+    "ans": "Qalqalah"
+  },
+  {
+    "surah": 96,
+    "surah_name": "Al-'Alaq",
+    "ayah": 15,
+    "highlight": "نّ",
+    "snippet": "يَنتَهِ لَنَسْفَعَۢا بِٱل <b class='highlight tj-ghunnah'>نّ</b> َاصِيَةِ",
+    "rule": "ghunnah",
+    "ans": "Ghunnah"
+  },
+  {
+    "surah": 91,
+    "surah_name": "Asy-Syams",
+    "ayah": 12,
+    "highlight": "نۢب",
+    "snippet": "إِذِ ٱ <b class='highlight tj-iqlab'>نۢب</b> َعَثَ أَشْقَـٰهَا",
+    "rule": "iqlab",
+    "ans": "Iqlab"
+  },
+  {
+    "surah": 90,
+    "surah_name": "Al-Balad",
+    "ayah": 18,
+    "highlight": "ـٰٓ",
+    "snippet": "أُوْلَ <b class='highlight tj-mad_lazim'>ـٰٓ</b> ئِكَ أَصْحَـٰبُ ٱلْمَيْمَنَةِ",
+    "rule": "mad_lazim",
+    "ans": "Mad Far'i / Lazim"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 7,
+    "highlight": "ُو",
+    "snippet": "يَفْعَلُونَ بِٱلْمُؤْمِنِينَ شُه <b class='highlight tj-mad'>ُو</b> دٌ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  },
+  {
+    "surah": 111,
+    "surah_name": "Al-Lahab",
+    "ayah": 5,
+    "highlight": "لٌ م",
+    "snippet": "فِى جِيدِهَا حَبْ <b class='highlight tj-idgham'>لٌ م</b> ِّن مَّسَدِۭ",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 78,
+    "surah_name": "An-Naba'",
+    "ayah": 30,
+    "highlight": "َن ن",
+    "snippet": "فَذُوقُواْ فَل <b class='highlight tj-idgham'>َن ن</b> َّزِيدَكُمْ إِلَّا عَذَابًا",
+    "rule": "idgham",
+    "ans": "Idgham"
+  },
+  {
+    "surah": 85,
+    "surah_name": "Al-Buruj",
+    "ayah": 6,
+    "highlight": "ُو",
+    "snippet": "هُمْ عَلَيْهَا قُع <b class='highlight tj-mad'>ُو</b> دٌ",
+    "rule": "mad",
+    "ans": "Mad Thabi'i"
+  }
+]

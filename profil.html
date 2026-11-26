@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Profil — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=32">
-<link rel="stylesheet" href="css/screens.css?v=32">
+<link rel="stylesheet" href="css/app.css?v=41">
+<link rel="stylesheet" href="css/screens.css?v=41">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -44,7 +44,10 @@
         <h3 style="margin:0;font-size:16px">Pencapaian</h3>
         <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="ach-summary">0 dari 8 lencana terbuka</p>
       </div>
-      <span class="chip" style="font-size:12px">🏆 <b id="ach-count">0/8</b></span>
+      <div style="display:flex;gap:6px">
+        <a class="chip" href="piagam.html" style="font-size:12px;text-decoration:none;background:#FFF3D6;color:#B45309">📜 <b>Lihat Piagam</b></a>
+        <span class="chip" style="font-size:12px">🏆 <b id="ach-count">0/8</b></span>
+      </div>
     </div>
     <div class="ach-grid" id="ach-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px"></div>
   </section>
@@ -71,7 +74,7 @@
   </section>
 </main>
 
-<script src="js/app.js?v=38"></script>
+<script src="js/app.js?v=41"></script>
 <script>
 (function () {
   var p = TQ.profile();
