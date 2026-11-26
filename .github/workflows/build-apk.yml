@@ -30,8 +30,7 @@ jobs:
 
       - name: Sync Web to Android
         run: |
-          python3 sync_www.py
-          npx cap sync android
+          npm run cap:sync
 
       - name: Make Gradle Executable
         run: |

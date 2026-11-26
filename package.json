@@ -4,7 +4,7 @@
   "description": "Game belajar Al-Quran untuk anak: susun ayat, susun arti, susun nama nabi, rukun, dan hadis.",
   "main": "sw.js",
   "scripts": {
-    "sync:web": "python sync_www.py",
+    "sync:web": "python3 sync_www.py || python sync_www.py",
     "cap:sync": "npm run sync:web && npx cap sync android",
     "cap:open": "npx cap open android"
   },
