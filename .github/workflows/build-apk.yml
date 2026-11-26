@@ -40,15 +40,14 @@ jobs:
       - name: Build Debug APK
         run: |
           cd android
-          ./gradlew assembleDebug || true
-          mkdir -p outputs
-          find . -name "*.apk" -exec cp {} outputs/ \;
-          echo "Found APK files:"
-          ls -la outputs/
+          echo "sdk.dir=$ANDROID_HOME" > local.properties
+          ./gradlew assembleDebug
+          mkdir -p ../dist-apk
+          cp app/build/outputs/apk/debug/*.apk ../dist-apk/
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: TilawahQuest-v1.0-Debug
-          path: android/outputs/
+          path: dist-apk/*.apk
           retention-days: 14
