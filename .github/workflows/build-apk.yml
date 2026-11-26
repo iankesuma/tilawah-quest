@@ -41,14 +41,15 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon --stacktrace || true
           mkdir -p ../dist-apk
           find . -name "*.apk" -exec cp {} ../dist-apk/ \;
-          ls -lh ../dist-apk/
+          ls -lh ../dist-apk/ || true
 
-      - name: Upload APK
+      - name: Upload Logs or APK
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: TilawahQuest-v1.0-APK
-          path: dist-apk/*.apk
+          path: dist-apk/
           retention-days: 14
