@@ -32,18 +32,14 @@
 *{box-sizing:border-box}
 html,body{margin:0;padding:0}
 body{
-  margin:0;
-  font-family:var(--font-sans);
-  color:var(--ink);
+  font-family:var(--font);
   background:var(--bg);
+  color:var(--ink);
+  font-size:16px;
+  line-height:1.5;
   min-height:100vh;
-  -webkit-font-smoothing:antialiased;
-  -moz-osx-font-smoothing:grayscale;
+  -webkit-text-size-adjust:100%;
   overflow-x:hidden;
-  user-select:none;
-  -webkit-user-select:none;
-  -webkit-touch-callout:none;
-  -webkit-tap-highlight-color:transparent;
 }
 body::before{
   content:"";
