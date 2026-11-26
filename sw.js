@@ -1,6 +1,6 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v30';
-const DATA = 'tq-data-v30';
+const CORE = 'tq-core-v31';
+const DATA = 'tq-data-v31';
 const SHELL = [
   './', 'login.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',
@@ -37,7 +37,7 @@ self.addEventListener('fetch', function (e) {
       return c.match(req).then(function (hit) {
         if (hit) return hit;
         return fetch(req).then(function (res) {
-          c.put(req, res.clone());
+          if (res.ok) c.put(req, res.clone());
           return res;
         });
       });
@@ -48,7 +48,7 @@ self.addEventListener('fetch', function (e) {
   e.respondWith(caches.match(req).then(function (hit) {
     return hit || fetch(req).then(function (res) {
       var copy = res.clone();
-      caches.open(CORE).then(function (c) { c.put(req, copy); });
+      if (res.ok) caches.open(CORE).then(function (c) { c.put(req, copy); });
       return res;
     }).catch(function () {
       return caches.match('juz.html');
