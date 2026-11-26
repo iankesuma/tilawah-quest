@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Susun Hadis — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=32">
-<link rel="stylesheet" href="css/screens.css?v=32">
+<link rel="stylesheet" href="css/app.css?v=40">
+<link rel="stylesheet" href="css/screens.css?v=40">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -39,8 +39,12 @@
 
   <div class="bar" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
 
-  <section class="card">
-    <p class="muted center" style="font-weight:800;font-size:12.5px">Susun arti hadis berikut</p>
+  <section class="card" style="position:relative">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <button class="iconbtn small" id="prev-hadis" aria-label="Hadis sebelumnya" title="Hadis sebelumnya" style="width:36px;height:36px;font-size:16px;font-weight:900">‹</button>
+      <p class="muted center" style="font-weight:800;font-size:12.5px;margin:0">Susun arti hadis berikut</p>
+      <button class="iconbtn small" id="next-hadis" aria-label="Hadis berikutnya" title="Hadis berikutnya" style="width:36px;height:36px;font-size:16px;font-weight:900">›</button>
+    </div>
     <p class="hadis-ar" id="ar">…</p>
     <p class="src" id="src"></p>
 
@@ -70,7 +74,7 @@
   </div>
 </div>
 
-<script src="js/app.js?v=38"></script>
+<script src="js/app.js?v=40"></script>
 <script>
 (function () {
   var DATA = [];
@@ -78,7 +82,8 @@
   var el = {
     ar: TQ.qs('#ar'), src: TQ.qs('#src'), prog: TQ.qs('#prog'), pbar: TQ.qs('#pbar'),
     answer: TQ.qs('#answer'), bank: TQ.qs('#bank'), story: TQ.qs('#story'),
-    sheet: TQ.qs('#sheet'), grid: TQ.qs('#hgrid'), hq: TQ.qs('#hq'), hcount: TQ.qs('#hcount')
+    sheet: TQ.qs('#sheet'), grid: TQ.qs('#hgrid'), hq: TQ.qs('#hq'), hcount: TQ.qs('#hcount'),
+    prev: TQ.qs('#prev-hadis'), next: TQ.qs('#next-hadis')
   };
   TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
 
@@ -124,6 +129,8 @@
     el.story.classList.add('hidden');
     localStorage.setItem('tq_hadis_last', String(n));
     if (location.search.indexOf('debug') > -1) el.prog.dataset.answer = it.id;
+    if (el.prev) el.prev.disabled = (n <= 0);
+    if (el.next) el.next.disabled = (n >= DATA.length - 1);
     render();
   }
 
@@ -222,6 +229,25 @@
     picked.push(b);
     TQ.sfx.ok();
     render();
+  }
+
+  if (el.prev) {
+    el.prev.onclick = function () {
+      if (n > 0) {
+        TQ.sfx.tap();
+        n--;
+        build();
+      }
+    };
+  }
+  if (el.next) {
+    el.next.onclick = function () {
+      if (n < DATA.length - 1) {
+        TQ.sfx.tap();
+        n++;
+        build();
+      }
+    };
   }
 
   TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
