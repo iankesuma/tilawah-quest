@@ -26,8 +26,7 @@
   </div>
 
   <section class="card" style="text-align:center">
-    <canvas id="certCanvas" width="1200" height="850" style="display:none"></canvas>
-    <img id="certImg" class="cert-preview" alt="Piagam Penghargaan Tilawah Quest">
+    <canvas id="certCanvas" width="1200" height="850" style="width:100%;max-width:100%;height:auto;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);margin-bottom:14px;border:3px solid #DCEBF4;display:block"></canvas>
     
     <div class="cert-actions">
       <button class="btn" id="dl-btn">📥 Unduh Gambar</button>
@@ -120,7 +119,11 @@
     ctx.strokeStyle = '#C8E6C9';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.roundRect(W / 2 - 350, badgeY, 700, 90, 18);
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(W / 2 - 350, badgeY, 700, 90, 18);
+    } else {
+      ctx.rect(W / 2 - 350, badgeY, 700, 90);
+    }
     ctx.fill();
     ctx.stroke();
 
@@ -135,12 +138,9 @@
     ctx.font = '600 20px "Nunito", sans-serif';
     ctx.fillText('Diterbitkan pada: ' + nowStr, W / 2, 755);
 
-    // Export ke gambar pratinjau
-    var imgUrl = cvs.toDataURL('image/png');
-    document.getElementById('certImg').src = imgUrl;
-
     // Tombol Download
     document.getElementById('dl-btn').onclick = function () {
+      var imgUrl = cvs.toDataURL('image/png');
       var a = document.createElement('a');
       a.download = 'Piagam_Tilawah_Quest_' + (p.name || 'Santri').replace(/\s+/g, '_') + '.png';
       a.href = imgUrl;
@@ -149,17 +149,17 @@
 
     // Tombol Cetak
     document.getElementById('print-btn').onclick = function () {
+      var imgUrl = cvs.toDataURL('image/png');
       var win = window.open('', '_blank');
       win.document.write('<html><head><title>Cetak Piagam</title><style>@page{size:landscape;margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh}img{max-width:98vw;max-height:98vh}</style></head><body><img src="' + imgUrl + '"><script>window.onload=function(){window.print();};<\/script></body></html>');
       win.document.close();
     };
   }
 
-  // Tunggu font render lalu gambar
+  // Render langsung & re-render saat font selesai dimuat
+  renderCertificate();
   if (document.fonts && document.fonts.ready) {
     document.fonts.ready.then(renderCertificate);
-  } else {
-    setTimeout(renderCertificate, 500);
   }
 })();
 </script>
