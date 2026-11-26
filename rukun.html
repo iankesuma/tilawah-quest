@@ -17,7 +17,9 @@
 .seg button{flex:1;border:0;background:transparent;border-radius:12px;padding:11px 8px;font-family:inherit;font-weight:900;font-size:13.5px;color:var(--muted);cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--green);color:#fff}
 .items{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
-.items .tile{font-size:14px}
+.items .tile{font-size:14px;touch-action:none}
+.items .tile.dragging{opacity:.35;transform:scale(.92)}
+.drag-ghost{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;padding:10px 12px;border-radius:14px;font-size:14px;font-weight:800;font-family:inherit;background:var(--green);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.2);white-space:nowrap}
 .note{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px;font-size:13.5px;line-height:1.6;font-weight:600;color:var(--ink-2)}
 </style>
 </head>
@@ -125,8 +127,55 @@
       btn.type = 'button';
       btn.className = 'tile' + (b.used ? ' used' : '');
       btn.textContent = b.v;
-      btn.onclick = function () { pick(idx); };
+      btn.onclick = function () { if (!suppressClick) pick(idx); };
+      makeDraggable(btn, idx);
       el.bank.appendChild(btn);
+    });
+  }
+
+  var suppressClick = false;
+  function makeDraggable(btn, idx) {
+    btn.addEventListener('pointerdown', function (e) {
+      if (e.button > 0 || btn.classList.contains('used')) return;
+      var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
+      var ghost = null, dragging = false;
+      try { btn.setPointerCapture(pid); } catch (err) {}
+      function blockScroll(ev) { if (dragging) ev.preventDefault(); }
+      function move(ev) {
+        if (ev.pointerId !== pid) return;
+        if (!dragging) {
+          if (Math.abs(ev.clientX - sx) < 8 && Math.abs(ev.clientY - sy) < 8) return;
+          dragging = true;
+          ghost = document.createElement('div');
+          ghost.className = 'drag-ghost';
+          ghost.textContent = btn.textContent;
+          document.body.appendChild(ghost);
+          btn.classList.add('dragging');
+          document.addEventListener('touchmove', blockScroll, { passive: false });
+        }
+        ev.preventDefault();
+        ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
+      }
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        if (!dragging) return;
+        dragging = false;
+        btn.classList.remove('dragging');
+        document.removeEventListener('touchmove', blockScroll);
+        if (ghost) ghost.remove();
+        suppressClick = true;
+        setTimeout(function () { suppressClick = false; }, 60);
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var target = under && under.closest ? under.closest('#answer') : null;
+        if (target) pick(idx);
+      }
+      window.addEventListener('pointermove', move, { passive: false });
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
+      btn.addEventListener('lostpointercapture', up, { once: true });
     });
   }
 
