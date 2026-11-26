@@ -41,13 +41,14 @@ jobs:
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew :app:assembleDebug
-          mkdir -p ../dist-apk
-          cp app/build/outputs/apk/debug/*.apk ../dist-apk/
+          ./gradlew :app:assembleDebug > build_output.log 2>&1 || true
+          cat build_output.log | tail -n 60 > summary.txt
+          cat summary.txt
 
-      - name: Upload APK Artifact
+      - name: Upload Logs
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: TilawahQuest-v1.0-Debug
-          path: dist-apk/*.apk
-          retention-days: 14
+          name: Gradle-Error-Summary
+          path: android/summary.txt
+          retention-days: 7
