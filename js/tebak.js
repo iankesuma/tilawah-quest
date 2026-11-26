@@ -143,8 +143,22 @@
 
   /* --- audio ayat --- */
   var curAudio = null;
+  function stopAyatAudio() {
+    if (curAudio) {
+      curAudio.pause();
+      curAudio.currentTime = 0;
+      curAudio = null;
+    }
+    if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+  }
+
   function playAyatAudio(surahNum, ayahNum) {
-    if (curAudio) { curAudio.pause(); curAudio = null; }
+    if (curAudio && !curAudio.paused) {
+      stopAyatAudio();
+      return;
+    }
+    stopAyatAudio();
+
     if (!S.meta || !S.meta.length) return;
     var acc = 0;
     for (var i = 0; i < surahNum - 1; i++) {
@@ -152,15 +166,18 @@
     }
     var global = acc + ayahNum;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
-    curAudio = new Audio(url);
-    curAudio.volume = 0.9;
+    var a = new Audio(url);
+    a.volume = 0.9;
+    curAudio = a;
     if (el['ta-speak']) el['ta-speak'].textContent = '⏳';
-    curAudio.onended = function () {
+    a.onended = function () {
+      if (curAudio === a) curAudio = null;
       if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
     };
-    curAudio.play().then(function () {
-      if (el['ta-speak']) el['ta-speak'].textContent = '▶️';
+    a.play().then(function () {
+      if (el['ta-speak']) el['ta-speak'].textContent = '⏹️';
     }).catch(function () {
+      if (curAudio === a) curAudio = null;
       if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
       TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Periksa koneksi internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
     });
@@ -183,6 +200,7 @@
   }
 
   function renderQuestion() {
+    stopAyatAudio();
     var q = question(S.qi);
     if (!q) { finishStage(); return; }
     S.locked = false;

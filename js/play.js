@@ -223,6 +223,7 @@
   }
 
   function render() {
+    stopAudio();
     renderHearts(); renderAyat(); renderSlots(); renderBank(); renderProgress();
   }
 
@@ -328,7 +329,23 @@
   }
 
   /* ---------- audio ---------- */
+  var curAudio = null;
+  function stopAudio() {
+    if (curAudio) {
+      curAudio.pause();
+      curAudio.currentTime = 0;
+      curAudio = null;
+    }
+    if (el.speak) el.speak.textContent = '🔊';
+  }
+
   function speak() {
+    if (curAudio && !curAudio.paused) {
+      stopAudio();
+      return;
+    }
+    stopAudio();
+
     var q = currentQ();
     if (!q || !S.meta) return;
     var ay = S.ayahs[q.ai];
@@ -337,12 +354,15 @@
     if (el.speak) el.speak.textContent = '⏳';
     var a = new Audio(url);
     a.volume = 0.9;
+    curAudio = a;
     a.onended = function () {
+      if (curAudio === a) curAudio = null;
       if (el.speak) el.speak.textContent = '🔊';
     };
     a.play().then(function () {
-      if (el.speak) el.speak.textContent = '▶️';
+      if (el.speak) el.speak.textContent = '⏹️';
     }).catch(function () {
+      if (curAudio === a) curAudio = null;
       if (el.speak) el.speak.textContent = '🔊';
       TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Butuh internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
     });
