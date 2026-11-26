@@ -52,3 +52,14 @@ jobs:
           name: TilawahQuest-v1.0-APK
           path: dist-apk/*.apk
           retention-days: 14
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        with:
+          tag_name: v1.0.0-apk
+          name: "Tilawah Quest v1.0.0 APK"
+          body: "Rilis file APK Android resmi Tilawah Quest. 100% Offline, Susun Ayat 30 Juz, Tebak Ayat, Kuis Tajwid, Muroja'ah Cepat, dan 31 Piagam Penghargaan."
+          files: dist-apk/*.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
