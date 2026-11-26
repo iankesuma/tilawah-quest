@@ -194,9 +194,49 @@
       }
     });
   }
+
+  /* ---------- android back button handler ---------- */
+  function setupAndroidBack() {
+    // Intersep event backbutton dari Capacitor/Cordova WebView
+    document.addEventListener('backbutton', function (e) {
+      e.preventDefault();
+      // 1. Jika ada popup overlay yang sedang terbuka, tutup dulu popupnya
+      if (overlayEl && overlayEl.classList.contains('on')) {
+        close();
+        return;
+      }
+      // 2. Jika ada bottom sheet yang terbuka, tutup sheetnya
+      var sheet = document.querySelector('.sheet.open');
+      if (sheet) {
+        sheet.classList.remove('open');
+        sheet.setAttribute('aria-hidden', 'true');
+        return;
+      }
+      // 3. Jika di halaman tebak.html dan sedang di panggung kuis, kembali ke layar juz
+      var playScreen = document.getElementById('play-screen');
+      var juzScreen = document.getElementById('juz-screen');
+      if (playScreen && !playScreen.classList.contains('hidden') && juzScreen) {
+        playScreen.classList.add('hidden');
+        juzScreen.classList.remove('hidden');
+        return;
+      }
+      // 4. Jika ada tombol back bawaan appbar, klik tombol tersebut
+      var backBtn = document.querySelector('.appbar .iconbtn[href]') || document.querySelector('.appbar a.iconbtn');
+      if (backBtn && backBtn.getAttribute('href')) {
+        location.href = backBtn.getAttribute('href');
+        return;
+      }
+      // 5. Fallback ke history browser jika memungkinkan
+      if (window.history.length > 1) {
+        window.history.back();
+      }
+    }, false);
+  }
+
+  /* ---------- boot app ---------- */
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', armAudio);
-  } else { armAudio(); }
+    document.addEventListener('DOMContentLoaded', function () { armAudio(); setupAndroidBack(); });
+  } else { armAudio(); setupAndroidBack(); }
 
   /* ---------- popup ---------- */
   let overlayEl = null;
