@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Tilawah Quest</string>
+    <string name="title_activity_main">Tilawah Quest</string>
+    <string name="package_name">com.iankesuma.tilawahquest</string>
+    <string name="custom_url_scheme">com.iankesuma.tilawahquest</string>
+</resources>
