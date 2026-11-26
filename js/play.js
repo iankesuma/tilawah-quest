@@ -31,7 +31,7 @@
 
   var el = {};
   ['g-title', 'g-ar', 'score', 'hearts', 'step', 'bar', 'ayat-lines', 'slots', 'bank',
-   'instr', 'mascot', 'surah-label', 'mode-label', 'bismillah', 'quit', 'speak'].forEach(function (id) {
+   'instr', 'mascot', 'surah-label', 'mode-label', 'bismillah', 'quit', 'speak', 'mic-btn', 'retry-ayah', 'combo'].forEach(function (id) {
     el[id] = document.getElementById(id);
   });
 
@@ -298,6 +298,13 @@
       TQ.setStageStars(SURAH, MODE, LEVEL, stars, STAGE);
       if (points) TQ.addPoints(points);
       TQ.bumpStat('levels');
+      // Update daily mission
+      try {
+        var tk = new Date().toISOString().slice(0, 10);
+        var ds = JSON.parse(localStorage.getItem('tq_daily_' + tk) || '{}');
+        ds.d_levels = (ds.d_levels || 0) + 1;
+        localStorage.setItem('tq_daily_' + tk, JSON.stringify(ds));
+      } catch (e) {}
       TQ.bumpStat('ayahs', S.ayahs.length);
       TQ.bumpStat('heartsLost', MAX_HEARTS - S.hearts);
       if (S.maxCombo > (TQ.stats().bestCombo || 0)) TQ.bumpStat('bestCombo', S.maxCombo - (TQ.stats().bestCombo || 0));
@@ -327,9 +334,16 @@
     var ay = S.ayahs[q.ai];
     var global = (S.meta.offset || 0) + ay.i;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
+    if (el.speak) el.speak.textContent = '⏳';
     var a = new Audio(url);
     a.volume = 0.9;
-    a.play().catch(function () {
+    a.onended = function () {
+      if (el.speak) el.speak.textContent = '🔊';
+    };
+    a.play().then(function () {
+      if (el.speak) el.speak.textContent = '▶️';
+    }).catch(function () {
+      if (el.speak) el.speak.textContent = '🔊';
       TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Butuh internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
     });
   }
@@ -379,6 +393,65 @@
       render();
 
       el.speak.onclick = speak;
+
+      /* --- Web Speech Recognition (Mode Suara) --- */
+      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition && el['mic-btn']) {
+        el['mic-btn'].style.display = 'inline-flex';
+        var recognizer = new SpeechRecognition();
+        recognizer.lang = 'ar-SA';
+        recognizer.interimResults = false;
+        recognizer.maxAlternatives = 3;
+
+        var listening = false;
+        recognizer.onstart = function () {
+          listening = true;
+          el['mic-btn'].textContent = '🔴 Dengar...';
+          el['mic-btn'].style.borderColor = '#E24A4A';
+        };
+        recognizer.onend = function () {
+          listening = false;
+          el['mic-btn'].textContent = '🎤 Suara';
+          el['mic-btn'].style.borderColor = '';
+        };
+        recognizer.onerror = function () {
+          listening = false;
+          el['mic-btn'].textContent = '🎤 Suara';
+          el['mic-btn'].style.borderColor = '';
+        };
+        recognizer.onresult = function (ev) {
+          if (!ev.results || !ev.results[0]) return;
+          var spoken = ev.results[0][0].transcript.trim();
+          var clean = function (str) {
+            return (str || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').trim();
+          };
+          var spokenClean = clean(spoken);
+          var match = false;
+
+          var bankTiles = el.bank.querySelectorAll('.word-tile');
+          for (var i = 0; i < bankTiles.length; i++) {
+            var tile = bankTiles[i];
+            var tileText = tile.textContent.trim();
+            if (clean(tileText) === spokenClean || spokenClean.indexOf(clean(tileText)) > -1) {
+              match = true;
+              tile.click();
+              break;
+            }
+          }
+          if (!match) {
+            TQ.sfx.wrong();
+            TQ.popup({ icon: '👂', title: 'Terdengar: "' + spoken + '"', text: 'Coba ucapkan kata berikutnya dengan jelas.', bad: true });
+          }
+        };
+
+        el['mic-btn'].onclick = function () {
+          if (listening) {
+            recognizer.stop();
+          } else {
+            try { recognizer.start(); } catch (err) {}
+          }
+        };
+      }
       var ra = document.getElementById('retry-ayah');
       if (ra) ra.onclick = function () {
         var q = currentQ();

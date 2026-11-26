@@ -16,7 +16,7 @@
   var el = {};
   ['prog','pts','pbar','pbar-wrap','stage-badge','hearts','ar','opts','done',
    'sheet','hgrid','hq','hcount','openlist','sheet-close',
-   'juz-screen','play-screen','back-btn']
+   'juz-screen','play-screen','back-btn','ta-speak']
     .forEach(function (id) { el[id] = document.getElementById(id); });
 
   if (!TQ.requireProfile()) return;
@@ -141,6 +141,28 @@
     return m ? m.name + ' ayat ' + a : 'Surah ' + s + ' ayat ' + a;
   }
 
+  /* --- audio ayat --- */
+  var curAudio = null;
+  function playAyatAudio(surahNum, ayahNum) {
+    if (curAudio) { curAudio.pause(); curAudio = null; }
+    var m = S.meta[surahNum - 1];
+    if (!m) return;
+    var global = (m.offset || 0) + ayahNum;
+    var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
+    curAudio = new Audio(url);
+    curAudio.volume = 0.9;
+    if (el['ta-speak']) el['ta-speak'].textContent = '⏳';
+    curAudio.onended = function () {
+      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+    };
+    curAudio.play().then(function () {
+      if (el['ta-speak']) el['ta-speak'].textContent = '▶️';
+    }).catch(function () {
+      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+      TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Periksa koneksi internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
+    });
+  }
+
   function startStage() {
     S.stage = Math.min(Math.max(1, S.stage), S.stages);
     S.qi = 0; S.hearts = MAX_HEARTS; S.score = 0; S.right = 0; S.locked = false;
@@ -179,6 +201,12 @@
       opts.push({ txt: t, ok: false });
     }
     opts = TQ.shuffle(opts);
+
+    if (el['ta-speak']) {
+      el['ta-speak'].onclick = function () {
+        playAyatAudio(q.s, q.a);
+      };
+    }
 
     el.opts.innerHTML = '';
     opts.forEach(function (o) {
@@ -223,6 +251,13 @@
       var gain = S.score + (first ? 20 : 0);
       if (first) TQ.addPoints(Math.round(gain / 2));
       TQ.bumpStat('levels');
+      // Update daily mission
+      try {
+        var tk = new Date().toISOString().slice(0, 10);
+        var ds = JSON.parse(localStorage.getItem('tq_daily_' + tk) || '{}');
+        ds.d_tebak = (ds.d_tebak || 0) + 1;
+        localStorage.setItem('tq_daily_' + tk, JSON.stringify(ds));
+      } catch (e) {}
       TQ.sfx.win();
     } else {
       TQ.sfx.lose();

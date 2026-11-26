@@ -207,7 +207,16 @@
     fetch('data/tajwid/001.json?v=32').then(function (r) { return r.json(); })
       .then(function (d) { bism = d.ayahs[0].s; })
       .catch(function () {})
-      .then(function () { load(SURAH || 1, AYAH); });
+      .then(function () {
+        load(SURAH || 1, AYAH);
+        // Daily mission record
+        try {
+          var tk = new Date().toISOString().slice(0, 10);
+          var ds = JSON.parse(localStorage.getItem('tq_daily_' + tk) || '{}');
+          ds.d_baca = (ds.d_baca || 0) + 1;
+          localStorage.setItem('tq_daily_' + tk, JSON.stringify(ds));
+        } catch (e) {}
+      });
   }).catch(function (e) {
     el['ayat-list'].innerHTML = '<p class="muted center">Data surah gagal dimuat.</p>';
   });
