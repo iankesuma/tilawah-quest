@@ -87,18 +87,30 @@
   function bumpStat(k, n) { state.stats[k] = (state.stats[k] || 0) + (n == null ? 1 : n); save(); }
 
   /* ---------- progress ---------- */
-  function stageStars(surah, mode, level) {
-    const s = state.progress[surah];
-    return (s && s[mode] && s[mode][level]) || 0;
+  function stageKey(level, stage) {
+    const st = +stage || 1;
+    return st > 1 ? level + '.' + st : String(level);
   }
-  function setStageStars(surah, mode, level, stars) {
+  function stageStars(surah, mode, level, stage) {
+    const s = state.progress[surah];
+    return (s && s[mode] && s[mode][stageKey(level, stage)]) || 0;
+  }
+  function setStageStars(surah, mode, level, stars, stage) {
     state.progress[surah] = state.progress[surah] || {};
     state.progress[surah][mode] = state.progress[surah][mode] || {};
-    const prev = state.progress[surah][mode][level] || 0;
-    if (stars > prev) state.progress[surah][mode][level] = stars;
+    const k = stageKey(level, stage);
+    const prev = state.progress[surah][mode][k] || 0;
+    if (stars > prev) state.progress[surah][mode][k] = stars;
     save();
   }
-  function surahLevelDone(surah, mode, level) { return stageStars(surah, mode, level) > 0; }
+  function levelStagesDone(surah, mode, level) {
+    const s = state.progress[surah];
+    if (!s || !s[mode]) return 0;
+    return Object.keys(s[mode]).filter(function (k) {
+      return (k === String(level) || k.indexOf(level + '.') === 0) && s[mode][k] > 0;
+    }).length;
+  }
+  function surahLevelDone(surah, mode, level) { return levelStagesDone(surah, mode, level) > 0; }
 
   /** progress for one juz: levels = surahs * 4 (2 mode x 2 level) */
   function juzProgress(juz, meta) {
@@ -115,7 +127,11 @@
   function surahStars(surah) {
     let sum = 0, n = 0;
     ['ayat', 'arti'].forEach(function (m) {
-      [1, 2].forEach(function (l) { const v = stageStars(surah, m, l); if (v) { sum += v; n++; } });
+      [1, 2].forEach(function (l) {
+        let best = 0;
+        for (let st = 1; st <= 60; st++) { const v = stageStars(surah, m, l, st); if (v > best) best = v; }
+        if (best) { sum += best; n++; }
+      });
     });
     return n ? Math.round(sum / n) : 0;
   }
@@ -354,7 +370,7 @@
     state: function () { return state; },
     profile: profile, setProfile: setProfile,
     points: points, addPoints: addPoints, stats: stats, bumpStat: bumpStat,
-    stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone,
+    stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone, levelStagesDone: levelStagesDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
     sfx: sfx, popup: popup, closePopup: close,
     bgmOn: bgmOn, bgmSet: bgmSet, bgmState: function () { return { on: bgmOn(), playing: !!(bgmEl && !bgmEl.paused), t: bgmEl ? Math.round(bgmEl.currentTime * 10) / 10 : 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,

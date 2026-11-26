@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pilih Surah — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=27">
-<link rel="stylesheet" href="css/screens.css?v=27">
+<link rel="stylesheet" href="css/app.css?v=29">
+<link rel="stylesheet" href="css/screens.css?v=29">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -42,8 +42,8 @@
   </section>
 </main>
 
-<script src="js/app.js?v=27"></script>
-<script src="js/quran.js?v=27"></script>
+<script src="js/app.js?v=29"></script>
+<script src="js/quran.js?v=29"></script>
 <script>
 (function () {
   if (!TQ.requireProfile()) return;
@@ -87,24 +87,28 @@
       var l1 = TQ.stageStars(s.n, mode, 1);
       var l2 = TQ.stageStars(s.n, mode, 2);
       var locked = false;
+      var totSt = Math.max(1, Math.ceil(m.ayat / 10));
+      var d1 = TQ.levelStagesDone(s.n, mode, 1);
+      var d2 = TQ.levelStagesDone(s.n, mode, 2);
+      var l1ok = l1 > 0 || d1 > 0;
 
       var card = document.createElement('article');
       card.className = 'surah';
       card.innerHTML =
         '<div class="surah-top">' +
           '<div class="sn">' + s.n + '</div>' +
-          '<div class="st"><b>' + m.name + '</b><small>' + (s.to - s.from + 1) + ' ayat · ' + (m.type === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</small></div>' +
+          '<div class="st"><b>' + m.name + '</b><small>' + (s.to - s.from + 1) + ' ayat · ' + Math.max(1, Math.ceil(m.ayat / 10)) + ' stage · ' + (m.type === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</small></div>' +
           '<div class="ar">' + m.ar + '</div>' +
         '</div>' +
         '<div class="levels">' +
-          '<button class="lv' + (l1 ? ' done' : '') + '" data-n="' + s.n + '" data-l="1" ' + (locked ? 'disabled' : '') + '>' +
+          '<button class="lv' + (l1ok ? ' done' : '') + '" data-n="' + s.n + '" data-l="1" ' + (locked ? 'disabled' : '') + '>' +
             (locked ? '🔒' : '1') +
-            '<small>' + (locked ? 'TERKUNCI' : (l1 ? 'SELESAI' : 'ADA BAYANGAN')) + '</small>' +
+            '<small>' + (locked ? 'TERKUNCI' : (d1 ? (d1 + '/' + totSt + ' STAGE') : 'ADA BAYANGAN')) + '</small>' +
             (l1 ? '<span class="stars">' + stars(l1) + '</span>' : '') +
           '</button>' +
-          '<button class="lv' + (l2 ? ' done' : (l1 ? '' : ' lock')) + '" data-n="' + s.n + '" data-l="2" ' + (!l1 ? 'disabled' : '') + '>' +
-            (!l1 ? '🔒' : '2') +
-            '<small>' + (!l1 ? 'TERKUNCI' : (l2 ? 'SELESAI' : 'TANPA BAYANGAN')) + '</small>' +
+          '<button class="lv' + (d2 ? ' done' : (l1ok ? '' : ' lock')) + '" data-n="' + s.n + '" data-l="2" ' + (!l1ok ? 'disabled' : '') + '>' +
+            (!l1ok ? '🔒' : '2') +
+            '<small>' + (!l1ok ? 'TERKUNCI' : (d2 ? (d2 + '/' + totSt + ' STAGE') : 'TANPA BAYANGAN')) + '</small>' +
             (l2 ? '<span class="stars">' + stars(l2) + '</span>' : '') +
           '</button>' +
         '</div>';

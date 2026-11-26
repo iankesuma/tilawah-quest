@@ -127,7 +127,7 @@
   function load(n, ayahTarget) {
     cur = Math.min(114, Math.max(1, n));
     el['ayat-list'].innerHTML = '<p class="muted center" style="padding:24px 0">Memuat surah…</p>';
-    return fetch('data/tajwid/' + pad(cur) + '.json?v=27')
+    return fetch('data/tajwid/' + pad(cur) + '.json?v=29')
       .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
       .then(function (d) {
         ayahs = d.ayahs;
@@ -204,7 +204,7 @@
     el.prev.onclick = function () { if (cur > 1) load(cur - 1); };
     el.next.onclick = function () { if (cur < 114) load(cur + 1); };
 
-    fetch('data/tajwid/001.json?v=27').then(function (r) { return r.json(); })
+    fetch('data/tajwid/001.json?v=29').then(function (r) { return r.json(); })
       .then(function (d) { bism = d.ayahs[0].s; })
       .catch(function () {})
       .then(function () { load(SURAH || 1, AYAH); });

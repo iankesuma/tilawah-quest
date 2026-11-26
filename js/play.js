@@ -8,7 +8,8 @@
   var MODE = params.get('mode') === 'arti' ? 'arti' : 'ayat';
   var LEVEL = +(params.get('level') || 1);
 
-  var AYAH_CAP = 10;
+  var PAGE = 10;               // ayat per stage
+  var STAGE = params.get('stage') ? Math.max(1, +params.get('stage')) : 0;  // 0 = pilih otomatis
   var CHUNK = MODE === 'arti' ? 3 : 6;
   var MAX_HEARTS = 5;
 
@@ -290,11 +291,11 @@
     if (S.done) return;
     S.done = true;
     var stars = passed ? (S.hearts >= 5 ? 3 : S.hearts >= 3 ? 2 : 1) : 0;
-    var firstClear = passed && TQ.stageStars(SURAH, MODE, LEVEL) === 0;
+    var firstClear = passed && TQ.stageStars(SURAH, MODE, LEVEL, STAGE) === 0;
     var points = firstClear ? Math.round(S.score / 10) : 0;
 
     if (passed) {
-      TQ.setStageStars(SURAH, MODE, LEVEL, stars);
+      TQ.setStageStars(SURAH, MODE, LEVEL, stars, STAGE);
       if (points) TQ.addPoints(points);
       TQ.bumpStat('levels');
       TQ.bumpStat('ayahs', S.ayahs.length);
@@ -310,7 +311,10 @@
       name: S.meta ? S.meta.name : '', ar: S.meta ? S.meta.ar : '',
       score: S.score, points: points, stars: stars, passed: passed,
       hearts: S.hearts, combo: S.maxCombo, wrong: S.wrong,
-      ayahs: S.ayahs.length, ayahsDone: passed ? S.ayahs.length : 0
+      ayahs: S.ayahs.length, ayahsDone: passed ? S.ayahs.length : 0,
+      stage: STAGE, stages: S.stages || 1,
+      fromAyah: S.ayahs.length ? S.ayahs[0].i : 0,
+      toAyah: S.ayahs.length ? S.ayahs[S.ayahs.length - 1].i : 0
     };
     try { sessionStorage.setItem('tq_last', JSON.stringify(payload)); } catch (e) {}
     location.href = 'result.html';
@@ -336,8 +340,18 @@
     S.meta = meta[SURAH - 1];
 
     Quran.juzList().then(function (list) {
-      // selalu mulai dari ayat 1 surah, bukan dari potongan juz
-      S.ayahs = d.ayahs.slice(0, AYAH_CAP);
+      // stage per 10 ayat: stage 1 = ayat 1-10, stage 2 = 11-20, dst.
+      S.total = d.ayahs.length;
+      S.stages = Math.max(1, Math.ceil(S.total / PAGE));
+      if (!STAGE) {
+        STAGE = 1;
+        for (var si = 1; si <= S.stages; si++) {
+          if (!TQ.stageStars(SURAH, MODE, LEVEL, si)) { STAGE = si; break; }
+        }
+      }
+      if (STAGE > S.stages) STAGE = S.stages;
+      var from = (STAGE - 1) * PAGE;
+      S.ayahs = d.ayahs.slice(from, from + PAGE);
 
       if (!S.ayahs.length) {
         TQ.popup({ icon: '⚠️', title: 'Data ayat kosong', text: 'Coba pilih surah lain.', bad: true, actions: [{ label: 'Kembali', onClick: function () { location.href = 'surah.html?juz=' + JUZ; } }] });
@@ -352,10 +366,12 @@
       el['g-title'].textContent = S.meta.name;
       el['g-ar'].textContent = S.meta.ar;
       el['surah-label'].textContent = 'سورة ' + S.meta.ar;
-      el['mode-label'].textContent = (MODE === 'arti' ? 'Susun Arti' : 'Susun Ayat') + ' · Level ' + LEVEL;
+      el['mode-label'].textContent = (MODE === 'arti' ? 'Susun Arti' : 'Susun Ayat') + ' · Level ' + LEVEL +
+        ' · Stage ' + STAGE + '/' + S.stages;
       el.bismillah.style.display = (SURAH === 1 && S.ayahs[0].i === 1 && MODE === 'ayat') ? 'block' : 'none';
       document.title = S.meta.name + ' — Tilawah Quest';
       el.quit.href = 'surah.html?juz=' + JUZ + '&mode=' + MODE;
+      if (!S.total) S.total = S.ayahs.length;
       el.mascot.innerHTML = '';
       el.mascot.appendChild(TQ.mascot(56));
 
