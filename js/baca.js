@@ -177,7 +177,7 @@
   Promise.all([Quran.surahMeta(), Quran.juzList()]).then(function (res) {
     meta = res[0];
     var acc = 0;
-    meta.forEach(function (m) { offsets.push(acc); acc += m.ayahs; });
+    meta.forEach(function (m) { offsets.push(acc); acc += (m.ayat || m.ayahs || 0); });
     renderLegend();
     if (el.pts) el.pts.textContent = TQ.fmt(TQ.points());
 

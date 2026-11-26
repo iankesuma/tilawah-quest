@@ -372,9 +372,9 @@
         return;
       }
 
-      // global ayah offset for audio
+      // global ayah offset for audio (field di surah-meta adalah 'ayat')
       var offset = 0;
-      for (var i = 0; i < SURAH - 1; i++) offset += meta[i].ayahs;
+      for (var i = 0; i < SURAH - 1; i++) offset += (meta[i].ayat || meta[i].ayahs || 0);
       S.meta.offset = offset;
 
       el['g-title'].textContent = S.meta.name;

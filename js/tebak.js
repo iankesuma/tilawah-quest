@@ -145,9 +145,12 @@
   var curAudio = null;
   function playAyatAudio(surahNum, ayahNum) {
     if (curAudio) { curAudio.pause(); curAudio = null; }
-    var m = S.meta[surahNum - 1];
-    if (!m) return;
-    var global = (m.offset || 0) + ayahNum;
+    if (!S.meta || !S.meta.length) return;
+    var acc = 0;
+    for (var i = 0; i < surahNum - 1; i++) {
+      acc += (S.meta[i].ayat || S.meta[i].ayahs || 0);
+    }
+    var global = acc + ayahNum;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
     curAudio = new Audio(url);
     curAudio.volume = 0.9;
