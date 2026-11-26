@@ -50,9 +50,10 @@
     </div>
   </div>
 
-  <!-- Kanvas Piagam -->
+  <!-- Kanvas & Pratinjau Piagam -->
   <section class="card" style="text-align:center">
-    <canvas id="certCanvas" width="1200" height="850" style="width:100%;max-width:100%;height:auto;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);margin-bottom:14px;border:3px solid #DCEBF4;display:block"></canvas>
+    <canvas id="certCanvas" width="1200" height="850" style="display:none"></canvas>
+    <img id="certImg" alt="Pratinjau Piagam" style="width:100%;max-width:100%;height:auto;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);margin-bottom:14px;border:3px solid #DCEBF4;display:block">
     
     <div class="cert-actions">
       <button class="btn" id="dl-btn">📥 Unduh Gambar</button>
@@ -61,7 +62,7 @@
   </section>
 </main>
 
-<script src="js/app.js?v=46"></script>
+<script src="js/app.js?v=47"></script>
 <script>
 (function () {
   var p = TQ.profile() || { name: 'Santri Cilik' };
@@ -306,16 +307,20 @@
       ctx.restore();
     }
 
+    // Perbarui gambar pratinjau (img src) agar kompatibel 100% di semua HP
+    var imgUrl = cvs.toDataURL('image/png');
+    var certImgEl = document.getElementById('certImg');
+    if (certImgEl) certImgEl.src = imgUrl;
+
     // Tombol Download
     dlBtn.onclick = function () {
       if (!isUnlocked) {
         TQ.popup({ icon: '🔒', title: 'Piagam Terkunci', text: 'Tuntaskan juz ini dulu agar piagam bisa diunduh ya!', bad: true });
         return;
       }
-      var imgUrl = cvs.toDataURL('image/png');
       var a = document.createElement('a');
       var slug = isGold ? 'Khatam_30_Juz_Emas' : ('Juz_' + selectedCert);
-      a.download = 'Piagam_Tilawah_Quest_' + slug + '_' + (p.name || 'Santri').replace(/\s+/g, '_') + '.png';
+      a.download = 'Piagam_Tilawah_Quest_' + slug + '_' + (p.name || 'Santri').replace(/\\s+/g, '_') + '.png';
       a.href = imgUrl;
       a.click();
     };
@@ -326,18 +331,24 @@
         TQ.popup({ icon: '🔒', title: 'Piagam Terkunci', text: 'Tuntaskan juz ini dulu agar piagam bisa dicetak ya!', bad: true });
         return;
       }
-      var imgUrl = cvs.toDataURL('image/png');
       var win = window.open('', '_blank');
       win.document.write('<html><head><title>Cetak Piagam</title><style>@page{size:landscape;margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh}img{max-width:98vw;max-height:98vh}</style></head><body><img src="' + imgUrl + '"><script>window.onload=function(){window.print();};<\/script></body></html>');
       win.document.close();
     };
   }
 
+  // Render pertama kali
   renderGrid();
   renderCertificate();
+
+  // Re-render otomatis setelah font Google selesai diunduh
   if (document.fonts && document.fonts.ready) {
-    document.fonts.ready.then(renderCertificate);
+    document.fonts.ready.then(function () {
+      setTimeout(renderCertificate, 100);
+    });
   }
+  // Fallback timer untuk koneksi lambat
+  setTimeout(renderCertificate, 600);
 })();
 </script>
 </body>
