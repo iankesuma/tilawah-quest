@@ -10,7 +10,7 @@ Live: <https://iankesuma.github.io/tilawah-quest/>
 login.html → onboarding.html → juz.html → surah.html → play.html → result.html
 ```
 
-Halaman pendukung: `profil.html`, `belajar.html` (nabi/rukun/hadis/diriku), `bantuan.html`.
+Halaman pendukung: `profil.html`, `belajar.html` (nabi/rukun/hadis/tebak ayat), `bantuan.html`.
 
 ## Fitur
 
@@ -36,7 +36,7 @@ play.html / js/play.js  mesin latihan
 result.html           hasil, bintang, poin
 profil.html           statistik + reset
 belajar.html          hub mini game
-nabi.html rukun.html hadis.html diriku.html
+nabi.html rukun.html hadis.html tebak.html
 bantuan.html          cara main + sumber data
 css/app.css           token + komponen
 css/screens.css       layout layar
