@@ -223,6 +223,13 @@
     ['pointerdown', 'touchstart', 'keydown'].forEach(function (ev) {
       document.addEventListener(ev, go, { once: true, passive: true });
     });
+    // Auto-resume saat app balik dari background/screen lock
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible') {
+        if (ctx && ctx.state === 'suspended') { ctx.resume().catch(function () {}); }
+        if (bgmOn() && bgmEl && bgmEl.paused) { bgmEl.play().catch(function () {}); }
+      }
+    });
     // keep trying until the browser lets us play (mobile autoplay policies)
     var lastTry = 0;
     document.addEventListener('pointerdown', function () {
@@ -376,6 +383,18 @@
     bgmOn: bgmOn, bgmSet: bgmSet, bgmState: function () { return { on: bgmOn(), playing: !!(bgmEl && !bgmEl.paused), t: bgmEl ? Math.round(bgmEl.currentTime * 10) / 10 : 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
-    reset: function () { state = JSON.parse(JSON.stringify(DEFAULT)); save(); }
+    reset: function () {
+      state = JSON.parse(JSON.stringify(DEFAULT));
+      save();
+      // Bersihkan juga progres tebak ayat & cache lokal
+      try {
+        for (var i = 1; i <= 30; i++) {
+          localStorage.removeItem('tq_tebak_j' + i);
+        }
+        localStorage.removeItem('tq_tebak_v1');
+        localStorage.removeItem('tq_baca_last');
+        localStorage.removeItem('tq_data_cache_v1');
+      } catch (e) {}
+    }
   };
 })();

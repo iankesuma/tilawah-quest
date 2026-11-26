@@ -253,6 +253,13 @@
     };
     document.getElementById('again-stage').onclick = function () { startStage(); };
     el.done.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+    // Pastikan tombol kembali di appbar tetap mengarah ke daftar juz
+    el['back-btn'].onclick = function (e) {
+      e.preventDefault();
+      TQ.sfx.tap();
+      showJuzPicker();
+    };
   }
 
   Promise.all([

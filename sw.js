@@ -1,6 +1,6 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v33';
-const DATA = 'tq-data-v33';
+const CORE = 'tq-core-v34';
+const DATA = 'tq-data-v34';
 const SHELL = [
   './', 'login.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',
@@ -8,7 +8,7 @@ const SHELL = [
   'css/app.css', 'css/screens.css',
   'js/app.js', 'js/quran.js', 'js/play.js',
   'js/sholat.js', 'js/baca.js', 'js/tebak.js',
-  'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json', 'data/hadis.json', 'data/tebak.json'
+  'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json', 'data/hadis.json'
 ];
 
 self.addEventListener('install', function (e) {
@@ -32,7 +32,7 @@ self.addEventListener('fetch', function (e) {
   var url = new URL(req.url);
   if (url.origin !== location.origin) return;
 
-  if (url.pathname.indexOf('/data/quran/') > -1 || url.pathname.indexOf('/data/tajwid/') > -1) {
+  if (url.pathname.indexOf('/data/quran/') > -1 || url.pathname.indexOf('/data/tajwid/') > -1 || url.pathname.indexOf('/data/tebak.json') > -1) {
     e.respondWith(caches.open(DATA).then(function (c) {
       return c.match(req).then(function (hit) {
         if (hit) return hit;
