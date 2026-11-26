@@ -352,7 +352,11 @@
     var global = (S.meta.offset || 0) + ay.i;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
     if (el.speak) el.speak.textContent = '⏳';
-    var a = new Audio(url);
+    var a = TQ.playAudio ? TQ.playAudio(url, el.speak) : new Audio(url);
+    if (!a) {
+      if (el.speak) el.speak.textContent = '🔊';
+      return;
+    }
     a.volume = 0.9;
     curAudio = a;
     a.onended = function () {

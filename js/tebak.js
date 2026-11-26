@@ -166,10 +166,13 @@
     }
     var global = acc + ayahNum;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
-    var a = new Audio(url);
-    a.volume = 0.9;
-    curAudio = a;
     if (el['ta-speak']) el['ta-speak'].textContent = '⏳';
+    var a = TQ.playAudio ? TQ.playAudio(url, el['ta-speak']) : new Audio(url);
+    if (!a) {
+      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+      return;
+    }
+    a.volume = 0.9;
     a.onended = function () {
       if (curAudio === a) curAudio = null;
       if (el['ta-speak']) el['ta-speak'].textContent = '🔊';

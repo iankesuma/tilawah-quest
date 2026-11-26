@@ -176,7 +176,20 @@
   };
 
 
-  /* ---------- audio init ---------- */
+    function playAudio(url, btn) {
+      if (!navigator.onLine) {
+        TQ.popup({
+          icon: '📶',
+          title: 'Mode Offline',
+          text: 'Kamu sedang offline. Fitur susun ayat dan kuis tetap bisa dimainkan tanpa internet, namun suara qori butuh koneksi data/WiFi.',
+          bad: true,
+          actions: [{ label: 'Oke, Mengerti' }]
+        });
+        return null;
+      }
+      var a = new Audio(url);
+      return a;
+    }
   function armAudio() {
     var started = false;
     function go() {
@@ -371,7 +384,7 @@
     points: points, addPoints: addPoints, stats: stats, bumpStat: bumpStat,
     stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone, levelStagesDone: levelStagesDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
-    sfx: sfx, popup: popup, closePopup: close,
+    sfx: sfx, popup: popup, closePopup: close, playAudio: playAudio,
     bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
