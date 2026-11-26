@@ -176,7 +176,7 @@
   }
 
   Promise.all([
-    fetch('data/tebak.json?v=31').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+    fetch('data/tebak.json?v=32').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
     fetch('data/surah-meta.json?v=6').then(function (r) { return r.json(); })
   ]).then(function (res) {
     var d = res[0];

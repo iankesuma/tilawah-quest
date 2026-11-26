@@ -304,8 +304,9 @@
 .srow-ar{font-family:var(--font-ar);font-size:19px;color:var(--green-d)}
 
 /* kata bisa diangkat di layar sentuh */
-.bank .tile{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
-.slot{touch-action:manipulation}
+.bank .tile,.items .tile,.words .tile{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.slot,.slots .tile{touch-action:manipulation}
+.slots.over{outline:2px dashed var(--green);outline-offset:2px;background:#F4FBEA}
 
 /* nama panjang di profil jangan meluber */
 .pf-head h2,#name{overflow-wrap:anywhere;word-break:break-word}

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Susun Hadis — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=31">
-<link rel="stylesheet" href="css/screens.css?v=31">
+<link rel="stylesheet" href="css/app.css?v=32">
+<link rel="stylesheet" href="css/screens.css?v=32">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -70,7 +70,7 @@
   </div>
 </div>
 
-<script src="js/app.js?v=31"></script>
+<script src="js/app.js?v=32"></script>
 <script>
 (function () {
   var DATA = [];
@@ -172,7 +172,7 @@
           if (Math.abs(ev.clientX - sx) < 8 && Math.abs(ev.clientY - sy) < 8) return;
           dragging = true;
           ghost = document.createElement('div');
-          ghost.className = 'drag-ghost';
+          ghost.className = 'tile drag-ghost';
           ghost.textContent = btn.textContent;
           document.body.appendChild(ghost);
           btn.classList.add('dragging');
@@ -180,6 +180,8 @@
         }
         ev.preventDefault();
         ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
+        var u = document.elementFromPoint(ev.clientX, ev.clientY);
+        el.answer.classList.toggle('over', !!(u && u.closest && u.closest('#answer')));
       }
       function up(ev) {
         if (ev.pointerId !== pid) return;
@@ -191,6 +193,7 @@
         btn.classList.remove('dragging');
         document.removeEventListener('touchmove', blockScroll);
         if (ghost) ghost.remove();
+        el.answer.classList.remove('over');
         suppressClick = true;
         setTimeout(function () { suppressClick = false; }, 60);
         var under = document.elementFromPoint(ev.clientX, ev.clientY);
@@ -248,7 +251,7 @@
     el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   };
 
-  fetch('data/hadis.json?v=31')
+  fetch('data/hadis.json?v=32')
     .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
     .then(function (d) {
       DATA = d;
