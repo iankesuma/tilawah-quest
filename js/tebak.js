@@ -1,30 +1,106 @@
-/* Tilawah Quest — tebak ayat */
+/* Tilawah Quest — tebak ayat (v33 — per-juz) */
 (function () {
   'use strict';
 
   var PER = 5;
   var MAX_HEARTS = 5;
-  var params = new URLSearchParams(location.search);
-  var STAGE = params.get('stage') ? Math.max(1, +params.get('stage')) : 0;
+  var STAGES_PER_JUZ = 10;
 
-  var S = { meta: [], items: [], stage: 1, stages: 50, qi: 0, hearts: MAX_HEARTS, score: 0, right: 0, locked: false };
+  var S = {
+    meta: [], juzData: [], juzNames: [],
+    curJuz: 0, items: [],
+    stage: 1, stages: STAGES_PER_JUZ,
+    qi: 0, hearts: MAX_HEARTS, score: 0, right: 0, locked: false
+  };
 
   var el = {};
-  ['prog', 'pts', 'pbar', 'stage-badge', 'hearts', 'ar', 'opts', 'done', 'sheet', 'hgrid', 'hq', 'hcount', 'openlist', 'sheet-close']
+  ['prog','pts','pbar','pbar-wrap','stage-badge','hearts','ar','opts','done',
+   'sheet','hgrid','hq','hcount','openlist','sheet-close',
+   'juz-screen','play-screen','back-btn']
     .forEach(function (id) { el[id] = document.getElementById(id); });
 
   if (!TQ.requireProfile()) return;
   el.pts.textContent = TQ.fmt(TQ.points());
 
+  function storeKey() { return 'tq_tebak_j' + S.curJuz; }
   function store() {
-    try { return JSON.parse(localStorage.getItem('tq_tebak_v1') || '{}'); } catch (e) { return {}; }
+    try { return JSON.parse(localStorage.getItem(storeKey()) || '{}'); } catch (e) { return {}; }
   }
-  function saveStore(o) { localStorage.setItem('tq_tebak_v1', JSON.stringify(o)); }
+  function saveStore(o) { localStorage.setItem(storeKey(), JSON.stringify(o)); }
   function stageStars(st) { return store()[st] || 0; }
   function setStageStars(st, n) { var o = store(); if ((o[st] || 0) < n) { o[st] = n; saveStore(o); } }
   function stagesDone() { return Object.keys(store()).filter(function (k) { return store()[k] > 0; }).length; }
 
+  function juzProgress(j) {
+    try {
+      var o = JSON.parse(localStorage.getItem('tq_tebak_j' + j) || '{}');
+      var done = Object.keys(o).filter(function (k) { return o[k] > 0; }).length;
+      return done;
+    } catch (e) { return 0; }
+  }
+
   function rnd(n) { return Math.floor(Math.random() * n); }
+
+  function showJuzPicker() {
+    el['juz-screen'].classList.remove('hidden');
+    el['play-screen'].classList.add('hidden');
+    el.openlist.classList.add('hidden');
+    el['pbar-wrap'].classList.add('hidden');
+    el.prog.textContent = 'Pilih juz';
+    el['back-btn'].href = 'belajar.html';
+    el['back-btn'].onclick = null;
+    renderJuzGrid();
+  }
+
+  function renderJuzGrid() {
+    var grid = document.getElementById('juz-grid');
+    grid.innerHTML = '';
+    for (var i = 0; i < S.juzData.length; i++) {
+      (function (idx) {
+        var jz = S.juzData[idx];
+        var j = jz.j;
+        var done = juzProgress(j);
+        var pct = Math.round(done / STAGES_PER_JUZ * 100);
+        var btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'jp' + (done >= STAGES_PER_JUZ ? ' alldone' : '');
+        btn.innerHTML =
+          '<b>' + j + '</b>' +
+          '<span>' + (S.juzNames[j - 1] || 'Juz ' + j) + '</span>' +
+          '<div class="bar"><i style="width:' + pct + '%"></i></div>' +
+          '<span class="pill">' + done + '/' + STAGES_PER_JUZ + '</span>';
+        btn.onclick = function () {
+          TQ.sfx.tap();
+          enterJuz(j);
+        };
+        grid.appendChild(btn);
+      })(i);
+    }
+  }
+
+  function enterJuz(j) {
+    S.curJuz = j;
+    var jz = S.juzData.find(function (d) { return d.j === j; });
+    S.items = jz ? jz.items : [];
+    S.stages = STAGES_PER_JUZ;
+
+    el['juz-screen'].classList.add('hidden');
+    el['play-screen'].classList.remove('hidden');
+    el.openlist.classList.remove('hidden');
+    el['pbar-wrap'].classList.remove('hidden');
+    el['back-btn'].href = '#';
+    el['back-btn'].onclick = function (e) {
+      e.preventDefault();
+      TQ.sfx.tap();
+      showJuzPicker();
+    };
+
+    S.stage = 1;
+    for (var i = 1; i <= S.stages; i++) {
+      if (!stageStars(i)) { S.stage = i; break; }
+    }
+    startStage();
+  }
 
   function paintGrid() {
     var q = (el.hq.value || '').trim();
@@ -62,7 +138,7 @@
 
   function label(s, a) {
     var m = S.meta[s - 1];
-    return m.name + ' ayat ' + a;
+    return m ? m.name + ' ayat ' + a : 'Surah ' + s + ' ayat ' + a;
   }
 
   function startStage() {
@@ -71,7 +147,7 @@
     el.done.classList.add('hidden');
     el.done.innerHTML = '';
     el.opts.style.display = 'grid';
-    el['stage-badge'].textContent = 'Stage ' + S.stage + '/' + S.stages;
+    el['stage-badge'].textContent = 'Juz ' + S.curJuz + ' · Stage ' + S.stage + '/' + S.stages;
     renderHearts();
     renderQuestion();
   }
@@ -86,7 +162,7 @@
     if (!q) { finishStage(); return; }
     S.locked = false;
     el.ar.textContent = q.ar;
-    el.prog.textContent = 'Soal ' + (S.qi + 1) + '/' + PER;
+    el.prog.textContent = 'Juz ' + S.curJuz + ' · Soal ' + (S.qi + 1) + '/' + PER;
     el.pbar.style.width = (S.qi / PER * 100) + '%';
 
     var answer = label(q.s, q.a);
@@ -96,6 +172,7 @@
       var s = 1 + rnd(114);
       if (s === q.s) continue;
       var m = S.meta[s - 1];
+      if (!m) continue;
       var a = 1 + rnd(m.ayat);
       var t = label(s, a);
       if (opts.some(function (o) { return o.txt === t; })) continue;
@@ -122,7 +199,6 @@
       S.right++;
       S.score += 10;
       TQ.sfx.ok();
-      var q = question(S.qi);
       el.pbar.style.width = ((S.qi + 1) / PER * 100) + '%';
       setTimeout(function () {
         S.qi++;
@@ -155,19 +231,23 @@
     el.opts.innerHTML = '';
     el.opts.style.display = 'none';
     el.done.classList.remove('hidden');
+
+    var allDone = passed && S.stage >= S.stages;
     el.done.innerHTML =
       '<div class="stars">' + (passed ? '★★★'.slice(0, stars) + '☆☆☆'.slice(0, 3 - stars) : '☆☆☆') + '</div>' +
-      '<h3>' + (passed ? (S.stage === S.stages ? 'Masya Allah, 50 stage selesai!' : 'Alhamdulillah, stage selesai!') : 'Nyawa habis') + '</h3>' +
+      '<h3>' + (passed ? (allDone ? 'Masya Allah, Juz ' + S.curJuz + ' selesai!' : 'Alhamdulillah, stage selesai!') : 'Nyawa habis') + '</h3>' +
       '<div class="muted" style="font-size:12.5px;font-weight:800">' +
         'Benar ' + S.right + '/' + PER + ' · skor ' + S.score +
         (first ? ' · +' + Math.round((S.score + 20) / 2) + ' poin' : '') +
       '</div>' +
       (passed && S.stage < S.stages
         ? '<button class="btn" id="next-stage">Stage ' + (S.stage + 1) + ' →</button>'
-        : '<button class="btn" id="next-stage">Main lagi</button>') +
+        : '<button class="btn" id="next-stage">' + (allDone ? 'Pilih Juz Lain' : 'Main lagi') + '</button>') +
       '<button class="btn ghost small" id="again-stage">Ulangi stage</button>';
+
     var nx = document.getElementById('next-stage');
     nx.onclick = function () {
+      if (allDone) { showJuzPicker(); return; }
       if (passed && S.stage < S.stages) { S.stage++; startStage(); }
       else { S.stage = 1; startStage(); }
     };
@@ -176,20 +256,17 @@
   }
 
   Promise.all([
-    fetch('data/tebak.json?v=32').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
-    fetch('data/surah-meta.json?v=6').then(function (r) { return r.json(); })
+    fetch('data/tebak.json?v=33').then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); }),
+    fetch('data/surah-meta.json?v=6').then(function (r) { return r.json(); }),
+    fetch('data/juz.json?v=6').then(function (r) { return r.json(); })
   ]).then(function (res) {
     var d = res[0];
-    S.items = d.items;
-    S.stages = d.stages || 50;
+    S.juzData = d.juz;
     S.meta = res[1];
-    if (!STAGE) {
-      STAGE = 1;
-      for (var i = 1; i <= S.stages; i++) { if (!stageStars(i)) { STAGE = i; break; } }
-    }
-    S.stage = STAGE;
-    startStage();
-  }).catch(function () {
+    S.juzNames = res[2].map(function (j) { return j.name; });
+    showJuzPicker();
+  }).catch(function (e) {
+    console.error(e);
     el.prog.textContent = 'Gagal memuat';
     el.ar.textContent = 'Soal belum bisa dimuat. Periksa koneksi lalu muat ulang.';
   });
