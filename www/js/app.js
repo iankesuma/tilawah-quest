@@ -298,7 +298,7 @@
   }
 
   /* ---------- versi aplikasi & cek update ---------- */
-  const VERSION = '1.0.12';
+  const VERSION = '1.0.13';
   const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
   function version() { return VERSION; }
   function checkUpdate() {

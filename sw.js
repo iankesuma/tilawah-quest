@@ -1,6 +1,6 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v56';
-const DATA = 'tq-data-v56';
+const CORE = 'tq-core-v57';
+const DATA = 'tq-data-v57';
 const SHELL = [
   './', 'login.html', 'pilih.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',

@@ -213,17 +213,30 @@
 
     var answer = label(q.s, q.a);
     var opts = [{ txt: answer, ok: true }];
-    var guard = 0;
-    while (opts.length < 4 && guard++ < 300) {
-      var s = 1 + rnd(114);
-      if (s === q.s) continue;
-      var m = S.meta[s - 1];
-      if (!m) continue;
-      var a = 1 + rnd(m.ayat);
-      var t = label(s, a);
-      if (opts.some(function (o) { return o.txt === t; })) continue;
-      opts.push({ txt: t, ok: false });
+
+    /* Pengecoh HARUS berasal dari juz yang sama dengan soal.
+       S.items adalah 50 ayat pada juz aktif, jadi pilihannya tetap
+       masuk akal dan tidak membocorkan juz lewat opsi yang jelas di luar juz. */
+    var pool = (S.items || []).filter(function (it) {
+      return !(it.s === q.s && it.a === q.a);
+    });
+    if (pool.length < 3) {
+      var jz = S.juzData.find(function (d) { return d.j === S.curJuz; });
+      if (jz && jz.items) {
+        pool = jz.items.filter(function (it) {
+          return !(it.s === q.s && it.a === q.a);
+        });
+      }
     }
+    var seen = {};
+    seen[answer] = true;
+    TQ.shuffle(pool).forEach(function (it) {
+      if (opts.length >= 4) return;
+      var t = label(it.s, it.a);
+      if (!t || seen[t]) return;
+      seen[t] = true;
+      opts.push({ txt: t, ok: false });
+    });
     opts = TQ.shuffle(opts);
 
     if (el['ta-speak']) {
