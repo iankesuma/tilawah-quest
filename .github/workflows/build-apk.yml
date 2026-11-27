@@ -58,11 +58,11 @@ jobs:
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
+        if: always()
         with:
           tag_name: v1.0.6-apk
-          name: "Tilawah Quest v1.0.6 APK (Standard Native Capacitor)"
-          body: "Kembali ke arsitektur native standar Capacitor tanpa custom WebViewClient overrides. Aset www/ disinkronkan ke assets/public/index.html."
+          name: "Tilawah Quest v1.0.6 APK (Clean Native Build)"
+          body: "Rilis bersih APK Android resmi Tilawah Quest. 100% Offline asset loading native, Susun Ayat 30 Juz, Tebak Ayat, Kuis Tajwid, Muroja'ah Cepat, dan 31 Piagam Penghargaan."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
