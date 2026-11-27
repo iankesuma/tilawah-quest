@@ -5,6 +5,7 @@
   var PER = 5;
   var MAX_HEARTS = 5;
   var STAGES_PER_JUZ = 10;
+  var AUDIO_FROM_STAGE = 2; // stage 1=baca ayat, stage 2+=dengar qari
 
   var S = {
     meta: [], juzData: [], juzNames: [],
@@ -16,7 +17,7 @@
   var el = {};
   ['prog','pts','pbar','pbar-wrap','stage-badge','hearts','ar','opts','done',
    'sheet','hgrid','hq','hcount','openlist','sheet-close',
-   'juz-screen','play-screen','back-btn','ta-speak']
+   'juz-screen','play-screen','back-btn','ta-speak','q-text','listen-box']
     .forEach(function (id) { el[id] = document.getElementById(id); });
 
   if (!TQ.requireProfile()) return;
@@ -143,13 +144,27 @@
 
   /* --- audio ayat --- */
   var curAudio = null;
+
+  function setAudioUI(state) {
+    var ico = state === 'loading' ? '⏳' : state === 'playing' ? '⏹️' : '🔊';
+    if (el['ta-speak']) el['ta-speak'].textContent = ico;
+    if (el['listen-box']) {
+      var i = el['listen-box'].querySelector('.listen-ico');
+      var l = el['listen-box'].querySelector('.listen-label');
+      var sub = el['listen-box'].querySelector('.listen-sub');
+      if (i) i.textContent = ico;
+      if (l) l.textContent = state === 'playing' ? 'Sedang diputar' : 'Dengarkan';
+      if (sub) sub.textContent = state === 'playing' ? 'Tekan untuk menghentikan' : 'Tekan untuk memutar ayat';
+      el['listen-box'].classList.toggle('playing', state === 'playing');
+    }
+  }
+
   function stopAyatAudio() {
     if (curAudio) {
-      curAudio.pause();
-      curAudio.currentTime = 0;
+      try { curAudio.pause(); curAudio.currentTime = 0; } catch (e) {}
       curAudio = null;
     }
-    if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+    setAudioUI('idle');
   }
 
   function playAyatAudio(surahNum, ayahNum) {
@@ -166,22 +181,20 @@
     }
     var global = acc + ayahNum;
     var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
-    if (el['ta-speak']) el['ta-speak'].textContent = '⏳';
-    var a = TQ.playAudio ? TQ.playAudio(url, el['ta-speak']) : new Audio(url);
-    if (!a) {
-      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
-      return;
-    }
+    setAudioUI('loading');
+    var a = TQ.playAudio ? TQ.playAudio(url, el['listen-box'] || el['ta-speak']) : new Audio(url);
+    if (!a) { setAudioUI('idle'); return; }
     a.volume = 0.9;
+    curAudio = a;
     a.onended = function () {
       if (curAudio === a) curAudio = null;
-      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+      setAudioUI('idle');
     };
     a.play().then(function () {
-      if (el['ta-speak']) el['ta-speak'].textContent = '⏹️';
+      if (curAudio === a) setAudioUI('playing');
     }).catch(function () {
       if (curAudio === a) curAudio = null;
-      if (el['ta-speak']) el['ta-speak'].textContent = '🔊';
+      setAudioUI('idle');
       TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Periksa koneksi internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
     });
   }
@@ -211,6 +224,15 @@
     el.prog.textContent = 'Juz ' + S.curJuz + ' · Soal ' + (S.qi + 1) + '/' + PER;
     el.pbar.style.width = (S.qi / PER * 100) + '%';
 
+    /* Stage 1: lihat ayat. Stage 2+: ayat disembunyikan, ganti tombol dengar qari. */
+    var audioMode = S.stage >= AUDIO_FROM_STAGE;
+    el.ar.style.display = audioMode ? 'none' : '';
+    el.ar.setAttribute('aria-hidden', audioMode ? 'true' : 'false');
+    if (el['listen-box']) el['listen-box'].classList.toggle('hidden', !audioMode);
+    if (el['q-text']) el['q-text'].textContent = audioMode
+      ? 'Dengarkan, ayat ini dari surah mana,'
+      : 'Ayat ini dari surah mana?';
+
     var answer = label(q.s, q.a);
     var opts = [{ txt: answer, ok: true }];
 
@@ -239,11 +261,9 @@
     });
     opts = TQ.shuffle(opts);
 
-    if (el['ta-speak']) {
-      el['ta-speak'].onclick = function () {
-        playAyatAudio(q.s, q.a);
-      };
-    }
+    var playFn = function () { playAyatAudio(q.s, q.a); };
+    if (el['ta-speak']) el['ta-speak'].onclick = playFn;
+    if (el['listen-box']) el['listen-box'].onclick = playFn;
 
     el.opts.innerHTML = '';
     opts.forEach(function (o) {

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Tebak Ayat — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=57">
-<link rel="stylesheet" href="css/screens.css?v=57">
+<link rel="stylesheet" href="css/app.css?v=58">
+<link rel="stylesheet" href="css/screens.css?v=58">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -29,6 +29,12 @@
 .ta-done{background:#F5FBFE;border-radius:16px;padding:14px;display:grid;gap:10px;text-align:center}
 .ta-done h3{margin:0;font-family:var(--font-display);font-size:19px;color:var(--green-d)}
 .ta-done .stars{font-size:26px;color:var(--yellow);letter-spacing:2px}
+.listen-box{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:104px;background:#F1F8FC;border:2px dashed #8DBF2E;border-radius:16px;padding:14px 12px;cursor:pointer;font-family:inherit;color:var(--green-d);transition:.12s}
+.listen-box:active{transform:scale(.98)}
+.listen-box.playing{border-style:solid;background:#E6F4EA}
+.listen-ico{font-size:40px;line-height:1.1}
+.listen-label{font-family:var(--font-display);font-size:18px;font-weight:800}
+.listen-sub{font-size:11.5px;color:#7C97A5;font-weight:800}
 .hgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;padding:4px 0 20px}
 .hn{border:0;border-radius:11px;background:#F1F8FC;color:#4F7080;font-family:inherit;font-size:12.5px;font-weight:900;padding:9px 0;cursor:pointer;position:relative}
 .hn.done{background:#E6F4EA;color:var(--green-d)}
@@ -74,8 +80,13 @@
         <div class="ta-hearts" id="hearts" aria-label="Nyawa"></div>
       </div>
     </div>
-    <p class="ta-q">Ayat ini dari surah mana?</p>
+    <p class="ta-q" id="q-text">Ayat ini dari surah mana?</p>
     <div class="ta-ar" id="ar">…</div>
+    <button class="listen-box hidden" id="listen-box" type="button" aria-label="Dengarkan ayat">
+      <span class="listen-ico">🔊</span>
+      <span class="listen-label">Dengarkan</span>
+      <span class="listen-sub">Tekan untuk memutar ayat</span>
+    </button>
     <div class="ta-opts" id="opts"></div>
     <div class="ta-done hidden" id="done"></div>
   </section>
@@ -92,7 +103,7 @@
   </div>
 </div>
 
-<script src="js/app.js?v=57"></script>
-<script src="js/tebak.js?v=57"></script>
+<script src="js/app.js?v=58"></script>
+<script src="js/tebak.js?v=58"></script>
 </body>
 </html>

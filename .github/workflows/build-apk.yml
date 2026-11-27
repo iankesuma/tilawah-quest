@@ -62,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.13-apk
-          name: "Tilawah Quest v1.0.13 APK (Tebak Ayat: opsi satu juz)"
-          body: "Semua pilihan jawaban Tebak Ayat kini diambil dari juz yang sama dengan soal. Izin mic & lokasi tetap on-demand."
+          tag_name: v1.0.14-apk
+          name: "Tilawah Quest v1.0.14 APK (Tebak Ayat: mode dengar)"
+          body: "Stage 1 Tebak Ayat menampilkan ayat Arab; mulai stage 2 ayat disembunyikan dan diganti tombol Dengarkan qari. Opsi tetap satu juz."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

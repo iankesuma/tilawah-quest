@@ -1,4 +1,4 @@
 {
-  "version": "1.0.13",
-  "notes": "Tebak Ayat: semua pilihan jawaban kini diambil dari juz yang sama dengan soal."
+  "version": "1.0.14",
+  "notes": "Tebak Ayat: stage 1 baca ayat, stage 2+ dengar qari dari kotak Dengarkan."
 }
