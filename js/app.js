@@ -371,7 +371,8 @@
     return { display: 'block', background: h.color, border: '2px solid rgba(0,0,0,.15)' };
   }
 
-  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  var isNativeApp = window.Capacitor && window.Capacitor.isNativePlatform();
+  if ('serviceWorker' in navigator && !isNativeApp && location.protocol === 'https:' && location.hostname !== 'localhost') {
     window.addEventListener('load', function () {
       navigator.serviceWorker.register('sw.js').catch(function () {});
     });
