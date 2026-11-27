@@ -60,9 +60,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.3-apk
-          name: "Tilawah Quest v1.0.3 APK (Full File & Dom Access)"
-          body: "Bypass Android WebView domain block: enabled setAllowUniversalAccessFromFileURLs, setAllowFileAccess, and domStorageEnabled in MainActivity."
+          tag_name: v1.0.4-apk
+          name: "Tilawah Quest v1.0.4 APK (Direct Asset Fallback)"
+          body: "Direct fallback to file:///android_asset/public/index.html in onReceivedError and onStart WebSettings initialization."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
