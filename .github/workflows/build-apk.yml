@@ -60,9 +60,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.1-apk
-          name: "Tilawah Quest v1.0.1 APK (Fix Offline Load)"
-          body: "Perbaikan error net::ERR_CONNECTION_REFUSED https://localhost. Menghapus konfigurasi androidScheme custom agar WebView langsung membaca file lokal secara internal."
+          tag_name: v1.0.2-apk
+          name: "Tilawah Quest v1.0.2 APK (Fix Assets Loading)"
+          body: "Fix internal asset loading on Android WebView: enabled usesCleartextTraffic, configured https://localhost scheme, and synced web assets."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
