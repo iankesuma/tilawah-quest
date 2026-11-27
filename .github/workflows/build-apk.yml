@@ -31,10 +31,11 @@ jobs:
         run: |
           npm ci || npm install
 
-      - name: Sync Web to Android
+      - name: Sync Web Assets to Android
         run: |
           node sync_www.js
-          npx cap sync android || true
+          npx cap sync android
+          ls -la android/app/src/main/assets/public/index.html
 
       - name: Make Gradle Executable
         run: |
@@ -60,9 +61,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.6-apk
-          name: "Tilawah Quest v1.0.6 APK (Clean Native Build)"
-          body: "Rilis bersih APK Android resmi Tilawah Quest. 100% Offline asset loading native, Susun Ayat 30 Juz, Tebak Ayat, Kuis Tajwid, Muroja'ah Cepat, dan 31 Piagam Penghargaan."
+          tag_name: v1.0.7-apk
+          name: "Tilawah Quest v1.0.7 APK (Assets Guaranteed)"
+          body: "Memastikan seluruh aset web (index.html, CSS, JS, JSON) disinkronkan dan masuk ke dalam APK."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
