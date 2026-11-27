@@ -2,6 +2,31 @@
 (function () {
   'use strict';
 
+  /* ---------- multi-anak: namespace penyimpanan per anak ----------
+     Anak pertama (id 'c1') memakai kunci lama tanpa prefix, jadi progres lama tetap aman.
+     Anak lain memakai prefix tq_<id>_ . Kunci global tidak diprefix. */
+  var GLOBAL_KEYS = { tq_children: 1, tq_active: 1, tq_voice: 1, tq_data_cache_v1: 1 };
+  var _proto = Storage.prototype;
+  var _getItem = _proto.getItem.__orig || _proto.getItem;
+  var _setItem = _proto.setItem.__orig || _proto.setItem;
+  var _removeItem = _proto.removeItem.__orig || _proto.removeItem;
+  function rawGet(k) { try { return _getItem.call(localStorage, k); } catch (e) { return null; } }
+  function nsKey(k, childId) {
+    if (typeof k !== 'string' || k.indexOf('tq_') !== 0 || GLOBAL_KEYS[k]) return k;
+    if (!childId || childId === 'c1') return k;
+    return 'tq_' + childId + '_' + k.slice(3);
+  }
+  function activeId() { return rawGet('tq_active') || 'c1'; }
+  if (!_proto.getItem.__tqNs) {
+    var _pg = _getItem, _ps = _setItem, _pr = _removeItem;
+    _proto.getItem = function (k) { return _pg.call(this, this === localStorage ? nsKey(k, activeId()) : k); };
+    _proto.setItem = function (k, v) { return _ps.call(this, this === localStorage ? nsKey(k, activeId()) : k, v); };
+    _proto.removeItem = function (k) { return _pr.call(this, this === localStorage ? nsKey(k, activeId()) : k); };
+    _proto.getItem.__tqNs = true; _proto.getItem.__orig = _pg;
+    _proto.setItem.__tqNs = true; _proto.setItem.__orig = _ps;
+    _proto.removeItem.__tqNs = true; _proto.removeItem.__orig = _pr;
+  }
+
   const KEY = 'tq_v1';
 
   const DEFAULT = {
@@ -80,7 +105,7 @@
     var key = id || state.profile.char;
     return CHARACTERS.find(function (c) { return c.id === key; }) || CHARACTERS[0];
   }
-  function setProfile(p) { Object.assign(state.profile, p); save(); }
+  function setProfile(p) { Object.assign(state.profile, p); save(); registerChild(); }
   function points() { return state.points; }
   function addPoints(n) { state.points = Math.max(0, state.points + n); save(); return state.points; }
   function stats() { return state.stats; }
@@ -273,7 +298,7 @@
   }
 
   /* ---------- versi aplikasi & cek update ---------- */
-  const VERSION = '1.0.10';
+  const VERSION = '1.0.11';
   const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
   function version() { return VERSION; }
   function checkUpdate() {
@@ -494,6 +519,54 @@
     });
   }
 
+  /* ---------- multi-anak: daftar anak ---------- */
+  function childrenList() { try { return JSON.parse(rawGet('tq_children') || '[]') || []; } catch (e) { return []; } }
+  function saveChildren(list) { try { _setItem.call(localStorage, 'tq_children', JSON.stringify(list)); } catch (e) {} }
+  function ensureChildren() {
+    var list = childrenList();
+    if (list.length) return list;
+    // data lama (sebelum multi-anak) dianggap anak pertama, id 'c1'
+    try {
+      var d = JSON.parse(rawGet('tq_v1') || 'null');
+      if (d && d.profile && d.profile.onboarded) {
+        list = [{ id: 'c1', name: d.profile.name || 'Anak', char: d.profile.char, color: d.profile.color }];
+        saveChildren(list);
+      }
+    } catch (e) {}
+    return list;
+  }
+  function registerChild() {
+    var id = activeId(), p = state.profile;
+    if (!p.onboarded) return;
+    var list = childrenList(), found = false;
+    list.forEach(function (c) {
+      if (c.id === id) { c.name = p.name; c.char = p.char; c.color = p.color; found = true; }
+    });
+    if (!found) list.push({ id: id, name: p.name, char: p.char, color: p.color });
+    saveChildren(list);
+  }
+  function dropChild(id) { saveChildren(childrenList().filter(function (c) { return c.id !== id; })); }
+  function addChild() {
+    var list = ensureChildren();
+    if (list.length >= 5) return null;
+    var n = 1;
+    while (list.some(function (c) { return c.id === 'c' + n; })) n++;
+    var id = 'c' + n;
+    _setItem.call(localStorage, 'tq_active', id);
+    return id;
+  }
+  function switchChild(id) {
+    _setItem.call(localStorage, 'tq_active', id);
+    location.href = 'juz.html';
+  }
+  function childSummary(id) {
+    try {
+      var d = JSON.parse(_getItem.call(localStorage, nsKey('tq_v1', id)) || 'null');
+      if (!d) return { points: 0, onboarded: false };
+      return { points: d.points || 0, onboarded: !!(d.profile && d.profile.onboarded) };
+    } catch (e) { return { points: 0, onboarded: false }; }
+  }
+
   window.TQ = {
     KEY: KEY, HATS: HATS, COLORS: COLORS, CHARACTERS: CHARACTERS, character: character,
     state: function () { return state; },
@@ -504,11 +577,14 @@
     sfx: sfx, haptic: haptic, praise: praise, praiseRandom: praiseRandom, praiseEnabled: praiseEnabled, praiseSet: praiseSet,
     version: version, checkUpdate: checkUpdate, vibrate: vibrate, popup: popup, closePopup: close, playAudio: playAudio,
     bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
+    children: ensureChildren, activeChild: activeId, addChild: addChild, switchChild: switchChild,
+    childSummary: childSummary, MAX_CHILDREN: 5,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
     reset: function () {
       state = JSON.parse(JSON.stringify(DEFAULT));
       save();
+      dropChild(activeId());
       // Bersihkan juga progres tebak ayat & cache lokal
       try {
         for (var i = 1; i <= 30; i++) {
