@@ -62,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.7-apk
-          name: "Tilawah Quest v1.0.7 APK (Assets Guaranteed)"
-          body: "Memastikan seluruh aset web (index.html, CSS, JS, JSON) disinkronkan dan masuk ke dalam APK."
+          tag_name: v1.0.8-apk
+          name: "Tilawah Quest v1.0.8 APK (Location Permissions Fixed)"
+          body: "Menambahkan izin ACCESS_FINE_LOCATION & ACCESS_COARSE_LOCATION dan mengaktifkan WebChromeClient GeolocationPermissions di Android native."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
