@@ -42,8 +42,6 @@ jobs:
 
       - name: Build Debug APK
         run: |
-          node sync_www.js
-          npx cap sync android
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
