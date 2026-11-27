@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kenalan dulu — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=49">
+<link rel="stylesheet" href="css/screens.css?v=41">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <div class="brand"><span class="logo-dot">★</span> Tilawah Quest</div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="bot-stage">
+    <div class="bot-preview" id="preview"></div>
+  </div>
+
+  <section class="card">
+    <label class="field-label" for="name">Siapa namamu?</label>
+    <div class="row" style="gap:8px">
+      <input id="name" class="input" type="text" placeholder="Tulis namamu" autocomplete="nickname" maxlength="14" style="flex:1">
+      <button class="btn small" id="saveName" style="width:auto" disabled>Simpan 🔒</button>
+    </div>
+    <p class="bubble">Tulis namamu (min. 2 huruf), lalu pilih karakter</p>
+
+    <p class="field-label mt">Pilih karakter sahabat</p>
+    <div class="char-grid" id="chars" role="group" aria-label="Pilih karakter"></div>
+    <p class="char-note" id="charNote"></p>
+  </section>
+
+  <button class="btn big" id="go">Pilih Juz →</button>
+</main>
+
+<script src="js/app.js?v=46"></script>
+<script>
+(function () {
+  var p = TQ.profile();
+  var name = p.name || '';
+  var charId = p.char || 'abubakar';
+  var saved = false;
+
+  var el = { chars: TQ.qs('#chars'), preview: TQ.qs('#preview'), note: TQ.qs('#charNote'), name: TQ.qs('#name') };
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+  el.name.value = name;
+
+  function ch() { return TQ.character(charId); }
+
+  function paintPreview() {
+    var c = ch();
+    el.preview.innerHTML =
+      '<div class="bp-face">' + TQ.charFace(c) + '</div>' +
+      '<span class="bp-name">' + c.name + '</span>';
+    el.note.textContent = c.note + (c.female ? ' · karakter perempuan' : '');
+  }
+
+  function paintChars() {
+    el.chars.innerHTML = '';
+    TQ.CHARACTERS.forEach(function (c) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'char';
+      b.setAttribute('aria-pressed', String(c.id === charId));
+      b.innerHTML = '<span class="char-face">' + TQ.charFace(c) + '</span><b>' + c.name + '</b>';
+      b.onclick = function () {
+        charId = c.id;
+        TQ.sfx.tap();
+        paintChars(); paintPreview();
+      };
+      el.chars.appendChild(b);
+    });
+  }
+
+  TQ.qs('#saveName').onclick = function () {
+    var v = el.name.value.trim();
+    if (v.length < 2) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '✏️', title: 'Nama masih kosong', text: 'Tulis minimal 2 huruf.', bad: true, actions: [{ label: 'Oke' }] });
+      return;
+    }
+    name = v;
+    saved = true;
+    TQ.setProfile({ name: name, char: charId, onboarded: true, joinedAt: p.joinedAt || Date.now() });
+    TQ.sfx.ok();
+    TQ.popup({ icon: '✅', title: 'Tersimpan', text: 'Hai ' + name + '! Karaktermu ' + ch().name + '.', good: true, actions: [{ label: 'Lanjut' }] });
+  };
+
+  TQ.qs('#go').onclick = function () {
+    var v = el.name.value.trim();
+    if (!saved || v !== name) {
+      if (v.length < 2) {
+        TQ.sfx.bad();
+        TQ.popup({ icon: '✏️', title: 'Nama dulu ya', text: 'Tulis namamu lalu tekan Simpan.', bad: true, actions: [{ label: 'Oke' }] });
+        el.name.focus();
+        return;
+      }
+      name = v;
+    }
+    TQ.setProfile({ name: name, char: charId, onboarded: true, joinedAt: p.joinedAt || Date.now() });
+    TQ.sfx.win();
+    location.href = 'juz.html';
+  };
+
+  el.name.addEventListener('input', function () {
+    TQ.qs('#saveName').disabled = el.name.value.trim().length < 2;
+  });
+  TQ.qs('#saveName').disabled = el.name.value.trim().length < 2;
+
+  paintChars();
+  paintPreview();
+})();
+</script>
+</body>
+</html>

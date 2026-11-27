@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Susun Hadis — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=49">
+<link rel="stylesheet" href="css/screens.css?v=41">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.hadis-ar{font-family:var(--font-ar);font-size:23px;line-height:2;text-align:right;direction:rtl;color:var(--green-d);margin:4px 0 10px}
+.src{font-size:12px;font-weight:800;color:var(--muted);text-align:right}
+.words{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.words .tile{font-size:14px;padding:10px 12px;touch-action:none}
+.words .tile.dragging{opacity:.35;transform:scale(.92)}
+.drag-ghost{position:fixed;top:0;left:0;z-index:9999;pointer-events:none;padding:10px 12px;border-radius:14px;font-size:14px;font-weight:800;font-family:inherit;background:var(--green);color:#fff;box-shadow:0 6px 24px rgba(0,0,0,.2);white-space:nowrap}
+.story{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px;font-size:13.5px;line-height:1.6;font-weight:600;color:var(--ink-2)}
+.hgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;padding:4px 0 20px;-webkit-overflow-scrolling:touch}
+.hn{border:0;border-radius:11px;background:#F1F8FC;color:#4F7080;font-family:inherit;font-size:12.5px;font-weight:900;padding:9px 0;cursor:pointer;position:relative}
+.hn.done{background:#E6F4EA;color:var(--green-d)}
+.hn.now{background:var(--green);color:#fff}
+.hn.now:after{content:'';position:absolute;inset:0;border-radius:11px;box-shadow:0 0 0 2px #fff inset}
+.hcount{font-size:11.5px;font-weight:800;color:#7C97A5;margin:0 0 6px}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Susun Hadis</b><span id="prog">Memuat…</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+    <button class="iconbtn" id="openlist" aria-label="Pilih hadis">☰</button>
+  </div>
+
+  <div class="bar" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
+
+  <section class="card" style="position:relative">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <button class="iconbtn small" id="prev-hadis" aria-label="Hadis sebelumnya" title="Hadis sebelumnya" style="width:36px;height:36px;font-size:16px;font-weight:900">‹</button>
+      <p class="muted center" style="font-weight:800;font-size:12.5px;margin:0">Susun arti hadis berikut</p>
+      <button class="iconbtn small" id="next-hadis" aria-label="Hadis berikutnya" title="Hadis berikutnya" style="width:36px;height:36px;font-size:16px;font-weight:900">›</button>
+    </div>
+    <p class="hadis-ar" id="ar">…</p>
+    <p class="src" id="src"></p>
+
+    <div class="slots" id="answer" style="min-height:62px">
+      <span class="ph">Susun artinya di sini</span>
+    </div>
+
+    <div class="words" id="bank"></div>
+
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn ghost small" id="reset" style="flex:1">↻ Ulangi</button>
+      <button class="btn" id="check" style="flex:2">Periksa</button>
+    </div>
+
+    <div class="story hidden" id="story"></div>
+  </section>
+</main>
+
+<div class="sheet" id="sheet" aria-hidden="true">
+  <div class="sheet-inner">
+    <div class="sheet-head">
+      <input class="input" id="hq" type="search" placeholder="Cari nomor atau sumber…" autocomplete="off">
+      <button class="iconbtn" id="sheet-close" aria-label="Tutup">✕</button>
+    </div>
+    <p class="hcount" id="hcount"></p>
+    <div class="hgrid" id="hgrid"></div>
+  </div>
+</div>
+
+<script src="js/app.js?v=46"></script>
+<script>
+(function () {
+  var DATA = [];
+  var n = 0, picked = [], bank = [];
+  var el = {
+    ar: TQ.qs('#ar'), src: TQ.qs('#src'), prog: TQ.qs('#prog'), pbar: TQ.qs('#pbar'),
+    answer: TQ.qs('#answer'), bank: TQ.qs('#bank'), story: TQ.qs('#story'),
+    sheet: TQ.qs('#sheet'), grid: TQ.qs('#hgrid'), hq: TQ.qs('#hq'), hcount: TQ.qs('#hcount'),
+    prev: TQ.qs('#prev-hadis'), next: TQ.qs('#next-hadis')
+  };
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  function doneList() { try { return JSON.parse(localStorage.getItem('tq_hadis_done') || '[]'); } catch (e) { return []; } }
+  function markDone(i) { var d = doneList(); if (d.indexOf(i) < 0) { d.push(i); localStorage.setItem('tq_hadis_done', JSON.stringify(d)); return true; } return false; }
+
+  function paintGrid() {
+    if (!DATA.length) return;
+    var q = (el.hq.value || '').trim().toLowerCase();
+    var done = doneList();
+    var shown = 0;
+    el.grid.innerHTML = '';
+    DATA.forEach(function (it, i) {
+      var hay = (i + 1) + ' ' + it.src.toLowerCase() + ' ' + it.id.toLowerCase();
+      if (q && hay.indexOf(q) < 0) return;
+      shown++;
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'hn' + (done.indexOf(i) > -1 ? ' done' : '') + (i === n ? ' now' : '');
+      b.textContent = i + 1;
+      b.title = it.src;
+      b.onclick = function () { n = i; closeSheet(); build(); };
+      el.grid.appendChild(b);
+    });
+    el.hcount.textContent = q ? (shown + ' hadis cocok') : (done.length + ' dari ' + DATA.length + ' selesai');
+  }
+
+  function openSheet() { el.sheet.classList.add('open'); el.sheet.setAttribute('aria-hidden', 'false'); paintGrid(); }
+  function closeSheet() { el.sheet.classList.remove('open'); el.sheet.setAttribute('aria-hidden', 'true'); }
+  TQ.qs('#openlist').onclick = function () { TQ.sfx.tap(); openSheet(); };
+  TQ.qs('#sheet-close').onclick = closeSheet;
+  el.sheet.onclick = function (e) { if (e.target === el.sheet) closeSheet(); };
+  el.hq.oninput = paintGrid;
+
+  function build() {
+    var it = DATA[n];
+    if (!it) return;
+    bank = TQ.shuffle(it.id.split(' ').map(function (w) { return { w: w, used: false }; }));
+    picked = [];
+    el.ar.textContent = it.ar;
+    el.src.textContent = '— ' + it.src;
+    el.prog.textContent = 'Hadis ' + (n + 1) + ' dari ' + DATA.length;
+    el.story.classList.add('hidden');
+    localStorage.setItem('tq_hadis_last', String(n));
+    if (location.search.indexOf('debug') > -1) el.prog.dataset.answer = it.id;
+    if (el.prev) el.prev.disabled = (n <= 0);
+    if (el.next) el.next.disabled = (n >= DATA.length - 1);
+    render();
+  }
+
+  function render() {
+    el.answer.innerHTML = '';
+    if (!picked.length) {
+      var ph = document.createElement('span');
+      ph.className = 'ph';
+      ph.textContent = 'Susun artinya di sini';
+      el.answer.appendChild(ph);
+    }
+    picked.forEach(function (p, i) {
+      var t = document.createElement('span');
+      t.className = 'tile ok';
+      t.textContent = p.w;
+      t.title = 'Ketuk untuk mengembalikan';
+      t.onclick = function () { picked.splice(i, 1); p.used = false; TQ.sfx.tap(); render(); };
+      el.answer.appendChild(t);
+    });
+
+    el.bank.innerHTML = '';
+    bank.forEach(function (b, idx) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tile' + (b.used ? ' used' : '');
+      btn.textContent = b.w;
+      btn.onclick = function () { if (!suppressClick) pick(idx); };
+      makeDraggable(btn, idx);
+      el.bank.appendChild(btn);
+    });
+
+    el.pbar.style.width = (DATA.length ? (doneList().length / DATA.length * 100) : 0) + '%';
+  }
+
+  var suppressClick = false;
+  function makeDraggable(btn, idx) {
+    btn.addEventListener('pointerdown', function (e) {
+      if (e.button > 0 || btn.classList.contains('used')) return;
+      var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
+      var ghost = null, dragging = false;
+      try { btn.setPointerCapture(pid); } catch (err) {}
+      function blockScroll(ev) { if (dragging) ev.preventDefault(); }
+      function move(ev) {
+        if (ev.pointerId !== pid) return;
+        if (!dragging) {
+          if (Math.abs(ev.clientX - sx) < 8 && Math.abs(ev.clientY - sy) < 8) return;
+          dragging = true;
+          ghost = document.createElement('div');
+          ghost.className = 'tile drag-ghost';
+          ghost.textContent = btn.textContent;
+          document.body.appendChild(ghost);
+          btn.classList.add('dragging');
+          document.addEventListener('touchmove', blockScroll, { passive: false });
+        }
+        ev.preventDefault();
+        ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
+        var u = document.elementFromPoint(ev.clientX, ev.clientY);
+        el.answer.classList.toggle('over', !!(u && u.closest && u.closest('#answer')));
+      }
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        if (!dragging) return;
+        dragging = false;
+        btn.classList.remove('dragging');
+        document.removeEventListener('touchmove', blockScroll);
+        if (ghost) ghost.remove();
+        el.answer.classList.remove('over');
+        suppressClick = true;
+        setTimeout(function () { suppressClick = false; }, 60);
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var target = under && under.closest ? under.closest('#answer') : null;
+        if (target) pick(idx);
+      }
+      window.addEventListener('pointermove', move, { passive: false });
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
+      btn.addEventListener('lostpointercapture', up, { once: true });
+    });
+  }
+
+  function pick(idx) {
+    var b = bank[idx];
+    if (!b || b.used) return;
+    var want = DATA[n].id.split(' ')[picked.length];
+    if (b.w !== want) {
+      TQ.sfx.bad();
+      var btn = el.bank.children[idx];
+      if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
+      TQ.popup({ icon: '💡', title: 'Belum tepat', text: 'Kata berikutnya berbeda. Coba kata lain.', bad: true, actions: [{ label: 'Coba lagi' }] });
+      return;
+    }
+    b.used = true;
+    picked.push(b);
+    TQ.sfx.ok();
+    render();
+  }
+
+  if (el.prev) {
+    el.prev.onclick = function () {
+      if (n > 0) {
+        TQ.sfx.tap();
+        n--;
+        build();
+      }
+    };
+  }
+  if (el.next) {
+    el.next.onclick = function () {
+      if (n < DATA.length - 1) {
+        TQ.sfx.tap();
+        n++;
+        build();
+      }
+    };
+  }
+
+  TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
+
+  TQ.qs('#check').onclick = function () {
+    if (!DATA.length) return;
+    var want = DATA[n].id.split(' ');
+    if (picked.length < want.length) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '✏️', title: 'Belum lengkap', text: 'Susun semua kata dulu.', bad: true, actions: [{ label: 'Oke' }] });
+      return;
+    }
+    TQ.sfx.win();
+    var first = markDone(n);
+    if (first) { TQ.addPoints(10); TQ.qs('#pts').textContent = TQ.fmt(TQ.points()); }
+    el.pbar.style.width = (doneList().length / DATA.length * 100) + '%';
+    var left = DATA.length - doneList().length;
+    el.story.classList.remove('hidden');
+    el.story.innerHTML =
+      '<b>Alhamdulillah, benar!</b><br>' + DATA[n].id + '.' +
+      (first ? '<br><span class="muted">+10 poin</span>' : '<br><span class="muted">Sudah pernah diselesaikan, poin tidak bertambah.</span>') +
+      (n < DATA.length - 1 ? '<button class="btn mt" id="next">Hadis berikutnya →</button>'
+                           : '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>') +
+      '<div class="muted" style="margin-top:8px;font-size:12px">' + (left ? (left + ' hadis lagi belum diselesaikan.') : 'Semua 500 hadis sudah kamu susun. Masya Allah!') + '</div>';
+    var nx = TQ.qs('#next');
+    if (nx) nx.onclick = function () { n++; build(); };
+    el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  fetch('data/hadis.json?v=32')
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (d) {
+      DATA = d;
+      var done = doneList();
+      var resume = -1;
+      for (var i = 0; i < DATA.length; i++) { if (done.indexOf(i) < 0) { resume = i; break; } }
+      if (resume < 0) resume = Math.min(parseInt(localStorage.getItem('tq_hadis_last') || '0', 10) || 0, DATA.length - 1);
+      n = resume;
+      el.prog.textContent = 'Hadis ' + (n + 1) + ' dari ' + DATA.length;
+      build();
+    })
+    .catch(function (e) {
+      el.prog.textContent = 'Gagal memuat';
+      el.ar.textContent = 'Hadis belum bisa dimuat. Periksa koneksi lalu muat ulang halaman.';
+      el.src.textContent = '';
+      el.bank.innerHTML = '';
+    });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hall of Fame Piagam — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=49">
+<link rel="stylesheet" href="css/screens.css?v=44">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.cert-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(80px,1fr));gap:8px;margin-bottom:12px;max-height:210px;overflow-y:auto;padding:2px}
+.cert-item{border-radius:14px;border:2px solid #DCEBF4;background:#fff;padding:8px 4px;text-align:center;cursor:pointer;transition:transform .12s,border .12s}
+.cert-item:active{transform:scale(.95)}
+.cert-item.active{border-color:var(--green-d);background:#F1F9F4;box-shadow:0 0 0 2px var(--green-d)}
+.cert-item.locked{opacity:.6;background:#F8FAFB;border-style:dashed}
+.cert-item.gold-badge{grid-column:1 / -1;padding:12px;background:linear-gradient(135deg,#FFF9E6,#FFF0B3);border:2px solid #D4AF37}
+.cert-item.gold-badge.active{box-shadow:0 0 0 2px #D4AF37}
+.cert-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.lock-banner{background:#FFF3D6;border:1.5px solid #E2B93B;border-radius:14px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;color:#854D0E}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="profil.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Hall of Fame Piagam</b><span id="unlocked-info">0 dari 31 Terbuka</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <!-- Pilihan 31 Piagam (Hall of Fame) -->
+  <section class="card" style="margin-bottom:12px">
+    <div class="row between" style="margin-bottom:8px">
+      <b style="font-size:13.5px">Galeri 31 Piagam:</b>
+      <span class="muted" style="font-size:11px" id="cert-status-text">Memuat…</span>
+    </div>
+    <div class="cert-grid" id="cert-grid"></div>
+  </section>
+
+  <!-- Banner Status Kunci / Terbuka -->
+  <div id="lock-banner" class="lock-banner" style="display:none">
+    <span style="font-size:24px">🔒</span>
+    <div style="font-size:12px;line-height:1.4">
+      <b style="display:block;font-size:13px" id="lock-banner-title">Piagam Masih Terkunci</b>
+      <span id="lock-banner-desc">Kamu bisa melihat preview piagam ini. Selesaikan juz ini untuk membuka unduhan & cetak!</span>
+    </div>
+  </div>
+
+  <!-- Kanvas & Pratinjau Piagam -->
+  <section class="card" style="text-align:center">
+    <canvas id="certCanvas" width="1200" height="850" style="width:100%;max-width:100%;height:auto;border-radius:16px;box-shadow:0 8px 30px rgba(0,0,0,.15);margin-bottom:14px;border:3px solid #DCEBF4;display:block"></canvas>
+    
+    <div class="cert-actions">
+      <button class="btn" id="dl-btn">📥 Unduh Gambar</button>
+      <button class="btn ghost" id="print-btn">🖨️ Cetak Piagam</button>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js?v=50"></script>
+<script>
+(function () {
+  var p = TQ.profile() || { name: 'Santri Cilik' };
+  var stats = TQ.stats() || {};
+  var totalStars = TQ.totalStars() || 0;
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  var selectedCert = 30; // default view Juz 30
+  var unlockedJuz = {};
+  var allKhatam = false;
+
+  // Cek progres rill tiap Juz (1 s/d 30)
+  var unlockedCount = 0;
+  for (var j = 1; j <= 30; j++) {
+    var isUnlocked = false;
+    // 1. Cek dari Tebak Ayat (10 stage selesai)
+    try {
+      var tb = JSON.parse(localStorage.getItem('tq_tebak_j' + j) || '{}');
+      var tbDone = Object.keys(tb).filter(function (k) { return tb[k] > 0; }).length;
+      if (tbDone >= 10) isUnlocked = true;
+    } catch (e) {}
+
+    // 2. Cek jika santri sudah menyelesaikan Susun Ayat Juz ini
+    // (Bila sudah khatam atau ada level selesai)
+    if (j === 30 && (stats.levels || 0) >= 30) {
+      isUnlocked = true;
+    }
+
+    unlockedJuz[j] = isUnlocked;
+    if (isUnlocked) unlockedCount++;
+  }
+
+  allKhatam = (unlockedCount >= 30);
+
+  var cvs = document.getElementById('certCanvas');
+  var ctx = cvs.getContext('2d');
+  var dlBtn = document.getElementById('dl-btn');
+  var printBtn = document.getElementById('print-btn');
+  var lockBanner = document.getElementById('lock-banner');
+  var lockTitle = document.getElementById('lock-banner-title');
+  var lockDesc = document.getElementById('lock-banner-desc');
+
+  function renderGrid() {
+    var grid = document.getElementById('cert-grid');
+    grid.innerHTML = '';
+
+    // 1 Piagam Emas Khatam 30 Juz
+    var goldCard = document.createElement('div');
+    goldCard.className = 'cert-item gold-badge' + (selectedCert === 'gold' ? ' active' : '') + (!allKhatam ? ' locked' : '');
+    goldCard.innerHTML =
+      '<div style="display:flex;align-items:center;justify-content:center;gap:8px">' +
+        '<span style="font-size:22px">' + (allKhatam ? '👑' : '🔒') + '</span>' +
+        '<div style="text-align:left">' +
+          '<b style="font-size:12.5px;color:#854D0E;display:block">PIAGAM EMAS — KHATAM AL-QUR\'AN 30 JUZ</b>' +
+          '<span style="font-size:10.5px;color:#A16207">' + (allKhatam ? 'Terbuka Penuh! Masya Allah ✨' : 'Preview Terkunci · Selesaikan seluruh 30 Juz untuk membuka') + '</span>' +
+        '</div>' +
+      '</div>';
+    goldCard.onclick = function () {
+      selectedCert = 'gold';
+      renderGrid();
+      renderCertificate();
+    };
+    grid.appendChild(goldCard);
+
+    // 30 Piagam Per Juz
+    for (var i = 1; i <= 30; i++) {
+      (function (jNum) {
+        var unl = unlockedJuz[jNum];
+        var item = document.createElement('div');
+        item.className = 'cert-item' + (selectedCert === jNum ? ' active' : '') + (!unl ? ' locked' : '');
+        item.innerHTML =
+          '<span style="font-size:17px;display:block">' + (unl ? '📜' : '🔒') + '</span>' +
+          '<b style="font-size:11.5px;display:block;margin-top:2px">Juz ' + jNum + '</b>' +
+          '<span style="font-size:9.5px;color:' + (unl ? 'var(--green-d)' : '#7C97A5') + '">' + (unl ? 'Terbuka' : 'Terkunci') + '</span>';
+        item.onclick = function () {
+          selectedCert = jNum;
+          renderGrid();
+          renderCertificate();
+        };
+        grid.appendChild(item);
+      })(i);
+    }
+
+    document.getElementById('unlocked-info').textContent = (unlockedCount + (allKhatam ? 1 : 0)) + ' dari 31 Terbuka';
+    var isGold = (selectedCert === 'gold');
+    var isUnl = isGold ? allKhatam : unlockedJuz[selectedCert];
+    document.getElementById('cert-status-text').textContent = isUnl ? 'Status: Terbuka ✅' : 'Status: Terkunci (Preview) 🔒';
+  }
+
+  function renderCertificate() {
+    var W = cvs.width, H = cvs.height;
+    var isGold = (selectedCert === 'gold');
+    var isUnlocked = isGold ? allKhatam : unlockedJuz[selectedCert];
+
+    // Banner & tombol lock handling
+    if (!isUnlocked) {
+      lockBanner.style.display = 'flex';
+      if (isGold) {
+        lockTitle.textContent = 'Piagam Emas Masih Terkunci (Preview Mode)';
+        lockDesc.textContent = 'Tuntaskan seluruh 30 Juz Al-Qur\'an untuk membuka hak unduh dan cetak sertifikat emas ini!';
+      } else {
+        lockTitle.textContent = 'Piagam Juz ' + selectedCert + ' Masih Terkunci (Preview Mode)';
+        lockDesc.textContent = 'Selesaikan stage hafalan atau tebak ayat di Juz ' + selectedCert + ' untuk membuka hak unduh dan cetak!';
+      }
+      dlBtn.disabled = true;
+      dlBtn.style.opacity = '0.45';
+      dlBtn.style.cursor = 'not-allowed';
+      dlBtn.textContent = '🔒 Unduh Terkunci';
+
+      printBtn.disabled = true;
+      printBtn.style.opacity = '0.45';
+      printBtn.style.cursor = 'not-allowed';
+      printBtn.textContent = '🔒 Cetak Terkunci';
+    } else {
+      lockBanner.style.display = 'none';
+      dlBtn.disabled = false;
+      dlBtn.style.opacity = '1';
+      dlBtn.style.cursor = 'pointer';
+      dlBtn.textContent = '📥 Unduh Gambar';
+
+      printBtn.disabled = false;
+      printBtn.style.opacity = '1';
+      printBtn.style.cursor = 'pointer';
+      printBtn.textContent = '🖨️ Cetak Piagam';
+    }
+
+    // Background gradasi
+    var bgGrad = ctx.createLinearGradient(0, 0, W, H);
+    if (isGold) {
+      bgGrad.addColorStop(0, '#FFFFFF');
+      bgGrad.addColorStop(0.4, '#FFFDF0');
+      bgGrad.addColorStop(1, '#FEF9C3');
+    } else {
+      bgGrad.addColorStop(0, '#FFFFFF');
+      bgGrad.addColorStop(0.5, '#F7FCF9');
+      bgGrad.addColorStop(1, '#EBF7EE');
+    }
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Border
+    ctx.lineWidth = isGold ? 16 : 14;
+    ctx.strokeStyle = '#D4AF37';
+    ctx.strokeRect(30, 30, W - 60, H - 60);
+
+    ctx.lineWidth = 4;
+    ctx.strokeStyle = isGold ? '#F59E0B' : '#8DBF2E';
+    ctx.strokeRect(48, 48, W - 96, H - 96);
+
+    // Ornamen sudut
+    var cornerSize = 42;
+    ctx.fillStyle = isGold ? '#EAB308' : '#D4AF37';
+    ctx.fillRect(40, 40, cornerSize, cornerSize);
+    ctx.fillRect(W - 40 - cornerSize, 40, cornerSize, cornerSize);
+    ctx.fillRect(40, H - 40 - cornerSize, cornerSize, cornerSize);
+    ctx.fillRect(W - 40 - cornerSize, H - 40 - cornerSize, cornerSize);
+
+    // Bismillah / Header Arab
+    ctx.textAlign = 'center';
+    ctx.fillStyle = isGold ? '#854D0E' : '#2E661F';
+    ctx.font = 'bold 38px "Amiri Quran", serif';
+    ctx.fillText('بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ', W / 2, 130);
+
+    // Judul Piagam
+    ctx.fillStyle = isGold ? '#78350F' : '#1B3B2B';
+    ctx.font = '900 46px "Nunito", sans-serif';
+    var certTitle = isGold ? 'PIAGAM PENGHARGAAN EMAS' : 'PIAGAM PENGHARGAAN';
+    ctx.fillText(certTitle, W / 2, 210);
+
+    ctx.fillStyle = '#D4AF37';
+    ctx.font = '800 24px "Nunito", sans-serif';
+    var certSub = isGold ? 'KHATAM AL-QUR\'AN 30 JUZ' : ('KHATAM JUZ ' + selectedCert + ' AL-QUR\'AN');
+    ctx.fillText(certSub, W / 2, 255);
+
+    // Garis hias
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#D4AF37';
+    ctx.beginPath();
+    ctx.moveTo(W / 2 - 200, 275);
+    ctx.lineTo(W / 2 + 200, 275);
+    ctx.stroke();
+
+    // Diberikan kepada
+    ctx.fillStyle = '#6E8B7A';
+    ctx.font = '700 22px "Nunito", sans-serif';
+    ctx.fillText('Diberikan dengan penuh rasa bangga kepada:', W / 2, 335);
+
+    // Nama Santri
+    ctx.fillStyle = isGold ? '#B45309' : '#1D6FB8';
+    ctx.font = '900 56px "Baloo 2", sans-serif';
+    ctx.fillText(p.name || 'Santri Cilik', W / 2, 415);
+
+    // Keterangan Prestasi
+    ctx.fillStyle = '#2A4335';
+    ctx.font = '600 23px "Nunito", sans-serif';
+    if (isGold) {
+      ctx.fillText('Atas pencapaian mulia telah menuntaskan seluruh 30 Juz Al-Qur\'an', W / 2, 485);
+      ctx.fillText('dengan istiqomah, semangat tinggi, dan kecintaan pada Kalamullah.', W / 2, 520);
+    } else {
+      ctx.fillText('Atas ketekunan dan keberhasilan menuntaskan hafalan & pemahaman', W / 2, 485);
+      ctx.fillText('ayat-ayat suci Al-Qur\'an pada Juz ' + selectedCert + '.', W / 2, 520);
+    }
+
+    // Badge Ringkasan Prestasi
+    var badgeY = 600;
+    ctx.fillStyle = '#FFFFFF';
+    ctx.strokeStyle = isGold ? '#FDE047' : '#C8E6C9';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    if (typeof ctx.roundRect === 'function') {
+      ctx.roundRect(W / 2 - 350, badgeY, 700, 90, 18);
+    } else {
+      ctx.rect(W / 2 - 350, badgeY, 700, 90);
+    }
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = isGold ? '#854D0E' : '#2E661F';
+    ctx.font = '800 22px "Nunito", sans-serif';
+    var textStat = '⭐ ' + totalStars + ' Bintang   •   📜 ' + (stats.ayahs || 0) + ' Ayat   •   🏆 ' + (stats.levels || 0) + ' Level';
+    ctx.fillText(textStat, W / 2, badgeY + 54);
+
+    // Tanggal
+    var nowStr = new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    ctx.fillStyle = '#6E8B7A';
+    ctx.font = '600 20px "Nunito", sans-serif';
+    ctx.fillText('Diterbitkan pada: ' + nowStr, W / 2, 755);
+
+    // Efek Watermark & Gembok jika Terkunci
+    if (!isUnlocked) {
+      ctx.save();
+      // Bayangan overlay gelap tipis
+      ctx.fillStyle = 'rgba(0, 20, 40, 0.08)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Watermark miring "PREVIEW - BELUM TERBUKA"
+      ctx.translate(W / 2, H / 2);
+      ctx.rotate(-0.24);
+      ctx.fillStyle = 'rgba(220, 38, 38, 0.22)';
+      ctx.font = '900 70px "Nunito", sans-serif';
+      ctx.fillText('🔒 PREVIEW · BELUM TERBUKA', 0, 0);
+      ctx.restore();
+    }
+
+    // Tombol Download
+    dlBtn.onclick = function () {
+      if (!isUnlocked) {
+        TQ.popup({ icon: '🔒', title: 'Piagam Terkunci', text: 'Tuntaskan juz ini dulu agar piagam bisa diunduh ya!', bad: true });
+        return;
+      }
+      var imgUrl = cvs.toDataURL('image/png');
+      var a = document.createElement('a');
+      var slug = isGold ? 'Khatam_30_Juz_Emas' : ('Juz_' + selectedCert);
+      a.download = 'Piagam_Tilawah_Quest_' + slug + '_' + (p.name || 'Santri').replace(/\s+/g, '_') + '.png';
+      a.href = imgUrl;
+      a.click();
+    };
+
+    // Tombol Cetak
+    printBtn.onclick = function () {
+      if (!isUnlocked) {
+        TQ.popup({ icon: '🔒', title: 'Piagam Terkunci', text: 'Tuntaskan juz ini dulu agar piagam bisa dicetak ya!', bad: true });
+        return;
+      }
+      var imgUrl = cvs.toDataURL('image/png');
+      var win = window.open('', '_blank');
+      win.document.write('<html><head><title>Cetak Piagam</title><style>@page{size:landscape;margin:0}body{margin:0;display:flex;justify-content:center;align-items:center;height:100vh}img{max-width:98vw;max-height:98vh}</style></head><body><img src="' + imgUrl + '"><script>window.onload=function(){window.print();};<\/script></body></html>');
+      win.document.close();
+    };
+  }
+
+  // Render pertama kali
+  renderGrid();
+  renderCertificate();
+
+  // Re-render saat font Google selesai dimuat
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(renderCertificate);
+  }
+})();
+</script>
+</body>
+</html>

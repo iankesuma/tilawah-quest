@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Susun Nama Nabi — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=49">
+<link rel="stylesheet" href="css/screens.css?v=41">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.hero-nabi{display:grid;place-items:center;font-size:54px;line-height:1;margin:6px 0 10px}
+.letters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0 4px}
+.letters .tile{min-width:52px;font-family:var(--font-display);font-size:24px}
+.story{background:#F5FBFE;border-radius:16px;padding:14px;margin-top:14px}
+.story h3{font-size:15px;margin-bottom:8px}
+.story p{font-size:13.5px;line-height:1.6;color:var(--ink-2);margin-bottom:6px;font-weight:600}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Susun Nama Nabi</b><span id="prog">Nabi 1 dari 25</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="card">
+    <div class="hero-nabi" id="hero">🌿</div>
+    <p class="center" style="font-weight:900;font-size:15px;margin-bottom:2px">Siapa nama nabi ini?</p>
+    <p class="center muted" id="hint">Ketuk huruf sesuai urutan nama</p>
+
+    <div class="slots" id="answer" style="justify-content:center;min-height:60px">
+      <span class="ph">Susun nama di sini</span>
+    </div>
+
+    <div class="letters" id="letters"></div>
+
+    <div class="row" style="margin-top:14px;gap:8px">
+      <button class="btn ghost small" id="reset" style="flex:1">↻ Ulangi</button>
+      <button class="btn" id="check" style="flex:2">Periksa jawaban</button>
+    </div>
+
+    <div class="story hidden" id="story"></div>
+  </section>
+</main>
+
+<script src="js/app.js?v=46"></script>
+<script>
+(function () {
+  var info = {
+    Adam:['Wilayah sekitar Makkah','Diperkirakan hidup pada masa sangat awal manusia','Awal penciptaan manusia dan taubat setelah memakan buah terlarang.'],
+    Idris:['Mesopotamia dan Mesir','Tidak diketahui secara pasti','Dikenal sebagai nabi yang tekun, jujur, dan memiliki ilmu.'],
+    Nuh:['Irak kuno','Tidak diketahui secara pasti','Membangun bahtera dan menyelamatkan orang beriman dari banjir besar.'],
+    Hud:['Ahqaf, Yaman','Tidak diketahui secara pasti','Berdakwah kepada kaum Ad dan memperingatkan mereka dari kesombongan.'],
+    Saleh:['Al-Hijr, wilayah Arab Utara','Tidak diketahui secara pasti','Mukjizat unta betina untuk kaum Tsamud.'],
+    Ibrahim:['Irak, Syam, dan Makkah','Tidak diketahui secara pasti','Menghancurkan berhala dan membangun Kabah bersama Ismail.'],
+    Luth:['Sodom dan sekitarnya','Tidak diketahui secara pasti','Berdakwah kepada kaum yang melakukan kemaksiatan terbuka.'],
+    Ismail:['Makkah','Tidak diketahui secara pasti','Kesabaran saat hendak dikorbankan dan membantu membangun Kabah.'],
+    Ishaq:['Syam','Tidak diketahui secara pasti','Putra Ibrahim yang meneruskan dakwah tauhid.'],
+    Yaqub:['Syam dan Mesir','Tidak diketahui secara pasti','Kesabaran menghadapi kehilangan Yusuf dan penyatuan kembali keluarga.'],
+    Yusuf:['Mesir','Tidak diketahui secara pasti','Diuji dengan sumur, penjara, lalu menjadi pemimpin Mesir dan memaafkan saudara.'],
+    Ayyub:['Syam','Tidak diketahui secara pasti','Kesabaran luar biasa menghadapi sakit dan kehilangan.'],
+    Syuaib:['Madyan','Tidak diketahui secara pasti','Mengajarkan kejujuran dalam takaran dan timbangan.'],
+    Musa:['Mesir dan Sinai','Tidak diketahui secara pasti','Membebaskan Bani Israil dari Firaun dan membelah laut dengan izin Allah.'],
+    Harun:['Mesir dan Sinai','Tidak diketahui secara pasti','Mendampingi Musa berdakwah kepada Firaun dan Bani Israil.'],
+    Dzulkifli:['Wilayah Irak atau Syam','Tidak diketahui secara pasti','Dikenal sabar dan menepati amanah.'],
+    Dawud:['Baitul Maqdis','Tidak diketahui secara pasti','Mengalahkan Jalut dan dianugerahi kitab Zabur.'],
+    Sulaiman:['Baitul Maqdis','Tidak diketahui secara pasti','Kerajaan besar, memahami bahasa hewan, dan kisah Ratu Balqis.'],
+    Ilyas:['Syam','Tidak diketahui secara pasti','Mengajak kaumnya meninggalkan penyembahan Baal.'],
+    Ilyasa:['Syam','Tidak diketahui secara pasti','Meneruskan dakwah tauhid setelah Ilyas.'],
+    Yunus:['Ninawa, Irak','Tidak diketahui secara pasti','Berada dalam perut ikan dan berdoa dengan penuh taubat.'],
+    Zakaria:['Baitul Maqdis','Tidak diketahui secara pasti','Berdoa memohon keturunan lalu mendapat kabar Yahya.'],
+    Yahya:['Baitul Maqdis','Tidak diketahui secara pasti','Dikenal suci, zuhud, dan membenarkan risalah Isa.'],
+    Isa:['Palestina','Sekitar abad pertama Masehi','Kelahiran tanpa ayah dan mukjizat dengan izin Allah.'],
+    Muhammad:['Makkah dan Madinah','570 M - 632 M','Menerima wahyu Al-Quran dan menyempurnakan risalah para nabi.']
+  };
+  var data = [['Adam','🌿'],['Idris','📜'],['Nuh','🚢'],['Hud','🏜️'],['Saleh','🐪'],['Ibrahim','🔥'],['Luth','🏘️'],['Ismail','🕋'],['Ishaq','🌟'],['Yaqub','👨‍👦'],['Yusuf','🌾'],['Ayyub','💧'],['Syuaib','⚖️'],['Musa','🪄'],['Harun','🕌'],['Dzulkifli','📖'],['Dawud','🎵'],['Sulaiman','🦜'],['Ilyas','🌴'],['Ilyasa','🌿'],['Yunus','🐋'],['Zakaria','🕊️'],['Yahya','📜'],['Isa','✨'],['Muhammad','🕌']];
+
+  var n = 0, picked = [], order = [];
+  var el = {
+    hero: TQ.qs('#hero'), prog: TQ.qs('#prog'), answer: TQ.qs('#answer'),
+    letters: TQ.qs('#letters'), story: TQ.qs('#story'), hint: TQ.qs('#hint')
+  };
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  function doneList() { try { return JSON.parse(localStorage.getItem('tq_nabi_done') || '[]'); } catch (e) { return []; } }
+  function markDone(i) { var d = doneList(); if (d.indexOf(i) < 0) { d.push(i); localStorage.setItem('tq_nabi_done', JSON.stringify(d)); return true; } return false; }
+
+  function build() {
+    var name = data[n][0];
+    order = TQ.shuffle(name.split('').map(function (ch, i) { return { ch: ch, i: i, used: false }; }));
+    picked = [];
+    el.hero.textContent = data[n][1];
+    el.prog.textContent = 'Nabi ' + (n + 1) + ' dari ' + data.length;
+    el.hint.textContent = name.length + ' huruf · ' + (doneList().indexOf(n) >= 0 ? 'sudah selesai' : 'belum selesai');
+    el.story.classList.add('hidden');
+    if (location.search.indexOf('debug') > -1) el.hint.dataset.answer = name;
+    render();
+  }
+
+  function render() {
+    el.answer.innerHTML = '';
+    if (!picked.length) {
+      var ph = document.createElement('span');
+      ph.className = 'ph';
+      ph.textContent = 'Susun nama di sini';
+      el.answer.appendChild(ph);
+    }
+    picked.forEach(function (p) {
+      var t = document.createElement('span');
+      t.className = 'tile ok';
+      t.textContent = p.ch;
+      t.style.minWidth = '46px';
+      el.answer.appendChild(t);
+    });
+
+    el.letters.innerHTML = '';
+    order.forEach(function (o, idx) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tile' + (o.used ? ' used' : '');
+      b.textContent = o.ch;
+      b.onclick = function () { pick(idx); };
+      el.letters.appendChild(b);
+    });
+  }
+
+  function pick(idx) {
+    var o = order[idx];
+    if (!o || o.used) return;
+    var name = data[n][0];
+    if (o.ch !== name[picked.length]) {
+      TQ.sfx.bad();
+      var btn = el.letters.children[idx];
+      if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
+      TQ.popup({ icon: '💡', title: 'Bukan huruf itu', text: 'Huruf berikutnya berbeda. Coba huruf lain.', bad: true, actions: [{ label: 'Coba lagi' }] });
+      return;
+    }
+    o.used = true;
+    picked.push(o);
+    TQ.sfx.ok();
+    render();
+  }
+
+  TQ.qs('#reset').onclick = function () { TQ.sfx.tap(); build(); };
+
+  TQ.qs('#check').onclick = function () {
+    var name = data[n][0];
+    if (picked.length < name.length) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '✏️', title: 'Belum lengkap', text: 'Susun semua huruf dulu.', bad: true, actions: [{ label: 'Oke' }] });
+      return;
+    }
+    var guess = picked.map(function (p) { return p.ch; }).join('');
+    if (guess !== name) {
+      TQ.sfx.bad();
+      TQ.popup({ icon: '❌', title: 'Belum tepat', text: 'Urutan hurufnya belum benar.', bad: true, actions: [{ label: 'Ulangi', onClick: build }] });
+      return;
+    }
+
+    TQ.sfx.win();
+    var first = markDone(n);
+    if (first) { TQ.addPoints(10); TQ.qs('#pts').textContent = TQ.fmt(TQ.points()); }
+    var d = info[name] || ['-', '-', '-'];
+    el.story.classList.remove('hidden');
+    el.story.innerHTML =
+      '<h3>📚 Riwayat ' + name + '</h3>' +
+      '<p><b>Tempat tinggal:</b> ' + d[0] + '</p>' +
+      '<p><b>Kelahiran dan wafat:</b> ' + d[1] + '</p>' +
+      '<p><b>Kisah terkenal:</b> ' + d[2] + '</p>' +
+      (first ? '<p class="muted">+10 poin</p>' : '<p class="muted">Sudah pernah diselesaikan, poin tidak bertambah.</p>') +
+      (n < data.length - 1 ? '<button class="btn mt" id="next">Nabi berikutnya →</button>' : '<button class="btn mt" onclick="location.href=\'belajar.html\'">Selesai →</button>');
+    var nx = TQ.qs('#next');
+    if (nx) nx.onclick = function () { n++; build(); };
+    el.story.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  };
+
+  build();
+})();
+</script>
+</body>
+</html>
