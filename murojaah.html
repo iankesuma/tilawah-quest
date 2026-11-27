@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Muroja'ah Cepat — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=53">
-<link rel="stylesheet" href="css/screens.css?v=53">
+<link rel="stylesheet" href="css/app.css?v=54">
+<link rel="stylesheet" href="css/screens.css?v=54">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -41,7 +41,7 @@
   </div>
 </main>
 
-<script src="js/app.js?v=53"></script>
+<script src="js/app.js?v=54"></script>
 <script>
 (function () {
   var streak = 0, timer = null, timeLeft = 7, locked = false;
@@ -118,7 +118,10 @@
       TQ.addPoints(5);
       el.pts.textContent = TQ.fmt(TQ.points());
       el.streak.textContent = '🔥 Rentetan: ' + streak;
-      TQ.sfx.win();
+      if (TQ.sfx.combo) TQ.sfx.combo(streak); else TQ.sfx.win();
+      if (TQ.sfx.star) TQ.sfx.star(streak);
+      if (TQ.haptic) TQ.haptic.ok();
+      if (streak > 0 && streak % 5 === 0 && TQ.praiseRandom) TQ.praiseRandom('ok');
       setTimeout(nextRound, 900);
     } else {
       btn.classList.add('bad');
@@ -138,6 +141,8 @@
   function timeout() {
     locked = true;
     TQ.sfx.lose();
+    if (TQ.haptic) TQ.haptic.bad();
+    if (TQ.praiseRandom) TQ.praiseRandom('retry');
     streak = 0;
     el.streak.textContent = '🔥 Rentetan: 0';
     TQ.popup({

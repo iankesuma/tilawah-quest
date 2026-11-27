@@ -164,16 +164,132 @@
     o.connect(g); g.connect(c.destination);
     o.start(t0); o.stop(t0 + dur + 0.02);
   }
+  function semi(base, steps) { return base * Math.pow(2, steps / 12); }
+
+  let lastStarAt = 0;
   const sfx = {
+    tap: function () { tone(520, 'sine', 0.07, 0.09); },
     ok: function () { tone(880, 'sine', 0.16, 0.16); tone(1320, 'sine', 0.18, 0.11, 0.08); },
     bad: function () { tone(200, 'square', 0.26, 0.13); tone(150, 'square', 0.22, 0.10, 0.10); },
-    tap: function () { tone(520, 'sine', 0.07, 0.09); },
+    wrong: function () { this.bad(); },
     coin: function () { tone(1046, 'triangle', 0.10, 0.12); tone(1568, 'triangle', 0.16, 0.10, 0.07); },
+
+    // Bintang didapat. Makin tinggi bila beruntun (n = streak).
+    star: function (n) {
+      const now = Date.now();
+      if (now - lastStarAt < 110) return;
+      lastStarAt = now;
+      const up = Math.min(Math.max((n || 1) - 1, 0), 5);
+      const root = semi(1046, up);
+      tone(root, 'triangle', 0.09, 0.13);
+      tone(semi(root, 7), 'triangle', 0.14, 0.11, 0.06);
+      tone(semi(root, 12), 'sine', 0.20, 0.09, 0.13);
+    },
+
+    // Jawaban benar beruntun: nada menanjak tiap kelipatan combo.
+    combo: function (n) {
+      const step = Math.min(Math.max((n || 1) - 1, 0), 7);
+      const base = semi(660, step);
+      tone(base, 'triangle', 0.09, 0.12);
+      tone(semi(base, 4), 'triangle', 0.10, 0.10, 0.06);
+      tone(semi(base, 7), 'sine', 0.14, 0.09, 0.12);
+    },
+
+    // Naik stage / level: beda jelas dari win biasa.
+    fanfare: function () {
+      [0, 4, 7, 12].forEach(function (st, i) {
+        tone(semi(523, st), 'triangle', 0.18, 0.13, i * 0.085);
+      });
+      [523, 659, 784, 1046].forEach(function (f) {
+        tone(f, 'sine', 0.85, 0.075, 0.36);
+      });
+    },
+
+    // Piagam terbuka: megah, chord lebar + gemerlap tinggi.
+    grand: function () {
+      tone(131, 'sine', 1.10, 0.10, 0);
+      [392, 523, 659, 784].forEach(function (f, i) {
+        tone(f, 'triangle', 1.20, 0.075, i * 0.05);
+      });
+      [1046, 1318, 1568, 2093].forEach(function (f, i) {
+        tone(f, 'sine', 0.55, 0.055, 0.30 + i * 0.10);
+      });
+    },
+
     win: function () {
       [660, 880, 1100, 1320, 1760].forEach(function (f, i) { tone(f, 'sine', 0.22, 0.13, i * 0.09); });
     },
     lose: function () { [400, 330, 260, 200].forEach(function (f, i) { tone(f, 'triangle', 0.24, 0.12, i * 0.11); }); }
   };
+
+  /* ---------- haptic (getar halus di HP) ---------- */
+  function vibrate(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+  const haptic = {
+    tap: function () { vibrate(8); },
+    ok: function () { vibrate(18); },
+    bad: function () { vibrate([30, 55, 30]); },
+    star: function () { vibrate(14); },
+    win: function () { vibrate([18, 45, 18, 45, 80]); },
+    grand: function () { vibrate([25, 55, 25, 55, 25, 55, 130]); }
+  };
+
+  /* ---------- pujian suara (TTS Bahasa Indonesia) ---------- */
+  var praiseOn = true;
+  try { praiseOn = localStorage.getItem('tq_voice') !== '0'; } catch (e) {}
+  var lastPraiseAt = 0;
+
+  function praiseEnabled() { return praiseOn; }
+  function praiseSet(on) {
+    praiseOn = !!on;
+    try { localStorage.setItem('tq_voice', on ? '1' : '0'); } catch (e) {}
+    if (!praiseOn && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+  }
+  function praise(text, force) {
+    if (!praiseOn || !text || !window.speechSynthesis) return;
+    const now = Date.now();
+    if (!force && now - lastPraiseAt < 4000) return;
+    lastPraiseAt = now;
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'id-ID';
+      u.rate = 1.02;
+      u.pitch = 1.2;
+      u.volume = 0.95;
+      const vs = window.speechSynthesis.getVoices() || [];
+      for (let i = 0; i < vs.length; i++) {
+        if (/^id([-_]ID)?$/i.test(vs[i].lang)) { u.voice = vs[i]; break; }
+      }
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  const PRAISE_OK = ['Masya Allah, benar!', 'Hebat!', 'Bagus sekali!', 'Alhamdulillah!', 'Pintar!'];
+  const PRAISE_RETRY = ['Ayo coba lagi!', 'Belum tepat, ayo ulangi.', 'Hampir benar, coba lagi.'];
+  function praiseRandom(kind) {
+    const arr = kind === 'retry' ? PRAISE_RETRY : PRAISE_OK;
+    praise(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  /* ---------- versi aplikasi & cek update ---------- */
+  const VERSION = '1.0.10';
+  const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
+  function version() { return VERSION; }
+  function checkUpdate() {
+    return fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        const latest = String((j && j.version) || VERSION);
+        return {
+          current: VERSION,
+          latest: latest,
+          url: (j && j.url) || '',
+          notes: (j && j.notes) || '',
+          newer: latest !== VERSION
+        };
+      });
+  }
 
 
     function playAudio(url, btn) {
@@ -385,7 +501,8 @@
     points: points, addPoints: addPoints, stats: stats, bumpStat: bumpStat,
     stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone, levelStagesDone: levelStagesDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
-    sfx: sfx, popup: popup, closePopup: close, playAudio: playAudio,
+    sfx: sfx, haptic: haptic, praise: praise, praiseRandom: praiseRandom, praiseEnabled: praiseEnabled, praiseSet: praiseSet,
+    version: version, checkUpdate: checkUpdate, vibrate: vibrate, popup: popup, closePopup: close, playAudio: playAudio,
     bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
