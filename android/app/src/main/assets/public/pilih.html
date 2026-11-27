@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Siapa yang main? — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <div class="brand"><span class="logo-dot">★</span> Tilawah Quest</div>
+  </div>
+
+  <h2 style="text-align:center;margin:10px 0 4px;font-size:22px">Siapa yang main hari ini?</h2>
+  <p class="bubble" style="text-align:center">Pilih nama anak. Progres tiap anak tersimpan terpisah.</p>
+
+  <div id="kids" class="stack" style="margin-top:8px"></div>
+
+  <button class="btn ghost" id="add" style="margin-top:12px">➕ Tambah anak</button>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var kids = TQ.children();
+  var box = TQ.qs('#kids');
+
+  if (!kids.length) { location.replace('login.html'); return; }
+
+  kids.forEach(function (c) {
+    var sum = TQ.childSummary(c.id);
+    var ch = TQ.character(c.char);
+    var b = document.createElement('button');
+    b.className = 'card';
+    b.style.cssText = 'display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;border:2px solid #DCEBF4';
+    b.innerHTML =
+      '<span style="width:64px;height:64px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto">' + TQ.charFace(ch) + '</span>' +
+      '<span style="flex:1"><b style="font-size:18px;display:block">' + TQ.esc(c.name) + '</b>' +
+      '<span style="font-size:13px;color:#7C97A5">⭐ ' + TQ.fmt(sum.points) + ' poin</span></span>' +
+      '<span style="font-size:22px">▶</span>';
+    b.onclick = function () {
+      TQ.sfx.tap();
+      TQ.switchChild(c.id);
+    };
+    box.appendChild(b);
+  });
+
+  var addBtn = TQ.qs('#add');
+  if (kids.length >= TQ.MAX_CHILDREN) {
+    addBtn.disabled = true;
+    addBtn.textContent = 'Maksimal ' + TQ.MAX_CHILDREN + ' anak';
+  }
+  addBtn.onclick = function () {
+    var id = TQ.addChild();
+    if (!id) return;
+    TQ.sfx.tap();
+    location.href = 'onboarding.html';
+  };
+})();
+</script>
+</body>
+</html>

@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Kuis Tajwid — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=53">
-<link rel="stylesheet" href="css/screens.css?v=53">
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -48,7 +48,7 @@
   </div>
 </main>
 
-<script src="js/app.js?v=53"></script>
+<script src="js/app.js?v=56"></script>
 <script>
 (function () {
   var QUESTIONS = [];
@@ -105,13 +105,15 @@
       score += 10;
       TQ.addPoints(5);
       el.pts.textContent = TQ.fmt(TQ.points());
-      TQ.sfx.win();
+      if (TQ.sfx.star) TQ.sfx.star(score / 10); else TQ.sfx.win();
+      if (TQ.haptic) TQ.haptic.ok();
       el.fbTitle.textContent = 'Masya Allah, Benar! 🎉';
       el.fbTitle.style.color = 'var(--green-d)';
       el.fbDesc.textContent = 'Hukum bacaannya adalah ' + correct + '.';
     } else {
       btn.classList.add('bad');
       TQ.sfx.bad();
+      if (TQ.haptic) TQ.haptic.bad();
       el.fbTitle.textContent = 'Kurang Tepat 💡';
       el.fbTitle.style.color = '#DC2626';
       el.fbDesc.textContent = 'Jawaban yang tepat adalah ' + correct + '.';
@@ -126,7 +128,9 @@
   };
 
   function finishQuiz() {
-    TQ.sfx.win();
+    if (TQ.sfx.fanfare) TQ.sfx.fanfare(); else TQ.sfx.win();
+    if (TQ.haptic) TQ.haptic.win();
+    if (TQ.praise) TQ.praise(score >= 80 ? 'Masya Allah, nilai kamu bagus sekali!' : 'Bagus! Terus belajar tajwid ya.', true);
     TQ.bumpStat('levels');
     el.snip.innerHTML = '🏆';
     el.info.textContent = 'Kuis Selesai!';

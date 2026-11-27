@@ -1,0 +1,4 @@
+{
+  "version": "1.0.12",
+  "notes": "Perbaikan Tebak Ayat: ID halaman diselaraskan kembali dengan js/tebak.js (juz picker dan soal tampil normal)."
+}

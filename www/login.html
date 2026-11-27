@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Masuk — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="auth">
+  <section class="auth-card">
+    <div class="auth-logo">
+      <div class="mark" aria-hidden="true">✦</div>
+      <b>Tilawah Quest</b>
+    </div>
+    <div class="auth-banner">📱 Masuk pakai email &amp; nomor HP</div>
+
+    <h1>Masuk 👋</h1>
+    <p class="sub">Lanjutkan perjalanan hafalan Quran-mu.</p>
+
+    <form id="form" novalidate>
+      <div class="field">
+        <label for="email">Username (email)</label>
+        <input id="email" name="email" type="email" inputmode="email" autocomplete="username"
+               placeholder="nama@email.com" required>
+      </div>
+      <div class="field">
+        <label for="phone">Password (nomor HP)</label>
+        <input id="phone" name="phone" type="tel" inputmode="numeric" autocomplete="tel"
+               placeholder="08xxxxxxxxxx" required>
+      </div>
+      <button class="btn" type="submit">Masuk</button>
+    </form>
+
+    <p class="auth-foot">Belum punya akun? Langsung isi saja.</p>
+    <p class="auth-note">Profil disimpan di perangkat ini saja, bukan akun online. Jangan pakai password asli.</p>
+  </section>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var form = TQ.qs('#form'), email = TQ.qs('#email'), phone = TQ.qs('#phone');
+
+  function validEmail(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v); }
+  function validPhone(v) { return /^0\d{8,13}$/.test(v); }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var ev = email.value.trim(), pv = phone.value.replace(/[\s-]/g, '').trim();
+
+    if (!validEmail(ev)) {
+      TQ.popup({ icon: '✉️', title: 'Email belum benar', text: 'Contoh: aisyah@mail.com', bad: true, actions: [{ label: 'Perbaiki', onClick: function () { email.focus(); } }] });
+      return;
+    }
+    if (!validPhone(pv)) {
+      TQ.popup({ icon: '📱', title: 'Nomor HP belum benar', text: 'Tulis 10-14 angka, contoh 081234567890.', bad: true, actions: [{ label: 'Perbaiki', onClick: function () { phone.focus(); } }] });
+      return;
+    }
+
+    try { sessionStorage.setItem('tq_login', JSON.stringify({ email: ev, phone: pv, at: Date.now() })); } catch (err) {}
+
+    var p = TQ.profile();
+    if (!p.name) {
+      var guess = ev.split('@')[0].replace(/[._-]+/g, ' ').trim();
+      guess = guess.charAt(0).toUpperCase() + guess.slice(1);
+      TQ.setProfile({ name: guess });
+    }
+
+    TQ.sfx.ok();
+    location.href = TQ.profile().onboarded ? 'juz.html' : 'onboarding.html';
+  });
+
+  try {
+    var prev = JSON.parse(sessionStorage.getItem('tq_login') || 'null');
+    if (prev) { email.value = prev.email || ''; phone.value = prev.phone || ''; }
+  } catch (err) {}
+
+  if (TQ.profile().onboarded) {
+    var back = document.createElement('p');
+    back.className = 'auth-foot';
+    back.innerHTML = '<a href="juz.html">Lanjut sebagai ' + TQ.profile().name + ' &rarr;</a>';
+    form.appendChild(back);
+  }
+})();
+</script>
+</body>
+</html>

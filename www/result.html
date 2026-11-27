@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hasil — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <section class="card result" id="card">
+    <div class="d-icon" style="font-size:44px" id="ic">🎉</div>
+    <div class="stars" id="stars">★★★</div>
+    <h1 id="title">Alhamdulillah!</h1>
+    <p class="muted" id="sub">An-Naba · Susun Ayat · Level 1</p>
+
+    <div class="stat-grid">
+      <div class="stat"><b id="s-score">0</b><span>skor</span></div>
+      <div class="stat"><b id="s-combo">0</b><span>combo</span></div>
+      <div class="stat"><b id="s-ayah">0</b><span>ayat</span></div>
+    </div>
+
+    <p class="reward" id="reward"></p>
+
+    <div class="stack">
+      <button class="btn" id="next">Lanjut →</button>
+      <button class="btn ghost" id="again">Ulangi level</button>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var d = null;
+  try { d = JSON.parse(sessionStorage.getItem('tq_last') || 'null'); } catch (e) {}
+  if (!d) { location.replace('juz.html'); return; }
+
+  var passed = !!d.passed;
+  TQ.qs('#ic').textContent = passed ? (d.stars === 3 ? '🏆' : '🎉') : '💔';
+  TQ.qs('#stars').textContent = passed ? ('★★★'.slice(0, d.stars) + '☆☆☆'.slice(0, 3 - d.stars)) : '☆☆☆';
+  TQ.qs('#title').textContent = passed ? 'Alhamdulillah sudah hapal!' : 'Nyawa habis';
+  TQ.qs('#sub').textContent = d.name + ' · ' + (d.mode === 'arti' ? 'Susun Arti' : 'Susun Ayat') + ' · Level ' + d.level +
+    ((d.stages || 1) > 1 ? ' · Stage ' + d.stage + '/' + d.stages + ' (ayat ' + d.fromAyah + '–' + d.toAyah + ')' : '');
+  TQ.qs('#s-score').textContent = d.score;
+  TQ.qs('#s-combo').textContent = d.combo;
+  TQ.qs('#s-ayah').textContent = (d.ayahsDone || 0) + '/' + d.ayahs;
+
+  var rw = TQ.qs('#reward');
+  if (passed) {
+    if (d.points > 0) {
+      rw.className = 'reward good';
+      rw.innerHTML = '<span class="coin">🪙</span> +' + d.points + ' poin masuk tabungan';
+    } else {
+      rw.className = 'reward';
+      rw.textContent = 'Level ini sudah pernah selesai. Poin tidak bertambah, bintang tetap diperbaiki.';
+    }
+  } else {
+    rw.className = 'reward';
+    rw.textContent = 'Coba lagi, nyawa akan kembali penuh.';
+  }
+  if (d.best) {
+    var b = document.createElement('p');
+    b.className = 'muted center';
+    b.style.fontSize = '12px';
+    b.textContent = 'Skor terbaik level ini: ' + d.best;
+    rw.after(b);
+  }
+
+  var surahUrl = 'surah.html?juz=' + d.juz + '&mode=' + d.mode;
+
+  var stageQ = (d.stage || 1) > 1 ? '&stage=' + d.stage : '';
+  var stages = d.stages || 1;
+  var hasNextStage = passed && (d.stage || 1) < stages;
+
+  TQ.qs('#again').onclick = function () {
+    location.href = 'play.html?juz=' + d.juz + '&surah=' + d.surah + '&mode=' + d.mode + '&level=' + d.level + stageQ;
+  };
+
+  TQ.qs('#next').onclick = function () {
+    if (!passed) { TQ.qs('#again').click(); return; }
+    if (hasNextStage) {
+      location.href = 'play.html?juz=' + d.juz + '&surah=' + d.surah + '&mode=' + d.mode + '&level=' + d.level + '&stage=' + ((d.stage || 1) + 1);
+    } else if (d.level === 1) {
+      location.href = 'play.html?juz=' + d.juz + '&surah=' + d.surah + '&mode=' + d.mode + '&level=2';
+    } else {
+      location.href = surahUrl;
+    }
+  };
+
+  TQ.qs('#next').textContent = !passed ? 'Coba lagi'
+    : hasNextStage ? 'Stage ' + ((d.stage || 1) + 1) + ' →'
+    : (d.level === 1 ? 'Level 2 →' : 'Pilih surah lain →');
+
+  if (passed) TQ.sfx.win();
+})();
+</script>
+</body>
+</html>

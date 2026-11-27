@@ -62,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.9-apk
-          name: "Tilawah Quest v1.0.9 APK (On-Demand Mic & GPS)"
-          body: "Izin mikrofon hanya diminta saat tombol suara ditekan (plugin SpeechRecognizer native), izin lokasi hanya diminta saat menekan tombol lokasi di menu jadwal sholat. Tidak ada permintaan izin saat aplikasi dibuka."
+          tag_name: v1.0.12-apk
+          name: "Tilawah Quest v1.0.12 APK (Tebak Ayat fixed)"
+          body: "Perbaikan Tebak Ayat: ID halaman disesuaikan kembali dengan js/tebak.js, juz picker dan soal tampil normal. Izin mic & lokasi tetap on-demand."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -2,6 +2,31 @@
 (function () {
   'use strict';
 
+  /* ---------- multi-anak: namespace penyimpanan per anak ----------
+     Anak pertama (id 'c1') memakai kunci lama tanpa prefix, jadi progres lama tetap aman.
+     Anak lain memakai prefix tq_<id>_ . Kunci global tidak diprefix. */
+  var GLOBAL_KEYS = { tq_children: 1, tq_active: 1, tq_voice: 1, tq_data_cache_v1: 1 };
+  var _proto = Storage.prototype;
+  var _getItem = _proto.getItem.__orig || _proto.getItem;
+  var _setItem = _proto.setItem.__orig || _proto.setItem;
+  var _removeItem = _proto.removeItem.__orig || _proto.removeItem;
+  function rawGet(k) { try { return _getItem.call(localStorage, k); } catch (e) { return null; } }
+  function nsKey(k, childId) {
+    if (typeof k !== 'string' || k.indexOf('tq_') !== 0 || GLOBAL_KEYS[k]) return k;
+    if (!childId || childId === 'c1') return k;
+    return 'tq_' + childId + '_' + k.slice(3);
+  }
+  function activeId() { return rawGet('tq_active') || 'c1'; }
+  if (!_proto.getItem.__tqNs) {
+    var _pg = _getItem, _ps = _setItem, _pr = _removeItem;
+    _proto.getItem = function (k) { return _pg.call(this, this === localStorage ? nsKey(k, activeId()) : k); };
+    _proto.setItem = function (k, v) { return _ps.call(this, this === localStorage ? nsKey(k, activeId()) : k, v); };
+    _proto.removeItem = function (k) { return _pr.call(this, this === localStorage ? nsKey(k, activeId()) : k); };
+    _proto.getItem.__tqNs = true; _proto.getItem.__orig = _pg;
+    _proto.setItem.__tqNs = true; _proto.setItem.__orig = _ps;
+    _proto.removeItem.__tqNs = true; _proto.removeItem.__orig = _pr;
+  }
+
   const KEY = 'tq_v1';
 
   const DEFAULT = {
@@ -80,7 +105,7 @@
     var key = id || state.profile.char;
     return CHARACTERS.find(function (c) { return c.id === key; }) || CHARACTERS[0];
   }
-  function setProfile(p) { Object.assign(state.profile, p); save(); }
+  function setProfile(p) { Object.assign(state.profile, p); save(); registerChild(); }
   function points() { return state.points; }
   function addPoints(n) { state.points = Math.max(0, state.points + n); save(); return state.points; }
   function stats() { return state.stats; }
@@ -164,16 +189,132 @@
     o.connect(g); g.connect(c.destination);
     o.start(t0); o.stop(t0 + dur + 0.02);
   }
+  function semi(base, steps) { return base * Math.pow(2, steps / 12); }
+
+  let lastStarAt = 0;
   const sfx = {
+    tap: function () { tone(520, 'sine', 0.07, 0.09); },
     ok: function () { tone(880, 'sine', 0.16, 0.16); tone(1320, 'sine', 0.18, 0.11, 0.08); },
     bad: function () { tone(200, 'square', 0.26, 0.13); tone(150, 'square', 0.22, 0.10, 0.10); },
-    tap: function () { tone(520, 'sine', 0.07, 0.09); },
+    wrong: function () { this.bad(); },
     coin: function () { tone(1046, 'triangle', 0.10, 0.12); tone(1568, 'triangle', 0.16, 0.10, 0.07); },
+
+    // Bintang didapat. Makin tinggi bila beruntun (n = streak).
+    star: function (n) {
+      const now = Date.now();
+      if (now - lastStarAt < 110) return;
+      lastStarAt = now;
+      const up = Math.min(Math.max((n || 1) - 1, 0), 5);
+      const root = semi(1046, up);
+      tone(root, 'triangle', 0.09, 0.13);
+      tone(semi(root, 7), 'triangle', 0.14, 0.11, 0.06);
+      tone(semi(root, 12), 'sine', 0.20, 0.09, 0.13);
+    },
+
+    // Jawaban benar beruntun: nada menanjak tiap kelipatan combo.
+    combo: function (n) {
+      const step = Math.min(Math.max((n || 1) - 1, 0), 7);
+      const base = semi(660, step);
+      tone(base, 'triangle', 0.09, 0.12);
+      tone(semi(base, 4), 'triangle', 0.10, 0.10, 0.06);
+      tone(semi(base, 7), 'sine', 0.14, 0.09, 0.12);
+    },
+
+    // Naik stage / level: beda jelas dari win biasa.
+    fanfare: function () {
+      [0, 4, 7, 12].forEach(function (st, i) {
+        tone(semi(523, st), 'triangle', 0.18, 0.13, i * 0.085);
+      });
+      [523, 659, 784, 1046].forEach(function (f) {
+        tone(f, 'sine', 0.85, 0.075, 0.36);
+      });
+    },
+
+    // Piagam terbuka: megah, chord lebar + gemerlap tinggi.
+    grand: function () {
+      tone(131, 'sine', 1.10, 0.10, 0);
+      [392, 523, 659, 784].forEach(function (f, i) {
+        tone(f, 'triangle', 1.20, 0.075, i * 0.05);
+      });
+      [1046, 1318, 1568, 2093].forEach(function (f, i) {
+        tone(f, 'sine', 0.55, 0.055, 0.30 + i * 0.10);
+      });
+    },
+
     win: function () {
       [660, 880, 1100, 1320, 1760].forEach(function (f, i) { tone(f, 'sine', 0.22, 0.13, i * 0.09); });
     },
     lose: function () { [400, 330, 260, 200].forEach(function (f, i) { tone(f, 'triangle', 0.24, 0.12, i * 0.11); }); }
   };
+
+  /* ---------- haptic (getar halus di HP) ---------- */
+  function vibrate(pattern) {
+    try { if (navigator.vibrate) navigator.vibrate(pattern); } catch (e) {}
+  }
+  const haptic = {
+    tap: function () { vibrate(8); },
+    ok: function () { vibrate(18); },
+    bad: function () { vibrate([30, 55, 30]); },
+    star: function () { vibrate(14); },
+    win: function () { vibrate([18, 45, 18, 45, 80]); },
+    grand: function () { vibrate([25, 55, 25, 55, 25, 55, 130]); }
+  };
+
+  /* ---------- pujian suara (TTS Bahasa Indonesia) ---------- */
+  var praiseOn = true;
+  try { praiseOn = localStorage.getItem('tq_voice') !== '0'; } catch (e) {}
+  var lastPraiseAt = 0;
+
+  function praiseEnabled() { return praiseOn; }
+  function praiseSet(on) {
+    praiseOn = !!on;
+    try { localStorage.setItem('tq_voice', on ? '1' : '0'); } catch (e) {}
+    if (!praiseOn && window.speechSynthesis) { try { window.speechSynthesis.cancel(); } catch (e) {} }
+  }
+  function praise(text, force) {
+    if (!praiseOn || !text || !window.speechSynthesis) return;
+    const now = Date.now();
+    if (!force && now - lastPraiseAt < 4000) return;
+    lastPraiseAt = now;
+    try {
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'id-ID';
+      u.rate = 1.02;
+      u.pitch = 1.2;
+      u.volume = 0.95;
+      const vs = window.speechSynthesis.getVoices() || [];
+      for (let i = 0; i < vs.length; i++) {
+        if (/^id([-_]ID)?$/i.test(vs[i].lang)) { u.voice = vs[i]; break; }
+      }
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+  const PRAISE_OK = ['Masya Allah, benar!', 'Hebat!', 'Bagus sekali!', 'Alhamdulillah!', 'Pintar!'];
+  const PRAISE_RETRY = ['Ayo coba lagi!', 'Belum tepat, ayo ulangi.', 'Hampir benar, coba lagi.'];
+  function praiseRandom(kind) {
+    const arr = kind === 'retry' ? PRAISE_RETRY : PRAISE_OK;
+    praise(arr[Math.floor(Math.random() * arr.length)]);
+  }
+
+  /* ---------- versi aplikasi & cek update ---------- */
+  const VERSION = '1.0.12';
+  const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
+  function version() { return VERSION; }
+  function checkUpdate() {
+    return fetch(UPDATE_URL + '?t=' + Date.now(), { cache: 'no-store' })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function (j) {
+        const latest = String((j && j.version) || VERSION);
+        return {
+          current: VERSION,
+          latest: latest,
+          url: (j && j.url) || '',
+          notes: (j && j.notes) || '',
+          newer: latest !== VERSION
+        };
+      });
+  }
 
 
     function playAudio(url, btn) {
@@ -378,6 +519,54 @@
     });
   }
 
+  /* ---------- multi-anak: daftar anak ---------- */
+  function childrenList() { try { return JSON.parse(rawGet('tq_children') || '[]') || []; } catch (e) { return []; } }
+  function saveChildren(list) { try { _setItem.call(localStorage, 'tq_children', JSON.stringify(list)); } catch (e) {} }
+  function ensureChildren() {
+    var list = childrenList();
+    if (list.length) return list;
+    // data lama (sebelum multi-anak) dianggap anak pertama, id 'c1'
+    try {
+      var d = JSON.parse(rawGet('tq_v1') || 'null');
+      if (d && d.profile && d.profile.onboarded) {
+        list = [{ id: 'c1', name: d.profile.name || 'Anak', char: d.profile.char, color: d.profile.color }];
+        saveChildren(list);
+      }
+    } catch (e) {}
+    return list;
+  }
+  function registerChild() {
+    var id = activeId(), p = state.profile;
+    if (!p.onboarded) return;
+    var list = childrenList(), found = false;
+    list.forEach(function (c) {
+      if (c.id === id) { c.name = p.name; c.char = p.char; c.color = p.color; found = true; }
+    });
+    if (!found) list.push({ id: id, name: p.name, char: p.char, color: p.color });
+    saveChildren(list);
+  }
+  function dropChild(id) { saveChildren(childrenList().filter(function (c) { return c.id !== id; })); }
+  function addChild() {
+    var list = ensureChildren();
+    if (list.length >= 5) return null;
+    var n = 1;
+    while (list.some(function (c) { return c.id === 'c' + n; })) n++;
+    var id = 'c' + n;
+    _setItem.call(localStorage, 'tq_active', id);
+    return id;
+  }
+  function switchChild(id) {
+    _setItem.call(localStorage, 'tq_active', id);
+    location.href = 'juz.html';
+  }
+  function childSummary(id) {
+    try {
+      var d = JSON.parse(_getItem.call(localStorage, nsKey('tq_v1', id)) || 'null');
+      if (!d) return { points: 0, onboarded: false };
+      return { points: d.points || 0, onboarded: !!(d.profile && d.profile.onboarded) };
+    } catch (e) { return { points: 0, onboarded: false }; }
+  }
+
   window.TQ = {
     KEY: KEY, HATS: HATS, COLORS: COLORS, CHARACTERS: CHARACTERS, character: character,
     state: function () { return state; },
@@ -385,13 +574,17 @@
     points: points, addPoints: addPoints, stats: stats, bumpStat: bumpStat,
     stageStars: stageStars, setStageStars: setStageStars, surahLevelDone: surahLevelDone, levelStagesDone: levelStagesDone,
     juzProgress: juzProgress, surahStars: surahStars, totalStars: totalStars,
-    sfx: sfx, popup: popup, closePopup: close, playAudio: playAudio,
+    sfx: sfx, haptic: haptic, praise: praise, praiseRandom: praiseRandom, praiseEnabled: praiseEnabled, praiseSet: praiseSet,
+    version: version, checkUpdate: checkUpdate, vibrate: vibrate, popup: popup, closePopup: close, playAudio: playAudio,
     bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
+    children: ensureChildren, activeChild: activeId, addChild: addChild, switchChild: switchChild,
+    childSummary: childSummary, MAX_CHILDREN: 5,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,
     reset: function () {
       state = JSON.parse(JSON.stringify(DEFAULT));
       save();
+      dropChild(activeId());
       // Bersihkan juga progres tebak ayat & cache lokal
       try {
         for (var i = 1; i <= 30; i++) {

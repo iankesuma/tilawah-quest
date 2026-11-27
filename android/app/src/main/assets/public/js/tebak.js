@@ -250,7 +250,8 @@
       btn.classList.add('right');
       S.right++;
       S.score += 10;
-      TQ.sfx.ok();
+      if (TQ.sfx.combo) TQ.sfx.combo(S.right); else TQ.sfx.ok();
+      if (TQ.haptic) TQ.haptic.ok();
       el.pbar.style.width = ((S.qi + 1) / PER * 100) + '%';
       setTimeout(function () {
         S.qi++;
@@ -262,6 +263,7 @@
     btn.disabled = true;
     S.hearts--;
     TQ.sfx.bad();
+    if (TQ.haptic) TQ.haptic.bad();
     renderHearts();
     if (S.hearts <= 0) finishStage(true);
   }
@@ -282,9 +284,13 @@
         ds.d_tebak = (ds.d_tebak || 0) + 1;
         localStorage.setItem('tq_daily_' + tk, JSON.stringify(ds));
       } catch (e) {}
-      TQ.sfx.win();
+      if (TQ.sfx.fanfare) TQ.sfx.fanfare(); else TQ.sfx.win();
+      if (TQ.haptic) TQ.haptic.win();
+      if (TQ.sfx.star) TQ.sfx.star(3);
+      if (TQ.praise) TQ.praise('Masya Allah! Stage selesai.', true);
     } else {
       TQ.sfx.lose();
+      if (TQ.haptic) TQ.haptic.bad();
     }
     el.pts.textContent = TQ.fmt(TQ.points());
     el.opts.innerHTML = '';

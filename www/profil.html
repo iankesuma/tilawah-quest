@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Profil — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Profil</b><span>Progres di perangkat ini</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <section class="card">
+    <div class="pf-head">
+      <div class="pf-ava" id="ava"></div>
+      <div style="min-width:0">
+        <h2 id="name" style="font-size:22px">Pemain</h2>
+        <p class="muted" id="joined">Progres tersimpan di perangkat ini</p>
+      </div>
+    </div>
+
+    <div class="stat-grid" style="margin-bottom:0">
+      <div class="stat"><b id="st-levels">0</b><span>level selesai</span></div>
+      <div class="stat"><b id="st-ayahs">0</b><span>ayat disusun</span></div>
+      <div class="stat"><b id="st-stars">0</b><span>bintang</span></div>
+    </div>
+  </section>
+
+  <!-- PENCAPAIAN / ACHIEVEMENTS -->
+  <section class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0;font-size:16px">Pencapaian</h3>
+        <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="ach-summary">0 dari 8 lencana terbuka</p>
+      </div>
+      <div style="display:flex;gap:6px">
+        <a class="chip" href="piagam.html" style="font-size:12px;text-decoration:none;background:#FFF3D6;color:#B45309">📜 <b>Lihat Piagam</b></a>
+        <span class="chip" style="font-size:12px">🏆 <b id="ach-count">0/8</b></span>
+      </div>
+    </div>
+    <div class="ach-grid" id="ach-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:9px"></div>
+  </section>
+
+  <!-- DAILY CHALLENGE / MISI HARIAN -->
+  <section class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0;font-size:16px">Misi Hari Ini</h3>
+        <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="daily-date">Reset tiap jam 00:00</p>
+      </div>
+      <span class="chip" id="daily-reward-badge" style="font-size:12px">🎁 +50 ⭐</span>
+    </div>
+    <div class="daily-list" id="daily-list" style="display:grid;gap:8px"></div>
+  </section>
+
+  <section class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0;font-size:16px">Pengaturan Aplikasi</h3>
+        <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="app-version">Versi —</p>
+      </div>
+      <button class="chip" id="check-update" style="font-size:12px;cursor:pointer">🔄 Cek Update</button>
+    </div>
+    <div class="row between" style="background:#FAFDFF;border:1px solid #DCEBF4;border-radius:12px;padding:9px 12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🗣️</span>
+        <div>
+          <b style="font-size:12.5px;display:block">Suara Pujian</b>
+          <span style="font-size:10.5px;color:#7C97A5">Ucapan "Masya Allah, benar!" saat bermain</span>
+        </div>
+      </div>
+      <button class="chip" id="voice-toggle" style="font-size:12px;cursor:pointer">…</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="stack">
+      <button class="btn ghost" onclick="location.href='pilih.html'">👥 Ganti anak / tambah anak</button>
+      <button class="btn ghost" onclick="location.href='onboarding.html'">Ubah nama &amp; karakter</button>
+      <button class="btn ghost" onclick="location.href='belajar.html'">Belajar nabi, rukun, hadis</button>
+      <button class="btn ghost" onclick="location.href='bantuan.html'">Cara main &amp; sumber data</button>
+      <button class="btn danger" id="reset">Reset progres anak ini</button>
+    </div>
+  </section>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var p = TQ.profile();
+  if (!p.onboarded) { location.replace('onboarding.html'); return; }
+  TQ.qs('#name').textContent = p.name;
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+  TQ.qs('#st-levels').textContent = TQ.stats().levels || 0;
+  TQ.qs('#st-ayahs').textContent = TQ.stats().ayahs || 0;
+  TQ.qs('#st-stars').textContent = TQ.totalStars();
+  var ch = TQ.character();
+  var joined = p.joinedAt ? 'Bergabung ' + new Date(p.joinedAt).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) : 'Progres tersimpan di perangkat ini';
+  TQ.qs('#joined').textContent = joined + ' · Karakter: ' + ch.name;
+
+  var ch2 = TQ.character();
+  var ava = TQ.qs('#ava');
+  ava.innerHTML = TQ.charFace(ch2);
+  ava.style.background = ch2.robe + '22';
+
+  /* --- ACHIEVEMENTS LIST --- */
+  var ACHS = [
+    { id: 'first_level', title: 'Langkah Awal', desc: 'Selesaikan 1 level susun ayat', icon: '🌱', check: function () { return (TQ.stats().levels || 0) >= 1; } },
+    { id: 'ayah_25', title: 'Rajin Menghafal', desc: 'Susun minimal 25 ayat', icon: '📜', check: function () { return (TQ.stats().ayahs || 0) >= 25; } },
+    { id: 'ayah_100', title: 'Penjaga Ayat', desc: 'Susun minimal 100 ayat', icon: '🌟', check: function () { return (TQ.stats().ayahs || 0) >= 100; } },
+    { id: 'stars_30', title: 'Bintang Terang', desc: 'Kumpulkan 30 bintang emas', icon: '⭐', check: function () { return TQ.totalStars() >= 30; } },
+    { id: 'stars_100', title: 'Gudang Cahaya', desc: 'Kumpulkan 100 bintang emas', icon: '✨', check: function () { return TQ.totalStars() >= 100; } },
+    { id: 'tebak_10', title: 'Detektif Ayat', desc: 'Selesaikan 10 stage tebak ayat', icon: '🔍', check: function () {
+      var d = 0;
+      for (var i = 1; i <= 30; i++) {
+        try {
+          var o = JSON.parse(localStorage.getItem('tq_tebak_j' + i) || '{}');
+          d += Object.keys(o).filter(function (k) { return o[k] > 0; }).length;
+        } catch (e) {}
+      }
+      return d >= 10;
+    } },
+    { id: 'tebak_juz30', title: 'Khatam Tebak Juz 30', desc: 'Selesaikan semua 10 stage tebak ayat Juz 30', icon: '👑', check: function () {
+      try {
+        var o = JSON.parse(localStorage.getItem('tq_tebak_j30') || '{}');
+        return Object.keys(o).filter(function (k) { return o[k] > 0; }).length >= 10;
+      } catch (e) { return false; }
+    } },
+    { id: 'points_500', title: 'Sultan Pahala', desc: 'Kumpulkan 500 poin', icon: '💎', check: function () { return TQ.points() >= 500; } }
+  ];
+
+  var achGrid = TQ.qs('#ach-grid');
+  var unlockedCount = 0;
+  achGrid.innerHTML = '';
+  ACHS.forEach(function (ach) {
+    var ok = ach.check();
+    if (ok) unlockedCount++;
+    var card = document.createElement('div');
+    card.style.cssText = 'background:' + (ok ? '#F1F9F4' : '#F4F7F9') + ';border:1.5px solid ' + (ok ? '#8DBF2E' : '#DCEBF4') + ';border-radius:14px;padding:10px;display:flex;align-items:center;gap:9px;opacity:' + (ok ? '1' : '0.65');
+    card.innerHTML =
+      '<div style="font-size:24px;width:34px;text-align:center">' + ach.icon + '</div>' +
+      '<div style="min-width:0;flex:1">' +
+        '<b style="font-size:12.5px;display:block;color:' + (ok ? '#2E661F' : 'inherit') + '">' + ach.title + '</b>' +
+        '<span style="font-size:10px;color:#7C97A5;line-height:1.2;display:block">' + ach.desc + '</span>' +
+      '</div>' +
+      (ok ? '<span style="font-size:12px">✅</span>' : '<span style="font-size:12px">🔒</span>');
+    achGrid.appendChild(card);
+  });
+  TQ.qs('#ach-summary').textContent = unlockedCount + ' dari ' + ACHS.length + ' lencana terbuka';
+  TQ.qs('#ach-count').textContent = unlockedCount + '/' + ACHS.length;
+
+  /* --- DAILY CHALLENGE --- */
+  var todayKey = new Date().toISOString().slice(0, 10);
+  TQ.qs('#daily-date').textContent = 'Hari ini: ' + new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'short' });
+  var dailyStore = {};
+  try { dailyStore = JSON.parse(localStorage.getItem('tq_daily_' + todayKey) || '{}'); } catch (e) {}
+
+  var DAILIES = [
+    { id: 'd_levels', title: 'Susun 2 Level Ayat', req: 2, cur: dailyStore.d_levels || 0, icon: '📖' },
+    { id: 'd_tebak', title: 'Main 2 Stage Tebak Ayat', req: 2, cur: dailyStore.d_tebak || 0, icon: '🎯' },
+    { id: 'd_baca', title: 'Buka Halaman Baca Qur\'an', req: 1, cur: dailyStore.d_baca || 0, icon: '✨' }
+  ];
+
+  var dailyList = TQ.qs('#daily-list');
+  dailyList.innerHTML = '';
+  var allDailyDone = true;
+  DAILIES.forEach(function (d) {
+    var ok = d.cur >= d.req;
+    if (!ok) allDailyDone = false;
+    var row = document.createElement('div');
+    row.style.cssText = 'background:#FAFDFF;border:1px solid #DCEBF4;border-radius:12px;padding:9px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px';
+    row.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px">' +
+        '<span style="font-size:18px">' + d.icon + '</span>' +
+        '<div>' +
+          '<b style="font-size:12.5px;display:block">' + d.title + '</b>' +
+          '<span style="font-size:10.5px;color:#7C97A5">' + Math.min(d.cur, d.req) + '/' + d.req + ' selesai</span>' +
+        '</div>' +
+      '</div>' +
+      (ok ? '<span style="font-weight:900;color:var(--green-d);font-size:13px">Selesai ✨</span>' : '<span style="font-size:11.5px;color:#8B9EA8;font-weight:800">Berjalan</span>');
+    dailyList.appendChild(row);
+  });
+
+  if (allDailyDone) {
+    if (!dailyStore.claimed) {
+      TQ.qs('#daily-reward-badge').textContent = '🎁 Klaim +50 ⭐';
+      TQ.qs('#daily-reward-badge').style.cursor = 'pointer';
+      TQ.qs('#daily-reward-badge').onclick = function () {
+        dailyStore.claimed = true;
+        try { localStorage.setItem('tq_daily_' + todayKey, JSON.stringify(dailyStore)); } catch (e) {}
+        TQ.addPoints(50);
+        TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+        TQ.sfx.win();
+        TQ.popup({ icon: '🎉', title: 'Misi Harian Selesai!', text: 'Kamu dapat bonus +50 bintang. Pertahankan terus ya!', good: true });
+        TQ.qs('#daily-reward-badge').textContent = '✅ Diklaim';
+        TQ.qs('#daily-reward-badge').onclick = null;
+      };
+    } else {
+      TQ.qs('#daily-reward-badge').textContent = '✅ Diklaim';
+    }
+  }
+
+  /* --- versi aplikasi & cek update --- */
+  var verEl = TQ.qs('#app-version');
+  if (verEl && TQ.version) verEl.textContent = 'Versi ' + TQ.version();
+
+  var updBtn = TQ.qs('#check-update');
+  if (updBtn && TQ.checkUpdate) {
+    updBtn.onclick = function () {
+      TQ.sfx.tap();
+      if (!navigator.onLine) {
+        TQ.popup({ icon: '📶', title: 'Butuh Internet', text: 'Cek update memerlukan koneksi internet. Coba lagi nanti ya.', bad: true });
+        return;
+      }
+      updBtn.textContent = '⏳ Memeriksa…';
+      TQ.checkUpdate().then(function (r) {
+        updBtn.textContent = '🔄 Cek Update';
+        if (r.newer) {
+          TQ.popup({
+            icon: '🎁',
+            title: 'Versi Baru Tersedia',
+            text: 'Versi terpasang: ' + r.current + '\nVersi terbaru: ' + r.latest + (r.notes ? '\n\n' + r.notes : '') +
+                  (r.url ? '\n\nBuka: ' + r.url : ''),
+            good: true
+          });
+        } else {
+          TQ.popup({ icon: '✅', title: 'Sudah Versi Terbaru', text: 'Kamu memakai versi ' + r.current + '. Terima kasih sudah memakai Tilawah Quest!', good: true });
+        }
+      }).catch(function () {
+        updBtn.textContent = '🔄 Cek Update';
+        TQ.popup({ icon: '⚠️', title: 'Gagal Cek Update', text: 'Tidak bisa menghubungi server pembaruan. Coba lagi nanti.', bad: true });
+      });
+    };
+  }
+
+  /* --- toggle suara pujian --- */
+  var vBtn = TQ.qs('#voice-toggle');
+  function paintVoice() {
+    if (!vBtn) return;
+    var on = TQ.praiseEnabled ? TQ.praiseEnabled() : false;
+    vBtn.textContent = on ? '🔊 Aktif' : '🔇 Mati';
+  }
+  if (vBtn && TQ.praiseSet) {
+    vBtn.onclick = function () {
+      var on = TQ.praiseEnabled ? TQ.praiseEnabled() : false;
+      TQ.praiseSet(!on);
+      paintVoice();
+      if (!on && TQ.praise) { TQ.sfx.tap(); TQ.praise('Suara pujian aktif', true); }
+    };
+    paintVoice();
+  }
+
+  TQ.qs('#reset').onclick = function () {
+    var input = document.createElement('input');
+    input.className = '';
+    TQ.popup({
+      icon: '⚠️',
+      title: 'Hapus semua progres?',
+      text: 'Poin, bintang, dan level akan hilang. Tindakan ini tidak bisa dibatalkan.',
+      bad: true,
+      actions: [
+        { label: 'Batal', ghost: true },
+        {
+          label: 'Ya, hapus',
+          onClick: function () {
+            TQ.reset();
+            location.href = 'login.html';
+          }
+        }
+      ]
+    });
+  };
+})();
+</script>
+</body>
+</html>

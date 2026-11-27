@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Kuis Tajwid — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.tj-qbox{background:#fff;border-radius:22px;padding:22px 18px;text-align:center;box-shadow:var(--shadow-sm);border:2px solid #EBF3F8;margin-bottom:14px}
+.tj-ar{font-family:var(--font-ar);font-size:27px;line-height:2.2;direction:rtl;margin:10px 0;color:var(--ink)}
+.tj-ar .highlight{display:inline-block;padding:2px 8px;border-radius:10px;background:#FFF9D2;box-shadow:0 0 0 2px #E2B93B;font-weight:bold}
+.tj-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tj-opt{background:#fff;border:2px solid #DCEBF4;border-radius:16px;padding:14px 10px;font-size:15px;font-weight:800;font-family:inherit;color:var(--ink);cursor:pointer;transition:transform .12s,background .12s}
+.tj-opt:active{transform:scale(.96)}
+.tj-opt.good{background:#E6F4EA!important;border-color:var(--green-d)!important;color:var(--green-d)!important}
+.tj-opt.bad{background:#FDE8ED!important;border-color:#DC2626!important;color:#DC2626!important}
+.tj-info{font-size:12px;font-weight:800;color:var(--muted);margin-bottom:4px}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Kuis Tajwid</b><span id="prog">Soal 1 / 10</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="bar" style="margin-bottom:12px"><i id="pbar" style="width:10%"></i></div>
+
+  <section class="tj-qbox">
+    <span class="tj-info" id="surah-info">QS. An-Nas ayat 1</span>
+    <p style="font-size:13.5px;font-weight:800;color:var(--muted);margin:2px 0 8px">Hukum tajwid pada kata berwarna kuning:</p>
+    <div class="tj-ar" id="snippet">…</div>
+    <div class="tj-opts" id="opts"></div>
+  </section>
+
+  <div id="feedback" class="card hidden" style="text-align:center;padding:14px;margin-top:10px">
+    <b id="fb-title" style="font-size:15px;display:block"></b>
+    <span id="fb-desc" style="font-size:12.5px;color:var(--muted)"></span>
+    <button class="btn mt" id="next-btn" style="width:100%;margin-top:10px">Lanjut Soal Berikutnya →</button>
+  </div>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var QUESTIONS = [];
+  var curIdx = 0, score = 0, locked = false;
+  var ALL_RULES = ['Qalqalah', 'Iqlab', 'Ikhfa', 'Idgham', 'Ghunnah', 'Mad Thabi\'i', 'Mad Far\'i / Lazim'];
+
+  var el = {
+    prog: TQ.qs('#prog'), pbar: TQ.qs('#pbar'), pts: TQ.qs('#pts'),
+    info: TQ.qs('#surah-info'), snip: TQ.qs('#snippet'), opts: TQ.qs('#opts'),
+    fb: TQ.qs('#feedback'), fbTitle: TQ.qs('#fb-title'), fbDesc: TQ.qs('#fb-desc'), next: TQ.qs('#next-btn')
+  };
+
+  el.pts.textContent = TQ.fmt(TQ.points());
+
+  function showQuestion() {
+    if (curIdx >= 10 || curIdx >= QUESTIONS.length) {
+      finishQuiz();
+      return;
+    }
+    locked = false;
+    el.fb.classList.add('hidden');
+    var q = QUESTIONS[curIdx];
+    el.prog.textContent = 'Soal ' + (curIdx + 1) + ' dari 10';
+    el.pbar.style.width = ((curIdx + 1) / 10 * 100) + '%';
+    el.info.textContent = q.surah_name + ' ayat ' + q.ayah;
+    el.snip.innerHTML = q.snippet;
+
+    // Acak 4 pilihan jawaban (1 benar + 3 pengecoh)
+    var distractors = ALL_RULES.filter(function (r) { return r !== q.ans; });
+    distractors = TQ.shuffle(distractors).slice(0, 3);
+    var choices = TQ.shuffle([q.ans].concat(distractors));
+
+    el.opts.innerHTML = '';
+    choices.forEach(function (choice) {
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tj-opt';
+      btn.textContent = choice;
+      btn.onclick = function () { selectAnswer(btn, choice, q.ans); };
+      el.opts.appendChild(btn);
+    });
+  }
+
+  function selectAnswer(btn, chosen, correct) {
+    if (locked) return;
+    locked = true;
+    var allBtns = el.opts.querySelectorAll('.tj-opt');
+    allBtns.forEach(function (b) {
+      if (b.textContent === correct) b.classList.add('good');
+    });
+
+    if (chosen === correct) {
+      btn.classList.add('good');
+      score += 10;
+      TQ.addPoints(5);
+      el.pts.textContent = TQ.fmt(TQ.points());
+      if (TQ.sfx.star) TQ.sfx.star(score / 10); else TQ.sfx.win();
+      if (TQ.haptic) TQ.haptic.ok();
+      el.fbTitle.textContent = 'Masya Allah, Benar! 🎉';
+      el.fbTitle.style.color = 'var(--green-d)';
+      el.fbDesc.textContent = 'Hukum bacaannya adalah ' + correct + '.';
+    } else {
+      btn.classList.add('bad');
+      TQ.sfx.bad();
+      if (TQ.haptic) TQ.haptic.bad();
+      el.fbTitle.textContent = 'Kurang Tepat 💡';
+      el.fbTitle.style.color = '#DC2626';
+      el.fbDesc.textContent = 'Jawaban yang tepat adalah ' + correct + '.';
+    }
+    el.fb.classList.remove('hidden');
+    el.fb.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  el.next.onclick = function () {
+    curIdx++;
+    showQuestion();
+  };
+
+  function finishQuiz() {
+    if (TQ.sfx.fanfare) TQ.sfx.fanfare(); else TQ.sfx.win();
+    if (TQ.haptic) TQ.haptic.win();
+    if (TQ.praise) TQ.praise(score >= 80 ? 'Masya Allah, nilai kamu bagus sekali!' : 'Bagus! Terus belajar tajwid ya.', true);
+    TQ.bumpStat('levels');
+    el.snip.innerHTML = '🏆';
+    el.info.textContent = 'Kuis Selesai!';
+    el.opts.innerHTML = '<div style="grid-column:span 2;padding:12px;text-align:center"><h3 style="margin:0 0 6px">Nilai Kamu: ' + score + ' / 100</h3><p class="muted" style="margin:0">Kamu hebat, terus asah pemahaman tajwid ya!</p><button class="btn mt" onclick="location.reload()" style="margin-right:8px">Ulangi Kuis</button><button class="btn ghost mt" onclick="location.href=\'belajar.html\'">Kembali</button></div>';
+    el.fb.classList.add('hidden');
+  }
+
+  fetch('data/kuis-tajwid.json?v=45')
+    .then(function (r) { return r.json(); })
+    .then(function (list) {
+      QUESTIONS = TQ.shuffle(list).slice(0, 10);
+      showQuestion();
+    })
+    .catch(function () {
+      el.snip.textContent = 'Gagal memuat kuis tajwid.';
+    });
+})();
+</script>
+</body>
+</html>

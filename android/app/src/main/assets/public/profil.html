@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Profil — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=53">
-<link rel="stylesheet" href="css/screens.css?v=53">
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -65,16 +65,37 @@
   </section>
 
   <section class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
+        <h3 style="margin:0;font-size:16px">Pengaturan Aplikasi</h3>
+        <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="app-version">Versi —</p>
+      </div>
+      <button class="chip" id="check-update" style="font-size:12px;cursor:pointer">🔄 Cek Update</button>
+    </div>
+    <div class="row between" style="background:#FAFDFF;border:1px solid #DCEBF4;border-radius:12px;padding:9px 12px">
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:18px">🗣️</span>
+        <div>
+          <b style="font-size:12.5px;display:block">Suara Pujian</b>
+          <span style="font-size:10.5px;color:#7C97A5">Ucapan "Masya Allah, benar!" saat bermain</span>
+        </div>
+      </div>
+      <button class="chip" id="voice-toggle" style="font-size:12px;cursor:pointer">…</button>
+    </div>
+  </section>
+
+  <section class="card">
     <div class="stack">
+      <button class="btn ghost" onclick="location.href='pilih.html'">👥 Ganti anak / tambah anak</button>
       <button class="btn ghost" onclick="location.href='onboarding.html'">Ubah nama &amp; karakter</button>
       <button class="btn ghost" onclick="location.href='belajar.html'">Belajar nabi, rukun, hadis</button>
       <button class="btn ghost" onclick="location.href='bantuan.html'">Cara main &amp; sumber data</button>
-      <button class="btn danger" id="reset">Reset semua progres</button>
+      <button class="btn danger" id="reset">Reset progres anak ini</button>
     </div>
   </section>
 </main>
 
-<script src="js/app.js?v=53"></script>
+<script src="js/app.js?v=56"></script>
 <script>
 (function () {
   var p = TQ.profile();
@@ -188,6 +209,56 @@
     } else {
       TQ.qs('#daily-reward-badge').textContent = '✅ Diklaim';
     }
+  }
+
+  /* --- versi aplikasi & cek update --- */
+  var verEl = TQ.qs('#app-version');
+  if (verEl && TQ.version) verEl.textContent = 'Versi ' + TQ.version();
+
+  var updBtn = TQ.qs('#check-update');
+  if (updBtn && TQ.checkUpdate) {
+    updBtn.onclick = function () {
+      TQ.sfx.tap();
+      if (!navigator.onLine) {
+        TQ.popup({ icon: '📶', title: 'Butuh Internet', text: 'Cek update memerlukan koneksi internet. Coba lagi nanti ya.', bad: true });
+        return;
+      }
+      updBtn.textContent = '⏳ Memeriksa…';
+      TQ.checkUpdate().then(function (r) {
+        updBtn.textContent = '🔄 Cek Update';
+        if (r.newer) {
+          TQ.popup({
+            icon: '🎁',
+            title: 'Versi Baru Tersedia',
+            text: 'Versi terpasang: ' + r.current + '\nVersi terbaru: ' + r.latest + (r.notes ? '\n\n' + r.notes : '') +
+                  (r.url ? '\n\nBuka: ' + r.url : ''),
+            good: true
+          });
+        } else {
+          TQ.popup({ icon: '✅', title: 'Sudah Versi Terbaru', text: 'Kamu memakai versi ' + r.current + '. Terima kasih sudah memakai Tilawah Quest!', good: true });
+        }
+      }).catch(function () {
+        updBtn.textContent = '🔄 Cek Update';
+        TQ.popup({ icon: '⚠️', title: 'Gagal Cek Update', text: 'Tidak bisa menghubungi server pembaruan. Coba lagi nanti.', bad: true });
+      });
+    };
+  }
+
+  /* --- toggle suara pujian --- */
+  var vBtn = TQ.qs('#voice-toggle');
+  function paintVoice() {
+    if (!vBtn) return;
+    var on = TQ.praiseEnabled ? TQ.praiseEnabled() : false;
+    vBtn.textContent = on ? '🔊 Aktif' : '🔇 Mati';
+  }
+  if (vBtn && TQ.praiseSet) {
+    vBtn.onclick = function () {
+      var on = TQ.praiseEnabled ? TQ.praiseEnabled() : false;
+      TQ.praiseSet(!on);
+      paintVoice();
+      if (!on && TQ.praise) { TQ.sfx.tap(); TQ.praise('Suara pujian aktif', true); }
+    };
+    paintVoice();
   }
 
   TQ.qs('#reset').onclick = function () {

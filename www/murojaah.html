@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Muroja'ah Cepat — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+<style>
+.mq-box{background:#fff;border-radius:24px;padding:24px 18px;text-align:center;box-shadow:var(--shadow-sm);border:2px solid #EBF3F8;margin-bottom:12px;position:relative}
+.mq-timer{font-size:22px;font-weight:900;color:var(--ink);display:inline-flex;align-items:center;gap:6px;background:#FFF3D6;padding:4px 12px;border-radius:20px;margin-bottom:10px}
+.mq-timer.urgent{background:#FDE8ED;color:#DC2626;animation:pulse .5s infinite alternate}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.05)}}
+.mq-ar{font-family:var(--font-ar);font-size:26px;line-height:2.2;direction:rtl;margin:12px 0;color:var(--ink)}
+.mq-opts{display:grid;gap:10px;margin-top:14px}
+.mq-opt{background:#fff;border:2px solid #DCEBF4;border-radius:16px;padding:14px 12px;font-family:var(--font-ar);font-size:21px;direction:rtl;color:var(--ink);cursor:pointer;text-align:right;transition:all .12s}
+.mq-opt:active{transform:scale(.98)}
+.mq-opt.good{background:#E6F4EA!important;border-color:var(--green-d)!important;color:var(--green-d)!important}
+.mq-opt.bad{background:#FDE8ED!important;border-color:#DC2626!important;color:#DC2626!important}
+</style>
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="belajar.html" aria-label="Kembali">←</a>
+    <div class="titles"><b>Muroja'ah Cepat</b><span id="streak">🔥 Rentetan: 0</span></div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="mq-box">
+    <div class="mq-timer" id="timer-badge">⏳ <b id="sec">7</b>s</div>
+    <p style="font-size:13px;font-weight:800;color:var(--muted);margin:0" id="surah-info">Sambung ayat berikut:</p>
+    <div class="mq-ar" id="prompt-ar">…</div>
+    <div class="mq-opts" id="opts"></div>
+  </div>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script>
+(function () {
+  var streak = 0, timer = null, timeLeft = 7, locked = false;
+  var curSurah = null, targetNextAyah = null;
+
+  var el = {
+    streak: TQ.qs('#streak'), pts: TQ.qs('#pts'),
+    timer: TQ.qs('#timer-badge'), sec: TQ.qs('#sec'),
+    info: TQ.qs('#surah-info'), ar: TQ.qs('#prompt-ar'), opts: TQ.qs('#opts')
+  };
+
+  el.pts.textContent = TQ.fmt(TQ.points());
+
+  function nextRound() {
+    locked = false;
+    clearInterval(timer);
+    timeLeft = 7;
+    el.sec.textContent = timeLeft;
+    el.timer.classList.remove('urgent');
+
+    // Pilih acak surah dari Juz 30 (surah 78 s/d 114)
+    var sNum = Math.floor(Math.random() * (114 - 78 + 1)) + 78;
+    var sPad = String(sNum).padStart(3, '0');
+
+    fetch('data/quran/' + sPad + '.json?v=40')
+      .then(function (r) { return r.json(); })
+      .then(function (surahData) {
+        if (!surahData.ayahs || surahData.ayahs.length < 2) { nextRound(); return; }
+        // Pilih 1 ayat acak yang memiliki ayat penerus
+        var aIdx = Math.floor(Math.random() * (surahData.ayahs.length - 1));
+        var promptAyah = surahData.ayahs[aIdx];
+        var correctAyah = surahData.ayahs[aIdx + 1];
+
+        el.info.textContent = surahData.name + ' · Ayat ' + promptAyah.i + ' ➔ ' + correctAyah.i;
+        el.ar.textContent = promptAyah.ar;
+
+        // Ambil 2 pengecoh dari ayat lain di surah ini atau surah lain
+        var distractors = surahData.ayahs.filter(function (ay) { return ay.i !== correctAyah.i && ay.i !== promptAyah.i; });
+        distractors = TQ.shuffle(distractors).slice(0, 2);
+        var choices = TQ.shuffle([correctAyah].concat(distractors));
+
+        el.opts.innerHTML = '';
+        choices.forEach(function (ch) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'mq-opt';
+          btn.textContent = ch.ar;
+          btn.onclick = function () { checkAnswer(btn, ch.i === correctAyah.i, correctAyah.i); };
+          el.opts.appendChild(btn);
+        });
+
+        // Start countdown
+        timer = setInterval(function () {
+          timeLeft--;
+          el.sec.textContent = timeLeft;
+          if (timeLeft <= 3) el.timer.classList.add('urgent');
+          if (timeLeft <= 0) {
+            clearInterval(timer);
+            timeout();
+          }
+        }, 1000);
+      })
+      .catch(function () { nextRound(); });
+  }
+
+  function checkAnswer(btn, isCorrect, correctId) {
+    if (locked) return;
+    locked = true;
+    clearInterval(timer);
+
+    if (isCorrect) {
+      btn.classList.add('good');
+      streak++;
+      TQ.addPoints(5);
+      el.pts.textContent = TQ.fmt(TQ.points());
+      el.streak.textContent = '🔥 Rentetan: ' + streak;
+      if (TQ.sfx.combo) TQ.sfx.combo(streak); else TQ.sfx.win();
+      if (TQ.sfx.star) TQ.sfx.star(streak);
+      if (TQ.haptic) TQ.haptic.ok();
+      if (streak > 0 && streak % 5 === 0 && TQ.praiseRandom) TQ.praiseRandom('ok');
+      setTimeout(nextRound, 900);
+    } else {
+      btn.classList.add('bad');
+      TQ.sfx.lose();
+      streak = 0;
+      el.streak.textContent = '🔥 Rentetan: 0';
+      TQ.popup({
+        icon: '💥',
+        title: 'Kurang Tepat!',
+        text: 'Jangan menyerah, muroja\'ah lagi hafalanmu!',
+        bad: true,
+        actions: [{ label: 'Coba Lagi', onClick: nextRound }]
+      });
+    }
+  }
+
+  function timeout() {
+    locked = true;
+    TQ.sfx.lose();
+    if (TQ.haptic) TQ.haptic.bad();
+    if (TQ.praiseRandom) TQ.praiseRandom('retry');
+    streak = 0;
+    el.streak.textContent = '🔥 Rentetan: 0';
+    TQ.popup({
+      icon: '⏰',
+      title: 'Waktu Habis!',
+      text: 'Waktu 7 detik habis. Asah terus kecepatan ingatanmu ya!',
+      bad: true,
+      actions: [{ label: 'Lanjut Main', onClick: nextRound }]
+    });
+  }
+
+  nextRound();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,596 @@
+/* Tilawah Quest — latihan engine */
+(function () {
+  'use strict';
+
+  var params = new URLSearchParams(location.search);
+  var JUZ = +(params.get('juz') || 30);
+  var SURAH = +(params.get('surah') || 78);
+  var MODE = params.get('mode') === 'arti' ? 'arti' : 'ayat';
+  var LEVEL = +(params.get('level') || 1);
+
+  var PAGE = 10;               // ayat per stage
+  var STAGE = params.get('stage') ? Math.max(1, +params.get('stage')) : 0;  // 0 = pilih otomatis
+  var CHUNK = MODE === 'arti' ? 3 : 6;
+  var MAX_HEARTS = 5;
+
+  var S = {
+    surah: null,
+    meta: null,
+    ayahs: [],
+    questions: [],
+    qi: 0,
+    picked: [],
+    hearts: MAX_HEARTS,
+    score: 0,
+    combo: 0,
+    maxCombo: 0,
+    wrong: 0,
+    done: false,
+    lastBadAt: 0
+  };
+
+  var el = {};
+  ['g-title', 'g-ar', 'score', 'hearts', 'step', 'bar', 'ayat-lines', 'slots', 'bank',
+   'instr', 'mascot', 'surah-label', 'mode-label', 'bismillah', 'quit', 'speak', 'mic-btn', 'retry-ayah', 'combo'].forEach(function (id) {
+    el[id] = document.getElementById(id);
+  });
+
+  if (!TQ.requireProfile()) return;
+
+  /* ---------- build ---------- */
+  function buildQuestions() {
+    S.questions = [];
+    S.ayahs.forEach(function (ay, ai) {
+      var text = MODE === 'arti' ? ay.tr : ay.ar;
+      var words = text.split(/\s+/)
+        .map(function (w) { return w.replace(/^[\u06D6-\u06ED\u08F0-\u08F3\u0670]+/, '').trim(); })
+        .filter(function (w) { return w && /[\u0621-\u064A]/.test(w) || (MODE === 'arti' && /[A-Za-z0-9]/.test(w)); });
+      if (!words.length) return;
+      var size = words.length <= CHUNK + 2 ? words.length : CHUNK;
+      for (var i = 0; i < words.length; i += size) {
+        var tokens = words.slice(i, i + size);
+        S.questions.push({ ai: ai, from: i, to: i + tokens.length, tokens: tokens });
+      }
+    });
+  }
+
+  function currentQ() { return S.questions[S.qi]; }
+
+  /* ---------- render ---------- */
+  function renderHearts() {
+    el.hearts.innerHTML = '';
+    for (var i = 0; i < MAX_HEARTS; i++) {
+      var s = document.createElement('span');
+      s.className = 'h' + (i < S.hearts ? '' : ' off');
+      s.textContent = '♥';
+      el.hearts.appendChild(s);
+    }
+    el.hearts.setAttribute('aria-label', 'Nyawa ' + S.hearts + ' dari ' + MAX_HEARTS);
+  }
+
+  function renderAyat() {
+    var q = currentQ();
+    if (!q) return;
+    var ay = S.ayahs[q.ai];
+    el.step.textContent = 'Ayat ' + ay.i + ' · ' + (q.ai + 1) + '/' + S.ayahs.length;
+
+    var no = document.getElementById('ayah-no');
+    if (no) no.textContent = 'Ayat ' + ay.i;
+
+    if (MODE === 'arti') {
+      // teks Arab jadi petunjuk, jawaban (arti) disusun di kotak
+      el['ayat-lines'].style.display = 'block';
+      el['ayat-lines'].innerHTML = '<p class="ayat-line ar">' + ay.ar + '</p>';
+      el.slots.setAttribute('dir', 'ltr');
+      el.slots.classList.remove('rtl');
+    } else {
+      // susun ayat: kotak kosong, kata naik hanya kalau pilihan benar
+      el['ayat-lines'].style.display = 'none';
+      el['ayat-lines'].innerHTML = '';
+      el.slots.setAttribute('dir', 'rtl');
+      el.slots.classList.add('rtl');
+    }
+  }
+
+  function renderSlots() {
+    var q = currentQ();
+    el.slots.innerHTML = '';
+    if (!q) return;
+    var count = document.getElementById('slot-count');
+    if (count) count.textContent = S.picked.length + '/' + q.tokens.length + ' kata';
+    var hw = document.getElementById('hint-word');
+    if (hw) {
+      var next = q.tokens[S.picked.length];
+      hw.textContent = '';
+      hw.className = 'hint-word' + (MODE === 'arti' ? '' : ' ar');
+    }
+    q.tokens.forEach(function (tok, i) {
+      var slot = document.createElement('div');
+      slot.className = 'slot';
+      slot.dataset.i = i;
+      var arCls = MODE === 'arti' ? '' : ' ar';
+      if (i < S.picked.length) {
+        slot.classList.add('filled');
+        var t = document.createElement('span');
+        t.className = 'tile' + arCls;
+        t.textContent = S.picked[i];
+        slot.appendChild(t);
+      } else {
+        if (LEVEL === 1) {
+          // level 1: ayat tampil berbayang di kotak
+          slot.classList.add('ghosted');
+          var g = document.createElement('span');
+          g.className = 'ghost' + arCls;
+          g.textContent = tok;
+          slot.appendChild(g);
+        }
+        var n = document.createElement('span');
+        n.className = 'num';
+        n.textContent = i + 1;
+        slot.appendChild(n);
+      }
+      slot.style.minHeight = MODE === 'arti' ? '' : '52px';
+      el.slots.appendChild(slot);
+    });
+  }
+
+  var suppressClick = false;
+
+  function makeDraggable(b, token) {
+    b.addEventListener('pointerdown', function (e) {
+      if (S.done || e.button > 0) return;
+      if (b.classList.contains('used')) return;
+      var pid = e.pointerId, sx = e.clientX, sy = e.clientY;
+      var ghost = null, dragging = false;
+      try { b.setPointerCapture(pid); } catch (err) {}
+      function blockScroll(ev) { if (dragging) ev.preventDefault(); }
+
+      function move(ev) {
+        if (ev.pointerId !== pid) return;
+        if (!dragging) {
+          if (Math.abs(ev.clientX - sx) < 8 && Math.abs(ev.clientY - sy) < 8) return;
+          dragging = true;
+          ghost = document.createElement('div');
+          ghost.className = 'tile drag-ghost' + (MODE === 'arti' ? '' : ' ar');
+          ghost.textContent = token;
+          document.body.appendChild(ghost);
+          b.classList.add('dragging');
+          document.addEventListener('touchmove', blockScroll, { passive: false });
+        }
+        ev.preventDefault();
+        ghost.style.transform = 'translate(' + ev.clientX + 'px,' + ev.clientY + 'px) translate(-50%,-50%)';
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slot = under && under.closest ? under.closest('.slot') : null;
+        Array.prototype.forEach.call(document.querySelectorAll('.slot.over'), function (x) { x.classList.remove('over'); });
+        if (slot && !slot.classList.contains('filled')) slot.classList.add('over');
+      }
+
+      function up(ev) {
+        if (ev.pointerId !== pid) return;
+        window.removeEventListener('pointermove', move);
+        window.removeEventListener('pointerup', up);
+        window.removeEventListener('pointercancel', up);
+        if (!dragging) return;
+        dragging = false;
+        b.classList.remove('dragging');
+        document.removeEventListener('touchmove', blockScroll);
+        if (ghost) ghost.remove();
+        Array.prototype.forEach.call(document.querySelectorAll('.slot.over'), function (x) { x.classList.remove('over'); });
+        suppressClick = true;
+        setTimeout(function () { suppressClick = false; }, 60);
+        var under = document.elementFromPoint(ev.clientX, ev.clientY);
+        var slot = under && under.closest ? under.closest('.slot') : null;
+        if (slot && !slot.classList.contains('filled')) tap(b, token);
+      }
+
+      window.addEventListener('pointermove', move, { passive: false });
+      window.addEventListener('pointerup', up);
+      window.addEventListener('pointercancel', up);
+      b.addEventListener('lostpointercapture', up, { once: true });
+    });
+  }
+
+  function renderBank() {
+    var q = currentQ();
+    el.bank.innerHTML = '';
+    if (!q) return;
+    var order = q.order || (q.order = TQ.shuffle(q.tokens));
+    order.forEach(function (t) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'tile' + (MODE === 'arti' ? '' : ' ar');
+      b.textContent = t;
+      var usedCount = S.picked.filter(function (x) { return x === t; }).length;
+      var total = q.tokens.filter(function (x) { return x === t; }).length;
+      if (usedCount >= total) b.classList.add('used');
+      b.onclick = function () { if (!suppressClick) tap(b, t); };
+      makeDraggable(b, t);
+      el.bank.appendChild(b);
+    });
+  }
+
+  function renderProgress() {
+    var q = currentQ();
+    var frac = q && q.tokens.length ? S.picked.length / q.tokens.length : 0;
+    var pct = S.questions.length ? ((S.qi + frac) / S.questions.length) * 100 : 0;
+    el.bar.style.width = Math.min(100, pct) + '%';
+    el.score.textContent = S.score;
+    var c = document.getElementById('combo');
+    if (c) {
+      if (S.combo >= 5) { c.hidden = false; c.querySelector('b').textContent = S.combo; }
+      else c.hidden = true;
+    }
+  }
+
+  function render() {
+    stopAudio();
+    renderHearts(); renderAyat(); renderSlots(); renderBank(); renderProgress();
+  }
+
+  /* ---------- interaction ---------- */
+  function tap(btn, token) {
+    if (S.done) return;
+    var q = currentQ();
+    if (!q) return;
+    var expected = q.tokens[S.picked.length];
+
+    if (token === expected) {
+      S.picked.push(token);
+      S.combo++;
+      S.maxCombo = Math.max(S.maxCombo, S.combo);
+      var bonus = S.combo >= 5 ? 5 * Math.min(4, Math.floor(S.combo / 5)) : 0;
+      S.score += 10 + bonus;
+      if (TQ.sfx.combo) TQ.sfx.combo(S.combo); else TQ.sfx.ok();
+      if (TQ.haptic) TQ.haptic.ok();
+      if (S.combo > 0 && S.combo % 5 === 0) {
+        el.mascot.classList.add('happy');
+        setTimeout(function () { el.mascot.classList.remove('happy'); }, 600);
+        if (TQ.praiseRandom) TQ.praiseRandom('ok');
+        if (TQ.sfx.star) TQ.sfx.star(2);
+        TQ.popup({
+          icon: '🔥',
+          title: 'Combo ' + S.combo + '!',
+          text: S.combo + ' benar berturut-turut. Bonus +' + bonus + ' skor.',
+          good: true,
+          actions: [{ label: 'Lanjut' }]
+        });
+      }
+      if (S.picked.length >= q.tokens.length) {
+        setTimeout(nextQuestion, 320);
+      }
+      render();
+    } else {
+      S.hearts--;
+      S.wrong++;
+      S.combo = 0;
+      TQ.sfx.bad();
+      if (TQ.haptic) TQ.haptic.bad();
+      if (TQ.praiseRandom) TQ.praiseRandom('retry');
+      if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
+      el.mascot.classList.add('sad');
+      setTimeout(function () { el.mascot.classList.remove('sad'); }, 900);
+      renderHearts();
+      var now = Date.now();
+      if (now - S.lastBadAt > 1400) {
+        S.lastBadAt = now;
+        TQ.popup({
+          icon: '💔',
+          title: 'Salah pilih?',
+          text: 'Nyawa berkurang. Coba kata berikutnya.',
+          bad: true,
+          actions: [{ label: 'Coba lagi' }]
+        });
+      }
+      if (S.hearts <= 0) finish(false);
+    }
+  }
+
+  function nextQuestion() {
+    S.picked = [];
+    S.qi++;
+    if (S.qi >= S.questions.length) { finish(true); return; }
+    render();
+  }
+
+  /* ---------- finish ---------- */
+  function finish(passed) {
+    if (S.done) return;
+    S.done = true;
+    var stars = passed ? (S.hearts >= 5 ? 3 : S.hearts >= 3 ? 2 : 1) : 0;
+    var firstClear = passed && TQ.stageStars(SURAH, MODE, LEVEL, STAGE) === 0;
+    var points = firstClear ? Math.round(S.score / 10) : 0;
+
+    if (passed) {
+      TQ.setStageStars(SURAH, MODE, LEVEL, stars, STAGE);
+      if (points) TQ.addPoints(points);
+      TQ.bumpStat('levels');
+      // Update daily mission
+      try {
+        var tk = new Date().toISOString().slice(0, 10);
+        var ds = JSON.parse(localStorage.getItem('tq_daily_' + tk) || '{}');
+        ds.d_levels = (ds.d_levels || 0) + 1;
+        localStorage.setItem('tq_daily_' + tk, JSON.stringify(ds));
+      } catch (e) {}
+      TQ.bumpStat('ayahs', S.ayahs.length);
+      TQ.bumpStat('heartsLost', MAX_HEARTS - S.hearts);
+      if (S.maxCombo > (TQ.stats().bestCombo || 0)) TQ.bumpStat('bestCombo', S.maxCombo - (TQ.stats().bestCombo || 0));
+      if (TQ.sfx.fanfare) TQ.sfx.fanfare(); else TQ.sfx.win();
+      if (TQ.haptic) TQ.haptic.win();
+      if (TQ.praise) TQ.praise('Masya Allah! Stage selesai.', true);
+    } else {
+      TQ.sfx.lose();
+      if (TQ.haptic) TQ.haptic.bad();
+      if (TQ.praise) TQ.praise('Ayo coba lagi ya!', true);
+    }
+
+    var payload = {
+      surah: SURAH, juz: JUZ, mode: MODE, level: LEVEL,
+      name: S.meta ? S.meta.name : '', ar: S.meta ? S.meta.ar : '',
+      score: S.score, points: points, stars: stars, passed: passed,
+      hearts: S.hearts, combo: S.maxCombo, wrong: S.wrong,
+      ayahs: S.ayahs.length, ayahsDone: passed ? S.ayahs.length : 0,
+      stage: STAGE, stages: S.stages || 1,
+      fromAyah: S.ayahs.length ? S.ayahs[0].i : 0,
+      toAyah: S.ayahs.length ? S.ayahs[S.ayahs.length - 1].i : 0
+    };
+    try { sessionStorage.setItem('tq_last', JSON.stringify(payload)); } catch (e) {}
+    location.href = 'result.html';
+  }
+
+  /* ---------- audio ---------- */
+  var curAudio = null;
+  function stopAudio() {
+    if (curAudio) {
+      curAudio.pause();
+      curAudio.currentTime = 0;
+      curAudio = null;
+    }
+    if (el.speak) el.speak.textContent = '🔊';
+  }
+
+  function speak() {
+    if (curAudio && !curAudio.paused) {
+      stopAudio();
+      return;
+    }
+    stopAudio();
+
+    var q = currentQ();
+    if (!q || !S.meta) return;
+    var ay = S.ayahs[q.ai];
+    var global = (S.meta.offset || 0) + ay.i;
+    var url = 'https://cdn.islamic.network/quran/audio/128/ar.alafasy/' + global + '.mp3';
+    if (el.speak) el.speak.textContent = '⏳';
+    var a = TQ.playAudio ? TQ.playAudio(url, el.speak) : new Audio(url);
+    if (!a) {
+      if (el.speak) el.speak.textContent = '🔊';
+      return;
+    }
+    a.volume = 0.9;
+    curAudio = a;
+    a.onended = function () {
+      if (curAudio === a) curAudio = null;
+      if (el.speak) el.speak.textContent = '🔊';
+    };
+    a.play().then(function () {
+      if (el.speak) el.speak.textContent = '⏹️';
+    }).catch(function () {
+      if (curAudio === a) curAudio = null;
+      if (el.speak) el.speak.textContent = '🔊';
+      TQ.popup({ icon: '🔇', title: 'Audio tidak bisa diputar', text: 'Butuh internet untuk memutar bacaan.', bad: true, actions: [{ label: 'Oke' }] });
+    });
+  }
+
+  /* ---------- boot ---------- */
+  Promise.all([Quran.surah(SURAH), Quran.surahMeta()]).then(function (res) {
+    var d = res[0], meta = res[1];
+    S.meta = meta[SURAH - 1];
+
+    Quran.juzList().then(function (list) {
+      // stage per 10 ayat: stage 1 = ayat 1-10, stage 2 = 11-20, dst.
+      S.total = d.ayahs.length;
+      S.stages = Math.max(1, Math.ceil(S.total / PAGE));
+      if (!STAGE) {
+        STAGE = 1;
+        for (var si = 1; si <= S.stages; si++) {
+          if (!TQ.stageStars(SURAH, MODE, LEVEL, si)) { STAGE = si; break; }
+        }
+      }
+      if (STAGE > S.stages) STAGE = S.stages;
+      var from = (STAGE - 1) * PAGE;
+      S.ayahs = d.ayahs.slice(from, from + PAGE);
+
+      if (!S.ayahs.length) {
+        TQ.popup({ icon: '⚠️', title: 'Data ayat kosong', text: 'Coba pilih surah lain.', bad: true, actions: [{ label: 'Kembali', onClick: function () { location.href = 'surah.html?juz=' + JUZ; } }] });
+        return;
+      }
+
+      // global ayah offset for audio (field di surah-meta adalah 'ayat')
+      var offset = 0;
+      for (var i = 0; i < SURAH - 1; i++) offset += (meta[i].ayat || meta[i].ayahs || 0);
+      S.meta.offset = offset;
+
+      el['g-title'].textContent = S.meta.name;
+      el['g-ar'].textContent = S.meta.ar;
+      el['surah-label'].textContent = 'سورة ' + S.meta.ar;
+      el['mode-label'].textContent = (MODE === 'arti' ? 'Susun Arti' : 'Susun Ayat') + ' · Level ' + LEVEL +
+        ' · Stage ' + STAGE + '/' + S.stages;
+      el.bismillah.style.display = (SURAH === 1 && S.ayahs[0].i === 1 && MODE === 'ayat') ? 'block' : 'none';
+      document.title = S.meta.name + ' — Tilawah Quest';
+      el.quit.href = 'surah.html?juz=' + JUZ + '&mode=' + MODE;
+      if (!S.total) S.total = S.ayahs.length;
+      el.mascot.innerHTML = '';
+      el.mascot.appendChild(TQ.mascot(56));
+
+      buildQuestions();
+      render();
+
+      el.speak.onclick = speak;
+
+      /* --- Mode Suara: plugin native Android (Capacitor) atau Web Speech API --- */
+      var nativeSR = (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition) || null;
+      var WebSR = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      function cleanArabic(str) {
+        return (str || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').trim();
+      }
+
+      function handleSpoken(spokenList) {
+        var bankTiles = el.bank.querySelectorAll('.word-tile');
+        var i, j, tile, tileText, spokenClean, match = false;
+        for (j = 0; j < spokenList.length && !match; j++) {
+          spokenClean = cleanArabic(spokenList[j]);
+          if (!spokenClean) continue;
+          for (i = 0; i < bankTiles.length; i++) {
+            tile = bankTiles[i];
+            if (tile.classList.contains('used')) continue;
+            tileText = cleanArabic(tile.textContent);
+            if (tileText && (tileText === spokenClean || spokenClean.indexOf(tileText) > -1)) {
+              match = true;
+              tile.click();
+              break;
+            }
+          }
+        }
+        if (!match) {
+          TQ.sfx.wrong();
+          TQ.popup({
+            icon: '\uD83D\uDC42',
+            title: 'Terdengar: "' + (spokenList[0] || '') + '"',
+            text: 'Kata belum cocok. Coba sebutkan kata Arab berikutnya dengan jelas.',
+            bad: true
+          });
+        }
+      }
+
+      var micListening = false;
+      function setMicState(on) {
+        if (!el['mic-btn']) return;
+        micListening = on;
+        el['mic-btn'].textContent = on ? '\uD83D\uDD34 Dengar...' : '\uD83C\uDFA4 Suara';
+        el['mic-btn'].style.borderColor = on ? '#E24A4A' : '';
+      }
+
+      /* --- jalur browser: Web Speech API --- */
+      var webRecognizer = null;
+      function startWeb() {
+        if (!WebSR) {
+          TQ.popup({
+            icon: '\u2139\uFE0F',
+            title: 'Suara Belum Didukung',
+            text: 'Perangkat ini belum mendukung pengenalan suara. Fitur lain tetap bisa dimainkan.',
+            bad: true
+          });
+          return;
+        }
+        if (!webRecognizer) {
+          webRecognizer = new WebSR();
+          webRecognizer.lang = 'ar-SA';
+          webRecognizer.interimResults = false;
+          webRecognizer.maxAlternatives = 3;
+          webRecognizer.onstart = function () { setMicState(true); };
+          webRecognizer.onend = function () { setMicState(false); };
+          webRecognizer.onerror = function (err) {
+            setMicState(false);
+            var msg = 'Pastikan izin mikrofon sudah aktif.';
+            if (err && err.error === 'not-allowed') msg = 'Akses mikrofon ditolak. Buka setelan izin lalu izinkan mic.';
+            else if (err && err.error === 'no-speech') msg = 'Tidak ada suara yang terdeteksi. Coba bicara lebih dekat ke mic.';
+            TQ.popup({ icon: '\uD83C\uDF99\uFE0F', title: 'Kendala Suara', text: msg, bad: true });
+          };
+          webRecognizer.onresult = function (ev) {
+            if (!ev.results || !ev.results[0]) return;
+            var alts = [];
+            for (var a = 0; a < ev.results[0].length; a++) {
+              alts.push((ev.results[0][a].transcript || '').trim());
+            }
+            handleSpoken(alts);
+          };
+        }
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            try { webRecognizer.start(); } catch (e) {}
+          }).catch(function () {
+            TQ.popup({
+              icon: '\uD83C\uDF99\uFE0F',
+              title: 'Izin Mic Diperlukan',
+              text: 'Izinkan akses mikrofon untuk memakai fitur tebak suara.',
+              bad: true
+            });
+          });
+        } else {
+          try { webRecognizer.start(); } catch (e) {
+            TQ.popup({ icon: '\u26A0\uFE0F', title: 'Tidak bisa memulai mic', text: 'Tutup aplikasi lain yang memakai mikrofon, lalu coba lagi.', bad: true });
+          }
+        }
+      }
+
+      /* --- jalur native APK Android: SpeechRecognizer --- */
+      function startNative() {
+        setMicState(true);
+        nativeSR.start({ language: 'ar-SA', maxResults: 3 }).then(function (res) {
+          setMicState(false);
+          var list = [];
+          if (res && res.matches && res.matches.length) {
+            list = res.matches.filter(function (x) { return !!x; });
+          } else if (res && res.text) {
+            list = [res.text];
+          }
+          handleSpoken(list);
+        }).catch(function (err) {
+          setMicState(false);
+          var msg = (err && err.message) ? String(err.message) : '';
+          if (/unimplemented|not implemented|is not implemented/i.test(msg)) {
+            startWeb();
+            return;
+          }
+          TQ.popup({
+            icon: '\uD83C\uDF99\uFE0F',
+            title: 'Kendala Suara',
+            text: msg || 'Mikrofon tidak bisa digunakan. Coba lagi.',
+            bad: true
+          });
+        });
+      }
+
+      if (el['mic-btn']) {
+        el['mic-btn'].style.display = 'inline-flex';
+        el['mic-btn'].onclick = function () {
+          // Izin mikrofon hanya diminta di titik ini (saat tombol ditekan)
+          if (micListening) {
+            setMicState(false);
+            if (nativeSR) { try { nativeSR.stop(); } catch (e) {} }
+            if (webRecognizer) { try { webRecognizer.stop(); } catch (e) {} }
+            return;
+          }
+          if (nativeSR) startNative();
+          else startWeb();
+        };
+      }
+
+      var ra = document.getElementById('retry-ayah');
+      if (ra) ra.onclick = function () {
+        var q = currentQ();
+        if (!q) return;
+        S.picked = [];
+        S.combo = 0;
+        TQ.sfx.tap();
+        render();
+      };
+      el.quit.onclick = function (e) {
+        if (S.qi > 0 && !S.done) {
+          e.preventDefault();
+          TQ.popup({
+            icon: '🚪', title: 'Keluar sekarang?', text: 'Progres level ini belum disimpan.',
+            actions: [
+              { label: 'Lanjut main', ghost: true },
+              { label: 'Keluar', onClick: function () { location.href = 'surah.html?juz=' + JUZ + '&mode=' + MODE; } }
+            ]
+          });
+        }
+      };
+    });
+  }).catch(function (e) {
+    el['ayat-lines'].innerHTML = '<p class="muted">Gagal memuat ayat. <a href="play.html?juz=' + JUZ + '&surah=' + SURAH + '&mode=' + MODE + '&level=' + LEVEL + '">Muat ulang</a></p>';
+  });
+})();

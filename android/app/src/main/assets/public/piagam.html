@@ -4,8 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hall of Fame Piagam — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=53">
-<link rel="stylesheet" href="css/screens.css?v=53">
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -61,7 +61,7 @@
   </section>
 </main>
 
-<script src="js/app.js?v=53"></script>
+<script src="js/app.js?v=56"></script>
 <script>
 (function () {
   var p = TQ.profile() || { name: 'Santri Cilik' };
@@ -123,6 +123,11 @@
       selectedCert = 'gold';
       renderGrid();
       renderCertificate();
+      if (allKhatam) {
+        if (TQ.sfx.grand) TQ.sfx.grand();
+        if (TQ.haptic) TQ.haptic.grand();
+        if (TQ.praise) TQ.praise('Piagam emas kamu terbuka!', true);
+      }
     };
     grid.appendChild(goldCard);
 
@@ -140,6 +145,10 @@
           selectedCert = jNum;
           renderGrid();
           renderCertificate();
+          if (unl) {
+            if (TQ.sfx.grand) TQ.sfx.grand();
+            if (TQ.haptic) TQ.haptic.grand();
+          }
         };
         grid.appendChild(item);
       })(i);

@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Pilih Surah — Tilawah Quest</title>
+<link rel="stylesheet" href="css/app.css?v=56">
+<link rel="stylesheet" href="css/screens.css?v=56">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#DDF1FA">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800;900&family=Amiri+Quran&display=swap" rel="stylesheet">
+</head>
+<body>
+<main class="screen">
+  <div class="appbar">
+    <a class="iconbtn" href="juz.html" aria-label="Kembali">←</a>
+    <div class="titles">
+      <b id="jtitle">Juz 30</b>
+      <span id="jsub">An-Naba – An-Nas</span>
+    </div>
+    <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
+  </div>
+
+  <div class="tip">Mau susun ayat atau artinya?</div>
+
+  <div class="modes" role="group" aria-label="Pilih mode">
+    <button class="mode" data-mode="ayat" aria-pressed="true">
+      <b>📖 Susun Ayat</b>
+      <span>Kata Arab ke urutan mushaf</span>
+    </button>
+    <button class="mode" data-mode="arti" aria-pressed="false">
+      <b>💬 Susun Arti</b>
+      <span>Arti di bawah ayat</span>
+    </button>
+  </div>
+
+  <section id="list" aria-live="polite">
+    <div class="muted center" style="padding:26px 0">Memuat surah…</div>
+  </section>
+</main>
+
+<script src="js/app.js?v=56"></script>
+<script src="js/quran.js?v=56"></script>
+<script>
+(function () {
+  if (!TQ.requireProfile()) return;
+  var params = new URLSearchParams(location.search);
+  var juzNo = +(params.get('juz') || 30);
+  var mode = params.get('mode') === 'arti' ? 'arti' : 'ayat';
+  var juz = null, meta = null;
+
+  TQ.qs('#pts').textContent = TQ.fmt(TQ.points());
+
+  function paintModes() {
+    Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) {
+      b.setAttribute('aria-pressed', String(b.dataset.mode === mode));
+    });
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('.mode'), function (b) {
+    b.onclick = function () {
+      mode = b.dataset.mode;
+      TQ.sfx.tap();
+      paintModes();
+      var u = new URL(location.href);
+      u.searchParams.set('mode', mode);
+      history.replaceState(null, '', u);
+      render();
+    };
+  });
+
+  function stars(n) {
+    var s = Math.round(n);
+    return '★★★'.slice(0, s) + '☆☆☆'.slice(0, 3 - s);
+  }
+
+  function render() {
+    var box = TQ.qs('#list');
+    box.innerHTML = '';
+    var prevDone = true;
+
+    juz.surahs.forEach(function (s, idx) {
+      var m = meta[s.n - 1];
+      var l1 = TQ.stageStars(s.n, mode, 1);
+      var l2 = TQ.stageStars(s.n, mode, 2);
+      var locked = false;
+      var totSt = Math.max(1, Math.ceil(m.ayat / 10));
+      var d1 = TQ.levelStagesDone(s.n, mode, 1);
+      var d2 = TQ.levelStagesDone(s.n, mode, 2);
+      var l1ok = l1 > 0 || d1 > 0;
+
+      var card = document.createElement('article');
+      card.className = 'surah';
+      card.innerHTML =
+        '<div class="surah-top">' +
+          '<div class="sn">' + s.n + '</div>' +
+          '<div class="st"><b>' + m.name + '</b><small>' + (s.to - s.from + 1) + ' ayat · ' + Math.max(1, Math.ceil(m.ayat / 10)) + ' stage · ' + (m.type === 'Meccan' ? 'Makkiyah' : 'Madaniyah') + '</small></div>' +
+          '<div class="ar">' + m.ar + '</div>' +
+        '</div>' +
+        '<div class="levels">' +
+          '<button class="lv' + (l1ok ? ' done' : '') + '" data-n="' + s.n + '" data-l="1" ' + (locked ? 'disabled' : '') + '>' +
+            (locked ? '🔒' : '1') +
+            '<small>' + (locked ? 'TERKUNCI' : (d1 ? (d1 + '/' + totSt + ' STAGE') : 'ADA BAYANGAN')) + '</small>' +
+            (l1 ? '<span class="stars">' + stars(l1) + '</span>' : '') +
+          '</button>' +
+          '<button class="lv' + (d2 ? ' done' : (l1ok ? '' : ' lock')) + '" data-n="' + s.n + '" data-l="2" ' + (!l1ok ? 'disabled' : '') + '>' +
+            (!l1ok ? '🔒' : '2') +
+            '<small>' + (!l1ok ? 'TERKUNCI' : (d2 ? (d2 + '/' + totSt + ' STAGE') : 'TANPA BAYANGAN')) + '</small>' +
+            (l2 ? '<span class="stars">' + stars(l2) + '</span>' : '') +
+          '</button>' +
+        '</div>';
+
+      box.appendChild(card);
+      prevDone = l1 > 0;
+    });
+
+    box.onclick = function (e) {
+      var b = e.target.closest('.lv');
+      if (!b || b.disabled) return;
+      TQ.sfx.tap();
+      location.href = 'play.html?juz=' + juzNo + '&surah=' + b.dataset.n + '&mode=' + mode + '&level=' + b.dataset.l;
+    };
+  }
+
+  Promise.all([Quran.juzList(), Quran.surahMeta()]).then(function (res) {
+    var list = res[0]; meta = res[1];
+    juz = list.find(function (x) { return x.j === juzNo; }) || list[list.length - 1];
+    juzNo = juz.j;
+    var first = meta[juz.surahs[0].n - 1].name;
+    var last = meta[juz.surahs[juz.surahs.length - 1].n - 1].name;
+    TQ.qs('#jtitle').textContent = 'Juz ' + juz.j;
+    TQ.qs('#jsub').textContent = first + ' – ' + last;
+    document.title = 'Juz ' + juz.j + ' — Tilawah Quest';
+    paintModes();
+    render();
+  }).catch(function () {
+    TQ.qs('#list').innerHTML = '<div class="muted center" style="padding:26px 0">Data gagal dimuat. <a href="surah.html?juz=' + juzNo + '">Muat ulang</a></div>';
+  });
+})();
+</script>
+</body>
+</html>

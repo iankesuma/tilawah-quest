@@ -240,10 +240,13 @@
       S.maxCombo = Math.max(S.maxCombo, S.combo);
       var bonus = S.combo >= 5 ? 5 * Math.min(4, Math.floor(S.combo / 5)) : 0;
       S.score += 10 + bonus;
-      TQ.sfx.ok();
+      if (TQ.sfx.combo) TQ.sfx.combo(S.combo); else TQ.sfx.ok();
+      if (TQ.haptic) TQ.haptic.ok();
       if (S.combo > 0 && S.combo % 5 === 0) {
         el.mascot.classList.add('happy');
         setTimeout(function () { el.mascot.classList.remove('happy'); }, 600);
+        if (TQ.praiseRandom) TQ.praiseRandom('ok');
+        if (TQ.sfx.star) TQ.sfx.star(2);
         TQ.popup({
           icon: '🔥',
           title: 'Combo ' + S.combo + '!',
@@ -261,6 +264,8 @@
       S.wrong++;
       S.combo = 0;
       TQ.sfx.bad();
+      if (TQ.haptic) TQ.haptic.bad();
+      if (TQ.praiseRandom) TQ.praiseRandom('retry');
       if (btn) { btn.classList.add('shake'); setTimeout(function () { btn.classList.remove('shake'); }, 400); }
       el.mascot.classList.add('sad');
       setTimeout(function () { el.mascot.classList.remove('sad'); }, 900);
@@ -309,9 +314,13 @@
       TQ.bumpStat('ayahs', S.ayahs.length);
       TQ.bumpStat('heartsLost', MAX_HEARTS - S.hearts);
       if (S.maxCombo > (TQ.stats().bestCombo || 0)) TQ.bumpStat('bestCombo', S.maxCombo - (TQ.stats().bestCombo || 0));
-      TQ.sfx.win();
+      if (TQ.sfx.fanfare) TQ.sfx.fanfare(); else TQ.sfx.win();
+      if (TQ.haptic) TQ.haptic.win();
+      if (TQ.praise) TQ.praise('Masya Allah! Stage selesai.', true);
     } else {
       TQ.sfx.lose();
+      if (TQ.haptic) TQ.haptic.bad();
+      if (TQ.praise) TQ.praise('Ayo coba lagi ya!', true);
     }
 
     var payload = {
