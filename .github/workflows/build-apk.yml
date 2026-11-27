@@ -42,6 +42,8 @@ jobs:
 
       - name: Build Debug APK
         run: |
+          node sync_www.js
+          npx cap sync android
           cd android
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
@@ -60,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/') || github.ref == 'refs/heads/main'
         with:
-          tag_name: v1.0.5-apk
-          name: "Tilawah Quest v1.0.5 APK (WebViewAssetLoader Offline Standard)"
-          body: "Implementasi standar resmi Google AndroidX WebViewAssetLoader. Seluruh aset HTML/JS/CSS/JSON dipetakan langsung dari storage APK tanpa ketergantungan web server localhost."
+          tag_name: v1.0.6-apk
+          name: "Tilawah Quest v1.0.6 APK (Standard Native Capacitor)"
+          body: "Kembali ke arsitektur native standar Capacitor tanpa custom WebViewClient overrides. Aset www/ disinkronkan ke assets/public/index.html."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

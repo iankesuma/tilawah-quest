@@ -1,12 +1,5 @@
 {
   "appId": "com.iankesuma.tilawahquest",
   "appName": "Tilawah Quest",
-  "webDir": "www",
-  "bundledWebRuntime": false,
-  "server": {
-    "androidScheme": "https"
-  },
-  "android": {
-    "allowMixedContent": true
-  }
+  "webDir": "www"
 }
