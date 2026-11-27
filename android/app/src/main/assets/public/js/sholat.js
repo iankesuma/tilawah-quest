@@ -195,6 +195,9 @@
     cityName = saved.city || '';
     load(saved.lat, saved.lng, saved.city);
   } else {
-    askLocation();
+    // Jangan minta izin lokasi otomatis. Tampilkan jadwal kota default dulu,
+    // izin GPS hanya diminta saat anak menekan tombol "Pakai lokasi saya".
+    setStatus('Tekan "Pakai lokasi saya" untuk jadwal sesuai kotamu, atau pilih kota manual.');
+    load(-6.2088, 106.8456, 'Jakarta (contoh)');
   }
 })();

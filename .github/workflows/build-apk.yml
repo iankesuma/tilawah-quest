@@ -62,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.8-apk
-          name: "Tilawah Quest v1.0.8 APK (Location Permissions Fixed)"
-          body: "Menambahkan izin ACCESS_FINE_LOCATION & ACCESS_COARSE_LOCATION dan mengaktifkan WebChromeClient GeolocationPermissions di Android native."
+          tag_name: v1.0.9-apk
+          name: "Tilawah Quest v1.0.9 APK (On-Demand Mic & GPS)"
+          body: "Izin mikrofon hanya diminta saat tombol suara ditekan (plugin SpeechRecognizer native), izin lokasi hanya diminta saat menekan tombol lokasi di menu jadwal sholat. Tidak ada permintaan izin saat aplikasi dibuka."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

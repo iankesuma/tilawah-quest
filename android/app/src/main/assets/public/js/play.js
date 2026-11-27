@@ -418,83 +418,147 @@
 
       el.speak.onclick = speak;
 
-      /* --- Web Speech Recognition (Mode Suara) --- */
-      var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-      if (el['mic-btn']) {
-        el['mic-btn'].style.display = 'inline-flex';
-        if (!SpeechRecognition) {
-          el['mic-btn'].onclick = function () {
-            TQ.popup({
-              icon: 'ℹ️',
-              title: 'Browser Belum Mendukung',
-              text: 'Fitur input suara butuh browser Google Chrome (di Android atau PC) dan izin akses mikrofon.',
-              bad: true
-            });
-          };
-        } else {
-          var recognizer = new SpeechRecognition();
-          recognizer.lang = 'ar-SA';
-          recognizer.interimResults = false;
-          recognizer.maxAlternatives = 3;
+      /* --- Mode Suara: plugin native Android (Capacitor) atau Web Speech API --- */
+      var nativeSR = (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.SpeechRecognition) || null;
+      var WebSR = window.SpeechRecognition || window.webkitSpeechRecognition;
 
-          var listening = false;
-          recognizer.onstart = function () {
-            listening = true;
-            el['mic-btn'].textContent = '🔴 Dengar...';
-            el['mic-btn'].style.borderColor = '#E24A4A';
-          };
-          recognizer.onend = function () {
-            listening = false;
-            el['mic-btn'].textContent = '🎤 Suara';
-            el['mic-btn'].style.borderColor = '';
-          };
-          recognizer.onerror = function (err) {
-            listening = false;
-            el['mic-btn'].textContent = '🎤 Suara';
-            el['mic-btn'].style.borderColor = '';
-            var msg = 'Pastikan izin mikrofon sudah aktif.';
-            if (err && err.error === 'not-allowed') msg = 'Akses mikrofon ditolak oleh browser. Buka setelan izin web dan izinkan mic.';
-            else if (err && err.error === 'no-speech') msg = 'Tidak ada suara yang terdeteksi. Coba bicara lebih dekat ke mic.';
-            TQ.popup({ icon: '🎙️', title: 'Kendala Suara', text: msg, bad: true });
-          };
-          recognizer.onresult = function (ev) {
-            if (!ev.results || !ev.results[0]) return;
-            var spoken = ev.results[0][0].transcript.trim();
-            var clean = function (str) {
-              return (str || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').trim();
-            };
-            var spokenClean = clean(spoken);
-            var match = false;
+      function cleanArabic(str) {
+        return (str || '').replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '').trim();
+      }
 
-            var bankTiles = el.bank.querySelectorAll('.word-tile');
-            for (var i = 0; i < bankTiles.length; i++) {
-              var tile = bankTiles[i];
-              var tileText = tile.textContent.trim();
-              if (clean(tileText) === spokenClean || spokenClean.indexOf(clean(tileText)) > -1) {
-                match = true;
-                tile.click();
-                break;
-              }
+      function handleSpoken(spokenList) {
+        var bankTiles = el.bank.querySelectorAll('.word-tile');
+        var i, j, tile, tileText, spokenClean, match = false;
+        for (j = 0; j < spokenList.length && !match; j++) {
+          spokenClean = cleanArabic(spokenList[j]);
+          if (!spokenClean) continue;
+          for (i = 0; i < bankTiles.length; i++) {
+            tile = bankTiles[i];
+            if (tile.classList.contains('used')) continue;
+            tileText = cleanArabic(tile.textContent);
+            if (tileText && (tileText === spokenClean || spokenClean.indexOf(tileText) > -1)) {
+              match = true;
+              tile.click();
+              break;
             }
-            if (!match) {
-              TQ.sfx.wrong();
-              TQ.popup({ icon: '👂', title: 'Terdengar: "' + spoken + '"', text: 'Kata belum cocok dengan pilihan yang tersedia. Coba sebutkan kata arab berikutnya.', bad: true });
-            }
-          };
-
-          el['mic-btn'].onclick = function () {
-            if (listening) {
-              recognizer.stop();
-            } else {
-              try {
-                recognizer.start();
-              } catch (err) {
-                TQ.popup({ icon: '⚠️', title: 'Tidak bisa memulai mic', text: 'Tutup aplikasi lain yang memakai mikrofon, lalu coba lagi.', bad: true });
-              }
-            }
-          };
+          }
+        }
+        if (!match) {
+          TQ.sfx.wrong();
+          TQ.popup({
+            icon: '\uD83D\uDC42',
+            title: 'Terdengar: "' + (spokenList[0] || '') + '"',
+            text: 'Kata belum cocok. Coba sebutkan kata Arab berikutnya dengan jelas.',
+            bad: true
+          });
         }
       }
+
+      var micListening = false;
+      function setMicState(on) {
+        if (!el['mic-btn']) return;
+        micListening = on;
+        el['mic-btn'].textContent = on ? '\uD83D\uDD34 Dengar...' : '\uD83C\uDFA4 Suara';
+        el['mic-btn'].style.borderColor = on ? '#E24A4A' : '';
+      }
+
+      /* --- jalur browser: Web Speech API --- */
+      var webRecognizer = null;
+      function startWeb() {
+        if (!WebSR) {
+          TQ.popup({
+            icon: '\u2139\uFE0F',
+            title: 'Suara Belum Didukung',
+            text: 'Perangkat ini belum mendukung pengenalan suara. Fitur lain tetap bisa dimainkan.',
+            bad: true
+          });
+          return;
+        }
+        if (!webRecognizer) {
+          webRecognizer = new WebSR();
+          webRecognizer.lang = 'ar-SA';
+          webRecognizer.interimResults = false;
+          webRecognizer.maxAlternatives = 3;
+          webRecognizer.onstart = function () { setMicState(true); };
+          webRecognizer.onend = function () { setMicState(false); };
+          webRecognizer.onerror = function (err) {
+            setMicState(false);
+            var msg = 'Pastikan izin mikrofon sudah aktif.';
+            if (err && err.error === 'not-allowed') msg = 'Akses mikrofon ditolak. Buka setelan izin lalu izinkan mic.';
+            else if (err && err.error === 'no-speech') msg = 'Tidak ada suara yang terdeteksi. Coba bicara lebih dekat ke mic.';
+            TQ.popup({ icon: '\uD83C\uDF99\uFE0F', title: 'Kendala Suara', text: msg, bad: true });
+          };
+          webRecognizer.onresult = function (ev) {
+            if (!ev.results || !ev.results[0]) return;
+            var alts = [];
+            for (var a = 0; a < ev.results[0].length; a++) {
+              alts.push((ev.results[0][a].transcript || '').trim());
+            }
+            handleSpoken(alts);
+          };
+        }
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          navigator.mediaDevices.getUserMedia({ audio: true }).then(function (stream) {
+            stream.getTracks().forEach(function (t) { t.stop(); });
+            try { webRecognizer.start(); } catch (e) {}
+          }).catch(function () {
+            TQ.popup({
+              icon: '\uD83C\uDF99\uFE0F',
+              title: 'Izin Mic Diperlukan',
+              text: 'Izinkan akses mikrofon untuk memakai fitur tebak suara.',
+              bad: true
+            });
+          });
+        } else {
+          try { webRecognizer.start(); } catch (e) {
+            TQ.popup({ icon: '\u26A0\uFE0F', title: 'Tidak bisa memulai mic', text: 'Tutup aplikasi lain yang memakai mikrofon, lalu coba lagi.', bad: true });
+          }
+        }
+      }
+
+      /* --- jalur native APK Android: SpeechRecognizer --- */
+      function startNative() {
+        setMicState(true);
+        nativeSR.start({ language: 'ar-SA', maxResults: 3 }).then(function (res) {
+          setMicState(false);
+          var list = [];
+          if (res && res.matches && res.matches.length) {
+            list = res.matches.filter(function (x) { return !!x; });
+          } else if (res && res.text) {
+            list = [res.text];
+          }
+          handleSpoken(list);
+        }).catch(function (err) {
+          setMicState(false);
+          var msg = (err && err.message) ? String(err.message) : '';
+          if (/unimplemented|not implemented|is not implemented/i.test(msg)) {
+            startWeb();
+            return;
+          }
+          TQ.popup({
+            icon: '\uD83C\uDF99\uFE0F',
+            title: 'Kendala Suara',
+            text: msg || 'Mikrofon tidak bisa digunakan. Coba lagi.',
+            bad: true
+          });
+        });
+      }
+
+      if (el['mic-btn']) {
+        el['mic-btn'].style.display = 'inline-flex';
+        el['mic-btn'].onclick = function () {
+          // Izin mikrofon hanya diminta di titik ini (saat tombol ditekan)
+          if (micListening) {
+            setMicState(false);
+            if (nativeSR) { try { nativeSR.stop(); } catch (e) {} }
+            if (webRecognizer) { try { webRecognizer.stop(); } catch (e) {} }
+            return;
+          }
+          if (nativeSR) startNative();
+          else startWeb();
+        };
+      }
+
       var ra = document.getElementById('retry-ayah');
       if (ra) ra.onclick = function () {
         var q = currentQ();

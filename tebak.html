@@ -2,10 +2,10 @@
 <html lang="id">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Tebak Ayat — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=49">
-<link rel="stylesheet" href="css/screens.css?v=41">
+<link rel="stylesheet" href="css/app.css?v=53">
+<link rel="stylesheet" href="css/screens.css?v=53">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
@@ -25,54 +25,46 @@
 .ta-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .ta-stage{font-size:11.5px;font-weight:900;color:#4F7080;background:#F1F8FC;border-radius:10px;padding:5px 9px}
 .ta-hearts{display:flex;gap:3px;font-size:14px;color:#F06A8A}
+.ta-hearts span{color:#F06A8A}
 .ta-hearts .off{color:#D7E4EC}
 .ta-done{background:#F5FBFE;border-radius:16px;padding:14px;display:grid;gap:10px;text-align:center}
 .ta-done h3{margin:0;font-family:var(--font-display);font-size:19px;color:var(--green-d)}
 .ta-done .stars{font-size:26px;color:var(--yellow);letter-spacing:2px}
-.hgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;padding:4px 0 20px}
+.jgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:9px;margin-top:10px}
+.jb{background:#fff;border:2px solid #DCEBF4;border-radius:15px;padding:10px 8px;display:grid;gap:3px;text-align:center;font-family:inherit;cursor:pointer}
+.jb b{font-family:var(--font-display);font-size:16px;color:var(--ink)}
+.jb small{font-size:10.5px;font-weight:800;color:#7C97A5}
+.jb.done{background:#F4FBEA;border-color:#BFE09A}
+.jb.done small{color:var(--green-d)}
+.hgrid{flex:1;min-height:0;overflow-y:auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:6px;padding:4px 0 12px}
 .hn{border:0;border-radius:11px;background:#F1F8FC;color:#4F7080;font-family:inherit;font-size:12.5px;font-weight:900;padding:9px 0;cursor:pointer;position:relative}
 .hn.done{background:#E6F4EA;color:var(--green-d)}
 .hn.now{background:var(--green);color:#fff}
 .hcount{font-size:11.5px;font-weight:800;color:#7C97A5;margin:0 0 6px}
-/* juz picker */
-.juz-pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px}
-.jp{position:relative;background:var(--surface);border-radius:18px;padding:14px 8px 11px;box-shadow:var(--shadow-sm);text-align:center;display:grid;gap:3px;justify-items:center;cursor:pointer;transition:transform .1s;border:0;font-family:inherit}
-.jp:active{transform:scale(.97)}
-.jp b{font-family:var(--font-display);font-size:26px;line-height:1;color:var(--blue)}
-.jp span{font-size:10.5px;font-weight:800;color:#54727F;line-height:1.25;height:26px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.jp .bar{width:100%;height:6px;border-radius:3px;background:#D5E7F0;overflow:hidden;margin-top:7px}
-.jp .bar i{display:block;height:100%;background:var(--green);border-radius:3px;transition:width .3s}
-.jp .pill{margin-top:2px;font-size:10px;padding:4px 7px;color:#3F6273;background:#EAF5FA;border-radius:99px;font-weight:800}
-.jp.alldone b{color:var(--green-text)}
-@media (min-width:600px){.juz-pick{grid-template-columns:repeat(4,1fr)}}
-@media (max-width:360px){.juz-pick{gap:8px} .jp b{font-size:23px}}
+.sheet-act{display:flex;gap:8px;margin:6px 0 4px}
+.sheet-act .btn{flex:1}
 </style>
 </head>
 <body>
 <main class="screen">
   <div class="appbar">
-    <a class="iconbtn" id="back-btn" href="belajar.html" aria-label="Kembali">←</a>
+    <button class="iconbtn" id="back" aria-label="Kembali">←</button>
     <div class="titles"><b>Tebak Ayat</b><span id="prog">Pilih juz</span></div>
     <span class="chip"><span class="star">⭐</span> <b id="pts">0</b></span>
     <button class="iconbtn hidden" id="openlist" aria-label="Pilih stage">☰</button>
   </div>
 
-  <div class="bar hidden" id="pbar-wrap" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
+  <div class="bar hidden" id="barwrap" style="margin-bottom:10px"><i id="pbar" style="width:0%"></i></div>
 
-  <!-- JUZ PICKER -->
-  <section id="juz-screen">
-    <div class="tip">Pilih juz yang mau kamu tebak 👇</div>
-    <div class="juz-pick" id="juz-grid"></div>
+  <section class="card hidden" id="picker">
+    <p class="muted center" style="font-weight:800;font-size:12.5px">Mau tebak ayat dari juz berapa?</p>
+    <div class="jgrid" id="jgrid"></div>
   </section>
 
-  <!-- PLAY SCREEN -->
-  <section class="card ta-card hidden" id="play-screen">
+  <section class="card ta-card hidden" id="game">
     <div class="ta-top">
-      <span class="ta-stage" id="stage-badge">Stage 1</span>
-      <div style="display:flex;align-items:center;gap:6px">
-        <button class="iconbtn small" id="ta-speak" aria-label="Dengarkan bacaan" title="Dengarkan bacaan">🔊</button>
-        <div class="ta-hearts" id="hearts" aria-label="Nyawa"></div>
-      </div>
+      <span class="ta-stage" id="stage-badge">Juz 1 · Stage 1</span>
+      <div class="ta-hearts" id="hearts" aria-label="Nyawa"></div>
     </div>
     <p class="ta-q">Ayat ini dari surah mana?</p>
     <div class="ta-ar" id="ar">…</div>
@@ -89,10 +81,11 @@
     </div>
     <p class="hcount" id="hcount"></p>
     <div class="hgrid" id="hgrid"></div>
+    <div class="sheet-act"><button class="btn ghost small" id="change-juz">Ganti juz</button></div>
   </div>
 </div>
 
-<script src="js/app.js?v=46"></script>
-<script src="js/tebak.js?v=39"></script>
+<script src="js/app.js?v=53"></script>
+<script src="js/tebak.js?v=33"></script>
 </body>
 </html>
