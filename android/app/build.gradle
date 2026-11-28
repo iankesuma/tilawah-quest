@@ -7,8 +7,8 @@ android {
         applicationId "com.iankesuma.tilawahquest"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 15
-        versionName "1.0.15"
+        versionCode 16
+        versionName "1.0.16"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
              // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
@@ -16,8 +16,24 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    signingConfigs {
+        release {
+            def ksPath = System.getenv("TQ_KEYSTORE")
+            if (ksPath && file(ksPath).exists()) {
+                storeFile file(ksPath)
+                storePassword System.getenv("TQ_KEYSTORE_PASSWORD") ?: ""
+                keyAlias System.getenv("TQ_KEY_ALIAS") ?: "tilawahquest"
+                keyPassword System.getenv("TQ_KEY_PASSWORD") ?: ""
+                storeType "PKCS12"
+            }
+        }
+    }
     buildTypes {
         release {
+            def ksPath = System.getenv("TQ_KEYSTORE")
+            if (ksPath && file(ksPath).exists()) {
+                signingConfig signingConfigs.release
+            }
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }

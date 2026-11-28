@@ -298,7 +298,7 @@
   }
 
   /* ---------- versi aplikasi & cek update ---------- */
-  const VERSION = '1.0.15';
+  const VERSION = '1.0.16';
   const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
   function version() { return VERSION; }
   function checkUpdate() {
@@ -567,6 +567,102 @@
     } catch (e) { return { points: 0, onboarded: false }; }
   }
 
+  /* ---------- backup / restore lintas HP ---------- */
+  function backupData() {
+    var list = ensureChildren();
+    if (!list.length && state.profile.onboarded) {
+      list = [{ id: activeId(), name: state.profile.name, char: state.profile.char, color: state.profile.color }];
+    }
+    var children = list.map(function (c) {
+      var prefix = c.id === 'c1' ? '' : 'tq_' + c.id + '_';
+      var data = {};
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (!k || k.indexOf('tq_') !== 0 || GLOBAL_KEYS[k]) continue;
+        var logical = null;
+        if (c.id === 'c1') {
+          if (/^tq_c\d+_/.test(k)) continue; // milik anak lain
+          logical = k;
+        } else if (k.indexOf(prefix) === 0) {
+          logical = 'tq_' + k.slice(prefix.length);
+        }
+        if (!logical || /^tq_c\d+_/.test(logical)) continue;
+        data[logical] = rawGet(k);
+      }
+      return { id: c.id, name: c.name || '', char: c.char || '', color: c.color || '', data: data };
+    });
+    return {
+      app: 'tilawah-quest',
+      format: 1,
+      version: typeof VERSION !== 'undefined' ? VERSION : '',
+      exportedAt: new Date().toISOString(),
+      settings: { tq_voice: rawGet('tq_voice') },
+      children: children
+    };
+  }
+
+  function encodeBackup(obj) {
+    var json = JSON.stringify(obj);
+    return 'TQ1.' + btoa(unescape(encodeURIComponent(json)));
+  }
+
+  function decodeBackup(text) {
+    text = String(text || '').trim();
+    if (!text) throw new Error('Kode backup kosong');
+    var json = text;
+    if (text.indexOf('TQ1.') === 0) {
+      var b64 = text.slice(4).replace(/\s+/g, '');
+      json = decodeURIComponent(escape(atob(b64)));
+    }
+    return JSON.parse(json);
+  }
+
+  function restoreData(obj) {
+    if (!obj || obj.app !== 'tilawah-quest' || !Array.isArray(obj.children)) {
+      throw new Error('Format backup tidak dikenal');
+    }
+    var clean = [];
+    obj.children.forEach(function (c) {
+      if (!c || !/^c[1-9]$/.test(String(c.id))) return;
+      clean.push({
+        id: String(c.id),
+        name: String(c.name || 'Anak'),
+        char: String(c.char || 'abubakar'),
+        color: String(c.color || '#2F80C9'),
+        data: (c.data && typeof c.data === 'object') ? c.data : {}
+      });
+    });
+    if (!clean.length) throw new Error('Backup tidak berisi data anak');
+    if (clean.length > 5) clean = clean.slice(0, 5);
+
+    var keys = [];
+    for (var i = 0; i < localStorage.length; i++) {
+      var k = localStorage.key(i);
+      if (k && k.indexOf('tq_') === 0) keys.push(k);
+    }
+    keys.forEach(function (k) {
+      if (k === 'tq_voice') return; // setting global, biarkan sampai settings diterapkan
+      _removeItem.call(localStorage, k);
+    });
+
+    clean.forEach(function (c) {
+      Object.keys(c.data).forEach(function (logical) {
+        if (logical.indexOf('tq_') !== 0 || GLOBAL_KEYS[logical]) return;
+        if (/^tq_c\d+_/.test(logical)) return;
+        var v = c.data[logical];
+        if (typeof v !== 'string') return;
+        _setItem.call(localStorage, nsKey(logical, c.id), v);
+      });
+    });
+
+    saveChildren(clean.map(function (c) { return { id: c.id, name: c.name, char: c.char, color: c.color }; }));
+    _setItem.call(localStorage, 'tq_active', clean[0].id);
+    if (obj.settings && typeof obj.settings.tq_voice === 'string') {
+      _setItem.call(localStorage, 'tq_voice', obj.settings.tq_voice);
+    }
+    return clean.length;
+  }
+
   window.TQ = {
     KEY: KEY, HATS: HATS, COLORS: COLORS, CHARACTERS: CHARACTERS, character: character,
     state: function () { return state; },
@@ -578,6 +674,7 @@
     version: version, checkUpdate: checkUpdate, vibrate: vibrate, popup: popup, closePopup: close, playAudio: playAudio,
     bgmOn: function () { return false; }, bgmSet: function () {}, bgmState: function () { return { on: false, playing: false, t: 0, ctx: ctx ? ctx.state : 'none' }; }, diriku: function () { return state.diriku; }, save: save,
     children: ensureChildren, activeChild: activeId, addChild: addChild, switchChild: switchChild,
+    backup: backupData, backupCode: function () { return encodeBackup(backupData()); }, decodeBackup: decodeBackup, restore: restoreData,
     childSummary: childSummary, MAX_CHILDREN: 5,
     qs: qs, el: el, shuffle: shuffle, esc: esc, fmt: fmt,
     requireProfile: requireProfile, mascot: mascot, hatCss: hatCss, charFace: charFace,

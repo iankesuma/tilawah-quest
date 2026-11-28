@@ -1,4 +1,5 @@
 {
-  "version": "1.0.15",
-  "notes": "Font Baloo 2, Nunito, dan Amiri Quran kini dibundel lokal (woff2 identik), tidak lagi ambil dari Google Fonts."
+  "version": "1.0.16",
+  "url": "https://github.com/iankesuma/tilawah-quest/releases/latest",
+  "notes": "Backup/restore progres lintas HP (semua anak, satu kode) dan APK release bertanda tangan."
 }

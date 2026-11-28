@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Profil — Tilawah Quest</title>
-<link rel="stylesheet" href="css/app.css?v=59">
-<link rel="stylesheet" href="css/screens.css?v=59">
+<link rel="stylesheet" href="css/app.css?v=60">
+<link rel="stylesheet" href="css/screens.css?v=60">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#DDF1FA">
 <link rel="apple-touch-icon" href="icon.svg">
-<link rel="stylesheet" href="css/fonts.css?v=59">
+<link rel="stylesheet" href="css/fonts.css?v=60">
 </head>
 <body>
 <main class="screen">
@@ -65,6 +65,25 @@
   <section class="card">
     <div class="row between" style="margin-bottom:10px">
       <div>
+        <h3 style="margin:0;font-size:16px">Backup &amp; Restore</h3>
+        <p class="muted" style="margin:2px 0 0;font-size:11.5px">Pindah HP tanpa kehilangan progres</p>
+      </div>
+      <span class="chip" style="font-size:12px">🔐 lokal</span>
+    </div>
+    <div class="stack">
+      <button class="btn ghost" id="backup-export">📤 Ekspor progres</button>
+      <button class="btn ghost" id="backup-import">📥 Impor progres</button>
+    </div>
+    <div id="backup-box" style="display:none;margin-top:10px">
+      <textarea id="backup-text" spellcheck="false" autocomplete="off" style="width:100%;min-height:130px;border:1.5px solid #DCEBF4;border-radius:12px;padding:10px;font-family:ui-monospace,Consolas,monospace;font-size:11px;line-height:1.4;background:#FAFDFF;color:var(--ink);resize:vertical"></textarea>
+      <p class="muted" id="backup-hint" style="font-size:11px;margin:6px 0 8px"></p>
+      <button class="btn small" id="backup-action">Salin kode</button>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="row between" style="margin-bottom:10px">
+      <div>
         <h3 style="margin:0;font-size:16px">Pengaturan Aplikasi</h3>
         <p class="muted" style="margin:2px 0 0;font-size:11.5px" id="app-version">Versi —</p>
       </div>
@@ -93,7 +112,7 @@
   </section>
 </main>
 
-<script src="js/app.js?v=59"></script>
+<script src="js/app.js?v=60"></script>
 <script>
 (function () {
   var p = TQ.profile();
@@ -258,6 +277,91 @@
     };
     paintVoice();
   }
+
+  /* --- backup / restore --- */
+  var backupMode = 'export';
+  var bBox = TQ.qs('#backup-box');
+  var bText = TQ.qs('#backup-text');
+  var bHint = TQ.qs('#backup-hint');
+  var bAction = TQ.qs('#backup-action');
+
+  function showBackupBox(mode) {
+    backupMode = mode;
+    bBox.style.display = 'block';
+    bText.readOnly = (mode === 'export');
+    if (mode === 'export') {
+      try {
+        bText.value = TQ.backupCode();
+        bHint.textContent = 'Kode ini berisi semua anak dan progres. Salin, simpan di tempat aman, lalu tempel di HP baru.';
+        bAction.textContent = '📋 Salin kode';
+      } catch (e) {
+        bText.value = '';
+        bHint.textContent = 'Gagal membuat backup: ' + e.message;
+        bAction.textContent = 'Coba lagi';
+      }
+    } else {
+      bText.value = '';
+      bHint.textContent = 'Tempel kode backup (diawali TQ1.) lalu tekan Impor. Data di HP ini akan diganti.';
+      bAction.textContent = '📥 Impor sekarang';
+    }
+    bBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  TQ.qs('#backup-export').onclick = function () { TQ.sfx.tap(); showBackupBox('export'); };
+  TQ.qs('#backup-import').onclick = function () { TQ.sfx.tap(); showBackupBox('import'); };
+
+  bAction.onclick = function () {
+    if (backupMode === 'export') {
+      bText.focus(); bText.select();
+      var done = false;
+      try { done = document.execCommand('copy'); } catch (e) {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(bText.value).then(function () {
+          TQ.popup({ icon: '✅', title: 'Kode disalin', text: 'Tempel kode ini di HP baru lewat menu Impor progres.', good: true });
+        }).catch(function () {
+          TQ.popup({ icon: '📋', title: 'Salin manual', text: 'Teks sudah dipilih. Tekan lama lalu pilih Salin/Copy.', good: true });
+        });
+      } else {
+        TQ.popup({
+          icon: done ? '✅' : '📋',
+          title: done ? 'Kode disalin' : 'Salin manual',
+          text: done ? 'Tempel kode ini di HP baru lewat menu Impor progres.' : 'Teks sudah dipilih. Tekan lama lalu pilih Salin/Copy.',
+          good: true
+        });
+      }
+      return;
+    }
+
+    var obj;
+    try { obj = TQ.decodeBackup(bText.value); }
+    catch (e) { TQ.popup({ icon: '❌', title: 'Kode tidak valid', text: 'Pastikan kode backup disalin lengkap, diawali TQ1.', bad: true }); return; }
+    if (!obj || obj.app !== 'tilawah-quest' || !Array.isArray(obj.children) || !obj.children.length) {
+      TQ.popup({ icon: '❌', title: 'Bukan backup Tilawah Quest', text: 'Kode ini tidak berisi data anak yang bisa dipulihkan.', bad: true });
+      return;
+    }
+    var names = obj.children.map(function (c) { return c.name || c.id; }).join(', ');
+    TQ.popup({
+      icon: '⚠️',
+      title: 'Ganti semua progres?',
+      text: 'Backup berisi: ' + names + '. Progres yang ada di HP ini akan diganti. Lanjutkan?',
+      bad: true,
+      actions: [
+        { label: 'Batal', ghost: true },
+        {
+          label: 'Ya, impor',
+          onClick: function () {
+            try {
+              var n = TQ.restore(obj);
+              TQ.popup({ icon: '✅', title: 'Backup dipulihkan', text: n + ' anak berhasil dipulihkan. Halaman akan dimuat ulang.', good: true });
+              setTimeout(function () { location.replace('pilih.html'); }, 900);
+            } catch (e) {
+              TQ.popup({ icon: '❌', title: 'Gagal memulihkan', text: e.message || 'Kode backup rusak.', bad: true });
+            }
+          }
+        }
+      ]
+    });
+  };
 
   TQ.qs('#reset').onclick = function () {
     var input = document.createElement('input');

@@ -38,33 +38,53 @@ jobs:
           cp -r www/* android/app/src/main/assets/public/
           ls -la android/app/src/main/assets/public/index.html
 
+      - name: Decode Release Keystore
+        env:
+          TQ_KEYSTORE_B64: ${{ secrets.TQ_KEYSTORE_B64 }}
+        run: |
+          if [ -z "$TQ_KEYSTORE_B64" ]; then echo "TQ_KEYSTORE_B64 secret missing"; exit 1; fi
+          echo "$TQ_KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/tilawah-release.p12"
+          ls -l "$RUNNER_TEMP/tilawah-release.p12"
+
       - name: Make Gradle Executable
         run: |
           chmod +x android/gradlew
 
-      - name: Build Debug APK
+      - name: Build Debug and Release APK
+        env:
+          TQ_KEYSTORE: ${{ runner.temp }}/tilawah-release.p12
+          TQ_KEYSTORE_PASSWORD: ${{ secrets.TQ_KEYSTORE_PASSWORD }}
+          TQ_KEY_ALIAS: ${{ secrets.TQ_KEY_ALIAS }}
+          TQ_KEY_PASSWORD: ${{ secrets.TQ_KEY_PASSWORD }}
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          ./gradlew assembleDebug assembleRelease --no-daemon
           mkdir -p ../dist-apk
-          cp app/build/outputs/apk/debug/*.apk ../dist-apk/
+          cp app/build/outputs/apk/debug/*.apk ../dist-apk/TilawahQuest-debug.apk
+          cp app/build/outputs/apk/release/app-release.apk ../dist-apk/TilawahQuest-release.apk
           ls -lh ../dist-apk/
+
+      - name: Verify Release Signature
+        run: |
+          SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+          APKSIGNER=$(find "$SDK/build-tools" -name apksigner | sort -V | tail -1)
+          "$APKSIGNER" verify --print-certs dist-apk/TilawahQuest-release.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: TilawahQuest-v1.0-APK
+          name: TilawahQuest-v1.0.16-APK
           path: dist-apk/*.apk
           retention-days: 14
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
-        if: always()
+        if: success()
         with:
-          tag_name: v1.0.15-apk
-          name: "Tilawah Quest v1.0.15 APK (font lokal)"
-          body: "Font Baloo 2, Nunito, dan Amiri Quran dibundel lokal (woff2 identik). Tampilan tidak berubah, tidak lagi bergantung Google Fonts."
+          tag_name: v1.0.16-apk
+          name: "Tilawah Quest v1.0.16 APK (backup/restore + signed release)"
+          body: "Backup/restore progres lintas HP (semua anak, satu kode TQ1) dan APK release bertanda tangan. Debug APK tetap disertakan untuk update dari versi lama."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
