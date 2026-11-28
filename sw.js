@@ -1,12 +1,23 @@
 /* Tilawah Quest — offline cache */
-const CORE = 'tq-core-v58';
-const DATA = 'tq-data-v58';
+const CORE = 'tq-core-v59';
+const DATA = 'tq-data-v59';
 const SHELL = [
   './', 'login.html', 'pilih.html', 'onboarding.html', 'juz.html', 'surah.html', 'play.html',
   'result.html', 'profil.html', 'belajar.html', 'bantuan.html', 'nabi.html',
   'rukun.html', 'hadis.html', 'sholat.html', 'baca.html', 'tebak.html',
   'tajwid.html', 'murojaah.html', 'piagam.html',
-  'css/app.css', 'css/screens.css',
+  'css/app.css', 'css/screens.css', 'css/fonts.css',
+  'css/fonts/amiriquran-arabic.woff2',
+  'css/fonts/amiriquran-latin.woff2',
+  'css/fonts/baloo2-devanagari.woff2',
+  'css/fonts/baloo2-latin-ext.woff2',
+  'css/fonts/baloo2-latin.woff2',
+  'css/fonts/baloo2-vietnamese.woff2',
+  'css/fonts/nunito-cyrillic-ext.woff2',
+  'css/fonts/nunito-cyrillic.woff2',
+  'css/fonts/nunito-latin-ext.woff2',
+  'css/fonts/nunito-latin.woff2',
+  'css/fonts/nunito-vietnamese.woff2',
   'js/app.js', 'js/quran.js', 'js/play.js',
   'js/sholat.js', 'js/baca.js', 'js/tebak.js',
   'manifest.json', 'icon.svg', 'data/juz.json', 'data/surah-meta.json', 'data/hadis.json', 'data/kuis-tajwid.json'

@@ -1,4 +1,4 @@
 {
-  "version": "1.0.14",
-  "notes": "Tebak Ayat: stage 1 baca ayat, stage 2+ dengar qari dari kotak Dengarkan."
+  "version": "1.0.15",
+  "notes": "Font Baloo 2, Nunito, dan Amiri Quran kini dibundel lokal (woff2 identik), tidak lagi ambil dari Google Fonts."
 }

@@ -62,9 +62,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: always()
         with:
-          tag_name: v1.0.14-apk
-          name: "Tilawah Quest v1.0.14 APK (Tebak Ayat: mode dengar)"
-          body: "Stage 1 Tebak Ayat menampilkan ayat Arab; mulai stage 2 ayat disembunyikan dan diganti tombol Dengarkan qari. Opsi tetap satu juz."
+          tag_name: v1.0.15-apk
+          name: "Tilawah Quest v1.0.15 APK (font lokal)"
+          body: "Font Baloo 2, Nunito, dan Amiri Quran dibundel lokal (woff2 identik). Tampilan tidak berubah, tidak lagi bergantung Google Fonts."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
