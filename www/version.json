@@ -1,5 +1,5 @@
 {
-  "version": "1.0.16",
+  "version": "1.0.17",
   "url": "https://github.com/iankesuma/tilawah-quest/releases/latest",
-  "notes": "Backup/restore progres lintas HP (semua anak, satu kode) dan APK release bertanda tangan."
+  "notes": "Perbaikan audit: piagam canvas, audio qari berhenti saat stage selesai/back, reset menghapus semua progres anak."
 }

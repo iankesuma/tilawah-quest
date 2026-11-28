@@ -298,7 +298,7 @@
   }
 
   /* ---------- versi aplikasi & cek update ---------- */
-  const VERSION = '1.0.16';
+  const VERSION = '1.0.17';
   const UPDATE_URL = 'https://iankesuma.github.io/tilawah-quest/version.json';
   function version() { return VERSION; }
   function checkUpdate() {
@@ -370,6 +370,7 @@
       var playScreen = document.getElementById('play-screen');
       var juzScreen = document.getElementById('juz-screen');
       if (playScreen && !playScreen.classList.contains('hidden') && juzScreen) {
+        if (typeof window.__tqTebakBack === 'function') { window.__tqTebakBack(); return; }
         playScreen.classList.add('hidden');
         juzScreen.classList.remove('hidden');
         return;
@@ -622,10 +623,14 @@
       throw new Error('Format backup tidak dikenal');
     }
     var clean = [];
+    var seen = {};
     obj.children.forEach(function (c) {
-      if (!c || !/^c[1-9]$/.test(String(c.id))) return;
+      if (!c || !/^c[1-5]$/.test(String(c.id))) return;
+      var cid = String(c.id);
+      if (seen[cid]) return;
+      seen[cid] = true;
       clean.push({
-        id: String(c.id),
+        id: cid,
         name: String(c.name || 'Anak'),
         char: String(c.char || 'abubakar'),
         color: String(c.color || '#2F80C9'),
@@ -633,7 +638,6 @@
       });
     });
     if (!clean.length) throw new Error('Backup tidak berisi data anak');
-    if (clean.length > 5) clean = clean.slice(0, 5);
 
     var keys = [];
     for (var i = 0; i < localStorage.length; i++) {
@@ -681,16 +685,25 @@
     reset: function () {
       state = JSON.parse(JSON.stringify(DEFAULT));
       save();
-      dropChild(activeId());
-      // Bersihkan juga progres tebak ayat & cache lokal
+      var active = activeId();
+      var prefix = active === 'c1' ? '' : 'tq_' + active + '_';
+      var doomed = [];
       try {
-        for (var i = 1; i <= 30; i++) {
-          localStorage.removeItem('tq_tebak_j' + i);
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (!k || k.indexOf('tq_') !== 0 || GLOBAL_KEYS[k]) continue;
+          if (active === 'c1') {
+            if (/^tq_c\d+_/.test(k)) continue; // jangan sentuh anak lain
+          } else if (k.indexOf(prefix) !== 0) {
+            continue;
+          }
+          doomed.push(k);
         }
-        localStorage.removeItem('tq_tebak_v1');
-        localStorage.removeItem('tq_baca_last');
-        localStorage.removeItem('tq_data_cache_v1');
+        doomed.forEach(function (k) { _removeItem.call(localStorage, k); });
       } catch (e) {}
+      dropChild(active);
+      var remaining = childrenList();
+      _setItem.call(localStorage, 'tq_active', remaining.length ? remaining[0].id : 'c1');
     }
   };
 })();

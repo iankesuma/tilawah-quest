@@ -82,9 +82,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: success()
         with:
-          tag_name: v1.0.16-apk
-          name: "Tilawah Quest v1.0.16 APK (backup/restore + signed release)"
-          body: "Backup/restore progres lintas HP (semua anak, satu kode TQ1) dan APK release bertanda tangan. Debug APK tetap disertakan untuk update dari versi lama."
+          tag_name: v1.0.17-apk
+          name: "Tilawah Quest v1.0.17 APK (audit fixes)"
+          body: "Perbaikan audit: piagam canvas, audio qari berhenti saat stage selesai/back, reset menghapus semua progres anak. Backup/restore dan release signed tetap ada."
           files: dist-apk/*.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

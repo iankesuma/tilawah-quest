@@ -43,6 +43,7 @@
   function rnd(n) { return Math.floor(Math.random() * n); }
 
   function showJuzPicker() {
+    stopAyatAudio();
     el['juz-screen'].classList.remove('hidden');
     el['play-screen'].classList.add('hidden');
     el.openlist.classList.add('hidden');
@@ -52,6 +53,7 @@
     el['back-btn'].onclick = null;
     renderJuzGrid();
   }
+  window.__tqTebakBack = showJuzPicker;
 
   function renderJuzGrid() {
     var grid = document.getElementById('juz-grid');
@@ -302,6 +304,8 @@
   }
 
   function finishStage(failed) {
+    stopAyatAudio();
+    if (el['listen-box']) el['listen-box'].classList.add('hidden');
     var passed = !failed;
     var stars = passed ? (S.hearts >= 5 ? 3 : S.hearts >= 3 ? 2 : 1) : 0;
     var first = passed && stageStars(S.stage) === 0;
